@@ -159,6 +159,15 @@ static VALUE device_get(VALUE self, VALUE num)
     return self;
 }
 
+static VALUE device_get_name(VALUE self)
+{
+    CUdevice* p;
+    Data_Get_Struct(self, CUdevice, p);
+    char name[256];
+    cuDeviceGetName(name, 256, *p);
+    return rb_str_new2(name);
+}
+
 static VALUE device_compute_capability(VALUE self)
 {
     CUdevice* p;
@@ -468,6 +477,7 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cCUDevice, device_alloc);
     rb_define_method(rb_cCUDevice, "initialize", (VALUE(*)(ANYARGS))device_initialize, -1);
     rb_define_method(rb_cCUDevice, "get"       , (VALUE(*)(ANYARGS))device_get       ,  1);
+    rb_define_method(rb_cCUDevice, "get_name"  , (VALUE(*)(ANYARGS))device_get_name  ,  0);
     rb_define_method(rb_cCUDevice, "compute_capability", (VALUE(*)(ANYARGS))device_compute_capability, 0);
     rb_define_method(rb_cCUDevice, "get_attribute"     , (VALUE(*)(ANYARGS))device_get_attribute     , 1);
 
