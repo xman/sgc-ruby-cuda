@@ -224,6 +224,9 @@ static VALUE device_ptr_alloc(VALUE klass)
 
 static VALUE device_ptr_initialize(int argc, VALUE* argv, VALUE self)
 {
+    CUdeviceptr* p;
+    Data_Get_Struct(self, CUdeviceptr, p);
+    *p = static_cast<CUdeviceptr>(0);
     return self;
 }
 
@@ -233,6 +236,14 @@ static VALUE device_ptr_mem_alloc(VALUE self, VALUE nbytes)
     Data_Get_Struct(self, CUdeviceptr, p);
     size_t n = NUM2ULONG(nbytes);
     cuMemAlloc(p, n);
+    return self;
+}
+
+static VALUE device_ptr_mem_free(VALUE self)
+{
+    CUdeviceptr* p;
+    Data_Get_Struct(self, CUdeviceptr, p);
+    cuMemFree(*p);
     return self;
 }
 // }}}
@@ -445,6 +456,7 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cCUDevicePtr, device_ptr_alloc);
     rb_define_method(rb_cCUDevicePtr, "initialize", (VALUE(*)(ANYARGS))device_ptr_initialize, -1);
     rb_define_method(rb_cCUDevicePtr, "mem_alloc" , (VALUE(*)(ANYARGS))device_ptr_mem_alloc ,  1);
+    rb_define_method(rb_cCUDevicePtr, "mem_free"  , (VALUE(*)(ANYARGS))device_ptr_mem_free  ,  0);
 
     rb_cCUFunction = rb_define_class_under(rb_mCU, "CUFunction", rb_cObject);
     rb_define_alloc_func(rb_cCUFunction, function_alloc);
