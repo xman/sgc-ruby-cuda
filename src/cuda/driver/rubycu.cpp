@@ -132,6 +132,13 @@ double to_ctype(VALUE v)
 
 
 // {{{ CUdevice
+static VALUE device_get_count(VALUE klass)
+{
+    int count;
+    cuDeviceGetCount(&count);
+    return INT2FIX(count);
+}
+
 static VALUE device_alloc(VALUE klass)
 {
     CUdevice* p = new CUdevice;
@@ -457,6 +464,7 @@ extern "C" void Init_rubycu()
     rb_mCU  = rb_define_module_under(rb_mSGC, "CU");
 
     rb_cCUDevice = rb_define_class_under(rb_mCU, "CUDevice", rb_cObject);
+    rb_define_singleton_method(rb_cCUDevice, "get_count", (VALUE(*)(ANYARGS))device_get_count, 0);
     rb_define_alloc_func(rb_cCUDevice, device_alloc);
     rb_define_method(rb_cCUDevice, "initialize", (VALUE(*)(ANYARGS))device_initialize, -1);
     rb_define_method(rb_cCUDevice, "get"       , (VALUE(*)(ANYARGS))device_get       ,  1);
