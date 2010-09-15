@@ -149,6 +149,16 @@ static VALUE device_get(VALUE self, VALUE num)
     cuDeviceGet(p, i);
     return self;
 }
+
+static VALUE device_compute_capability(VALUE self)
+{
+    CUdevice* p;
+    Data_Get_Struct(self, CUdevice, p);
+    int major;
+    int minor;
+    cuDeviceComputeCapability(&major, &minor, *p);
+    return rb_ary_new3(2, INT2FIX(major), INT2FIX(minor));
+}
 // }}}
 
 
@@ -439,6 +449,7 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cCUDevice, device_alloc);
     rb_define_method(rb_cCUDevice, "initialize", (VALUE(*)(ANYARGS))device_initialize, -1);
     rb_define_method(rb_cCUDevice, "get"       , (VALUE(*)(ANYARGS))device_get       ,  1);
+    rb_define_method(rb_cCUDevice, "compute_capability", (VALUE(*)(ANYARGS))device_compute_capability, 0);
 
     rb_cCUContext = rb_define_class_under(rb_mCU, "CUContext", rb_cObject);
     rb_define_alloc_func(rb_cCUContext, context_alloc);
