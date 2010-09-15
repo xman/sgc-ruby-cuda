@@ -69,3 +69,7 @@ memcpy_dtoh(hd, dc, 4*SIZE)
 puts "A\tB\tCPU\tGPU"
 (0...SIZE).each { |i| puts "#{ha[i]}\t#{hb[i]}\t#{hc[i]}\t#{hd[i]}" }
 puts
+
+da.mem_free
+db.mem_free
+dc.mem_free
