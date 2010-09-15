@@ -35,6 +35,8 @@ static VALUE rb_cCUContext;
 static VALUE rb_cCUModule;
 static VALUE rb_cCUFunction;
 static VALUE rb_cCUDevicePtr;
+static VALUE rb_cCUDeviceAttributeEnum;
+static VALUE rb_cCUComputeModeEnum;
 // }}}
 
 // {{{ SGC Ruby classes.
@@ -158,6 +160,15 @@ static VALUE device_compute_capability(VALUE self)
     int minor;
     cuDeviceComputeCapability(&major, &minor, *p);
     return rb_ary_new3(2, INT2FIX(major), INT2FIX(minor));
+}
+
+static VALUE device_get_attribute(VALUE self, VALUE attribute)
+{
+    CUdevice* p;
+    Data_Get_Struct(self, CUdevice, p);
+    int v;
+    cuDeviceGetAttribute(&v, static_cast<CUdevice_attribute>(FIX2INT(attribute)), *p);
+    return INT2FIX(v);
 }
 // }}}
 
@@ -450,6 +461,48 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUDevice, "initialize", (VALUE(*)(ANYARGS))device_initialize, -1);
     rb_define_method(rb_cCUDevice, "get"       , (VALUE(*)(ANYARGS))device_get       ,  1);
     rb_define_method(rb_cCUDevice, "compute_capability", (VALUE(*)(ANYARGS))device_compute_capability, 0);
+    rb_define_method(rb_cCUDevice, "get_attribute"     , (VALUE(*)(ANYARGS))device_get_attribute     , 1);
+
+    rb_cCUComputeModeEnum = rb_define_class_under(rb_mCU, "CUComputeModeEnum", rb_cObject);
+    rb_define_const(rb_cCUComputeModeEnum, "DEFAULT"   , INT2FIX(CU_COMPUTEMODE_DEFAULT));
+    rb_define_const(rb_cCUComputeModeEnum, "EXCLUSIVE" , INT2FIX(CU_COMPUTEMODE_EXCLUSIVE));
+    rb_define_const(rb_cCUComputeModeEnum, "PROHIBITED", INT2FIX(CU_COMPUTEMODE_PROHIBITED));
+
+    rb_cCUDeviceAttributeEnum = rb_define_class_under(rb_mCU, "CUDeviceAttributeEnum", rb_cObject);
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAX_THREADS_PER_BLOCK"            , INT2FIX(CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAX_BLOCK_DIM_X"                  , INT2FIX(CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_X));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAX_BLOCK_DIM_Y"                  , INT2FIX(CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Y));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAX_BLOCK_DIM_Z"                  , INT2FIX(CU_DEVICE_ATTRIBUTE_MAX_BLOCK_DIM_Z));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAX_GRID_DIM_X"                   , INT2FIX(CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_X));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAX_GRID_DIM_Y"                   , INT2FIX(CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Y));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAX_GRID_DIM_Z"                   , INT2FIX(CU_DEVICE_ATTRIBUTE_MAX_GRID_DIM_Z));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAX_REGISTERS_PER_BLOCK"          , INT2FIX(CU_DEVICE_ATTRIBUTE_MAX_REGISTERS_PER_BLOCK));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAX_SHARED_MEMORY_PER_BLOCK"      , INT2FIX(CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "TOTAL_CONSTANT_MEMORY"            , INT2FIX(CU_DEVICE_ATTRIBUTE_TOTAL_CONSTANT_MEMORY));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "WARP_SIZE"                        , INT2FIX(CU_DEVICE_ATTRIBUTE_WARP_SIZE));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAX_PITCH"                        , INT2FIX(CU_DEVICE_ATTRIBUTE_MAX_PITCH));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "CLOCK_RATE"                       , INT2FIX(CU_DEVICE_ATTRIBUTE_CLOCK_RATE));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "TEXTURE_ALIGNMENT"                , INT2FIX(CU_DEVICE_ATTRIBUTE_TEXTURE_ALIGNMENT));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "GPU_OVERLAP"                      , INT2FIX(CU_DEVICE_ATTRIBUTE_GPU_OVERLAP));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MULTIPROCESSOR_COUNT"             , INT2FIX(CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "KERNEL_EXEC_TIMEOUT"              , INT2FIX(CU_DEVICE_ATTRIBUTE_KERNEL_EXEC_TIMEOUT));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "INTEGRATED"                       , INT2FIX(CU_DEVICE_ATTRIBUTE_INTEGRATED));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "CAN_MAP_HOST_MEMORY"              , INT2FIX(CU_DEVICE_ATTRIBUTE_CAN_MAP_HOST_MEMORY));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "COMPUTE_MODE"                     , INT2FIX(CU_DEVICE_ATTRIBUTE_COMPUTE_MODE));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAXIMUM_TEXTURE1D_WIDTH"          , INT2FIX(CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE1D_WIDTH));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAXIMUM_TEXTURE2D_WIDTH"          , INT2FIX(CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_WIDTH));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAXIMUM_TEXTURE3D_WIDTH"          , INT2FIX(CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_WIDTH));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAXIMUM_TEXTURE2D_HEIGHT"         , INT2FIX(CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_HEIGHT));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAXIMUM_TEXTURE3D_HEIGHT"         , INT2FIX(CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_HEIGHT));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAXIMUM_TEXTURE3D_DEPTH"          , INT2FIX(CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE3D_DEPTH));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAXIMUM_TEXTURE2D_ARRAY_WIDTH"    , INT2FIX(CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_WIDTH));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAXIMUM_TEXTURE2D_ARRAY_HEIGHT"   , INT2FIX(CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_HEIGHT));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES", INT2FIX(CU_DEVICE_ATTRIBUTE_MAXIMUM_TEXTURE2D_ARRAY_NUMSLICES));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "SURFACE_ALIGNMENT"                , INT2FIX(CU_DEVICE_ATTRIBUTE_SURFACE_ALIGNMENT));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "CONCURRENT_KERNELS"               , INT2FIX(CU_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "ECC_ENABLED"                      , INT2FIX(CU_DEVICE_ATTRIBUTE_ECC_ENABLED));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "PCI_BUS_ID"                       , INT2FIX(CU_DEVICE_ATTRIBUTE_PCI_BUS_ID));
+    rb_define_const(rb_cCUDeviceAttributeEnum, "PCI_DEVICE_ID"                    , INT2FIX(CU_DEVICE_ATTRIBUTE_PCI_DEVICE_ID));
 
     rb_cCUContext = rb_define_class_under(rb_mCU, "CUContext", rb_cObject);
     rb_define_alloc_func(rb_cCUContext, context_alloc);
