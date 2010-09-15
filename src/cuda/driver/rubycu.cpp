@@ -186,6 +186,16 @@ static VALUE device_get_attribute(VALUE self, VALUE attribute)
     cuDeviceGetAttribute(&v, static_cast<CUdevice_attribute>(FIX2INT(attribute)), *p);
     return INT2FIX(v);
 }
+
+static VALUE device_total_mem(VALUE self)
+{
+    CUdevice* p;
+    Data_Get_Struct(self, CUdevice, p);
+    unsigned int nbytes;
+    cuDeviceTotalMem(&nbytes, *p);
+    long n = static_cast<long>(nbytes);
+    return LONG2NUM(n);
+}
 // }}}
 
 
@@ -480,6 +490,7 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUDevice, "get_name"  , (VALUE(*)(ANYARGS))device_get_name  ,  0);
     rb_define_method(rb_cCUDevice, "compute_capability", (VALUE(*)(ANYARGS))device_compute_capability, 0);
     rb_define_method(rb_cCUDevice, "get_attribute"     , (VALUE(*)(ANYARGS))device_get_attribute     , 1);
+    rb_define_method(rb_cCUDevice, "total_mem"         , (VALUE(*)(ANYARGS))device_total_mem         , 0);
 
     rb_cCUComputeModeEnum = rb_define_class_under(rb_mCU, "CUComputeModeEnum", rb_cObject);
     rb_define_const(rb_cCUComputeModeEnum, "DEFAULT"   , INT2FIX(CU_COMPUTEMODE_DEFAULT));
