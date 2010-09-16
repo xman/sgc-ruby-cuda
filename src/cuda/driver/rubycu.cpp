@@ -587,6 +587,16 @@ static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE
 // }}}
 
 
+// {{{ Driver
+static VALUE driver_get_version()
+{
+    int v;
+    cuDriverGetVersion(&v);
+    return INT2FIX(v);
+}
+// }}}
+
+
 extern "C" void Init_rubycu()
 {
     rb_mSGC = rb_define_module("SGC");
@@ -723,6 +733,8 @@ extern "C" void Init_rubycu()
 
     rb_define_module_function(rb_mCU, "memcpy_htod", (VALUE(*)(ANYARGS))memcpy_htod, 3);
     rb_define_module_function(rb_mCU, "memcpy_dtoh", (VALUE(*)(ANYARGS))memcpy_dtoh, 3);
+
+    rb_define_module_function(rb_mCU, "driver_get_version", (VALUE(*)(ANYARGS))driver_get_version, 0);
 
     cuInit(0);
 }
