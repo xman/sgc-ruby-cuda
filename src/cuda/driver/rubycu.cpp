@@ -33,6 +33,8 @@ static VALUE rb_mCU;
 // {{{ CUDA Ruby classes.
 static VALUE rb_cCUDevice;
 static VALUE rb_cCUContext;
+static VALUE rb_cCUContextFlagsEnum;
+static VALUE rb_cCULimitEnum;
 static VALUE rb_cCUModule;
 static VALUE rb_cCUFunction;
 static VALUE rb_cCUDevicePtr;
@@ -234,6 +236,72 @@ static VALUE context_destroy(VALUE self)
     CUcontext* p;
     Data_Get_Struct(self, CUcontext, p);
     cuCtxDestroy(*p);
+    return Qnil;
+}
+
+static VALUE context_attach(int argc, VALUE* argv, VALUE self)
+{
+    CUcontext* p;
+    unsigned int flags = 0;
+    Data_Get_Struct(self, CUcontext, p);
+    if (argc == 1) {
+        flags = FIX2UINT(argv[0]);
+    }
+    cuCtxAttach(p, flags);
+    return self;
+}
+
+static VALUE context_detach(VALUE self)
+{
+    CUcontext* p;
+    Data_Get_Struct(self, CUcontext, p);
+    cuCtxDetach(*p);
+    return Qnil;
+}
+
+static VALUE context_push_current(VALUE self)
+{
+    CUcontext* p;
+    Data_Get_Struct(self, CUcontext, p);
+    cuCtxPushCurrent(*p);
+    return self;
+}
+
+static VALUE context_get_device(VALUE klass, VALUE device)
+{
+    CUdevice* pdevice;
+    Data_Get_Struct(device, CUdevice, pdevice);
+    cuCtxGetDevice(pdevice);
+    return Qnil;
+}
+
+static VALUE context_get_limit(VALUE klass, VALUE limit)
+{
+    CUlimit l = static_cast<CUlimit>(FIX2UINT(limit));
+    size_t v = 0;
+    cuCtxGetLimit(&v, l);
+    return LONG2FIX(v);
+}
+
+static VALUE context_set_limit(VALUE klass, VALUE limit, VALUE value)
+{
+    CUlimit l = static_cast<CUlimit>(FIX2UINT(limit));
+    size_t v = NUM2UINT(value);
+    cuCtxSetLimit(l, v);
+    return Qnil;
+}
+
+static VALUE context_pop_current(VALUE klass, VALUE context)
+{
+    CUcontext* pcontext;
+    Data_Get_Struct(context, CUcontext, pcontext);
+    cuCtxPopCurrent(pcontext);
+    return Qnil;
+}
+
+static VALUE context_synchronize(VALUE klass)
+{
+    cuCtxSynchronize();
     return Qnil;
 }
 // }}}
@@ -577,9 +645,29 @@ extern "C" void Init_rubycu()
 
     rb_cCUContext = rb_define_class_under(rb_mCU, "CUContext", rb_cObject);
     rb_define_alloc_func(rb_cCUContext, context_alloc);
-    rb_define_method(rb_cCUContext, "initialize", (VALUE(*)(ANYARGS))context_initialize, -1);
-    rb_define_method(rb_cCUContext, "create"    , (VALUE(*)(ANYARGS))context_create    ,  2);
-    rb_define_method(rb_cCUContext, "destroy"   , (VALUE(*)(ANYARGS))context_destroy   ,  0);
+    rb_define_method(rb_cCUContext, "initialize"  , (VALUE(*)(ANYARGS))context_initialize  , -1);
+    rb_define_method(rb_cCUContext, "create"      , (VALUE(*)(ANYARGS))context_create      ,  2);
+    rb_define_method(rb_cCUContext, "destroy"     , (VALUE(*)(ANYARGS))context_destroy     ,  0);
+    rb_define_method(rb_cCUContext, "attach"      , (VALUE(*)(ANYARGS))context_attach      , -1);
+    rb_define_method(rb_cCUContext, "detach"      , (VALUE(*)(ANYARGS))context_detach      ,  0);
+    rb_define_method(rb_cCUContext, "push_current", (VALUE(*)(ANYARGS))context_push_current,  0);
+    rb_define_singleton_method(rb_cCUContext, "get_device" , (VALUE(*)(ANYARGS))context_get_device , 1);
+    rb_define_singleton_method(rb_cCUContext, "get_limit"  , (VALUE(*)(ANYARGS))context_get_limit  , 1);
+    rb_define_singleton_method(rb_cCUContext, "set_limit"  , (VALUE(*)(ANYARGS))context_set_limit  , 2);
+    rb_define_singleton_method(rb_cCUContext, "pop_current", (VALUE(*)(ANYARGS))context_pop_current, 1);
+    rb_define_singleton_method(rb_cCUContext, "synchronize", (VALUE(*)(ANYARGS))context_synchronize, 0);
+
+    rb_cCUContextFlagsEnum = rb_define_class_under(rb_mCU, "CUContextFlagsEnum", rb_cObject);
+    rb_define_const(rb_cCUContextFlagsEnum, "SCHED_AUTO"        , INT2FIX(CU_CTX_SCHED_AUTO));
+    rb_define_const(rb_cCUContextFlagsEnum, "SCHED_SPIN"        , INT2FIX(CU_CTX_SCHED_SPIN));
+    rb_define_const(rb_cCUContextFlagsEnum, "SCHED_YIELD"       , INT2FIX(CU_CTX_SCHED_YIELD));
+    rb_define_const(rb_cCUContextFlagsEnum, "BLOCKING_SYNC"     , INT2FIX(CU_CTX_BLOCKING_SYNC));
+    rb_define_const(rb_cCUContextFlagsEnum, "MAP_HOST"          , INT2FIX(CU_CTX_MAP_HOST));
+    rb_define_const(rb_cCUContextFlagsEnum, "LMEM_RESIZE_TO_MAX", INT2FIX(CU_CTX_LMEM_RESIZE_TO_MAX));
+
+    rb_cCULimitEnum = rb_define_class_under(rb_mCU, "CULimitEnum", rb_cObject);
+    rb_define_const(rb_cCULimitEnum, "STACK_SIZE"      , INT2FIX(CU_LIMIT_STACK_SIZE));
+    rb_define_const(rb_cCULimitEnum, "PRINTF_FIFO_SIZE", INT2FIX(CU_LIMIT_PRINTF_FIFO_SIZE));
 
     rb_cCUModule = rb_define_class_under(rb_mCU, "CUModule", rb_cObject);
     rb_define_alloc_func(rb_cCUModule, module_alloc);
