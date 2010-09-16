@@ -40,6 +40,7 @@ static VALUE rb_cCUFunction;
 static VALUE rb_cCUDevicePtr;
 static VALUE rb_cCUDeviceAttributeEnum;
 static VALUE rb_cCUComputeModeEnum;
+static VALUE rb_cCUStream;
 // }}}
 
 // {{{ SGC Ruby classes.
@@ -491,6 +492,54 @@ static VALUE function_launch_grid(int argc, VALUE* argv, VALUE self)
 // }}}
 
 
+// {{{ CUstream
+static VALUE stream_alloc(VALUE klass)
+{
+    CUstream* p = new CUstream;
+    return Data_Wrap_Struct(klass, 0, generic_free<CUstream>, p);
+}
+
+static VALUE stream_initialize(VALUE self)
+{
+    return self;
+}
+
+static VALUE stream_create(VALUE self, VALUE flags)
+{
+    CUstream* p;
+    Data_Get_Struct(self, CUstream, p);
+    cuStreamCreate(p, FIX2UINT(flags));
+    return self;
+}
+
+static VALUE stream_destroy(VALUE self)
+{
+    CUstream* p;
+    Data_Get_Struct(self, CUstream, p);
+    cuStreamDestroy(*p);
+    return Qnil;
+}
+
+static VALUE stream_query(VALUE self)
+{
+    CUstream* p;
+    Data_Get_Struct(self, CUstream, p);
+    CUresult status = cuStreamQuery(*p);
+    if (status == CUDA_SUCCESS)
+        return Qtrue;
+    return Qfalse;
+}
+
+static VALUE stream_synchronize(VALUE self)
+{
+    CUstream* p;
+    Data_Get_Struct(self, CUstream, p);
+    cuStreamSynchronize(*p);
+    return self;
+}
+// }}}
+
+
 // {{{ Buffer
 static void memory_buffer_free(void* p)
 {
@@ -724,6 +773,14 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUFunction, "set_param"      , (VALUE(*)(ANYARGS))function_set_param      , -1);
     rb_define_method(rb_cCUFunction, "set_block_shape", (VALUE(*)(ANYARGS))function_set_block_shape, -1);
     rb_define_method(rb_cCUFunction, "launch_grid"    , (VALUE(*)(ANYARGS))function_launch_grid    , -1);
+
+    rb_cCUStream = rb_define_class_under(rb_mCU, "CUStream", rb_cObject);
+    rb_define_alloc_func(rb_cCUStream, stream_alloc);
+    rb_define_method(rb_cCUStream, "initialize" , (VALUE(*)(ANYARGS))stream_initialize , 0);
+    rb_define_method(rb_cCUStream, "create"     , (VALUE(*)(ANYARGS))stream_create     , 1);
+    rb_define_method(rb_cCUStream, "destroy"    , (VALUE(*)(ANYARGS))stream_destroy    , 0);
+    rb_define_method(rb_cCUStream, "query"      , (VALUE(*)(ANYARGS))stream_query      , 0);
+    rb_define_method(rb_cCUStream, "synchronize", (VALUE(*)(ANYARGS))stream_synchronize, 0);
 
     rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cObject);
     rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
