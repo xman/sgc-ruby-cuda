@@ -21,7 +21,7 @@
 # along with sgc-ruby-cuda.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <strings.h>
+#include <cstring>
 #include "ruby.h"
 #include "cuda.h"
 
@@ -489,7 +489,7 @@ static VALUE memory_buffer_initialize(VALUE self, VALUE nbytes)
     Data_Get_Struct(self, MemoryBuffer, pbuffer);
     pbuffer->size = n;
     pbuffer->p = new char[n];
-    bzero(static_cast<void*>(pbuffer->p), n*sizeof(char));
+    std::memset(static_cast<void*>(pbuffer->p), 0, pbuffer->size);
     return self;
 }
 
@@ -528,7 +528,7 @@ static VALUE buffer_initialize(VALUE self, VALUE nelements)
     Data_Get_Struct(self, TBuffer, pbuffer);
     pbuffer->size = n*sizeof(TElement);
     pbuffer->p = reinterpret_cast<char*>(new TElement[n]);
-    bzero(static_cast<void*>(pbuffer->p), n*sizeof(TElement));
+    std::memset(static_cast<void*>(pbuffer->p), 0, pbuffer->size);
     return self;
 }
 typedef VALUE (*BufferInitializeFunctionType)(VALUE, VALUE);
