@@ -21,6 +21,7 @@
 # along with sgc-ruby-cuda.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <strings.h>
 #include "ruby.h"
 #include "cuda.h"
 
@@ -40,19 +41,26 @@ static VALUE rb_cCUComputeModeEnum;
 // }}}
 
 // {{{ SGC Ruby classes.
+static VALUE rb_cMemoryBuffer;
 static VALUE rb_cInt32Buffer;
+static VALUE rb_cInt64Buffer;
 static VALUE rb_cFloat32Buffer;
+static VALUE rb_cFloat64Buffer;
 // }}}
 
 // {{{ SGC C/C++ structures.
-template <typename TElement>
-struct TypedBuffer {
+typedef struct {
     size_t size;
-    TElement* p;
-};
+    char* p;
+} MemoryBuffer;
 
-typedef struct TypedBuffer<int>   Int32Buffer;
-typedef struct TypedBuffer<float> Float32Buffer;
+template <typename TElement>
+struct TypedBuffer : public MemoryBuffer {};
+
+typedef struct TypedBuffer<int>    Int32Buffer;
+typedef struct TypedBuffer<long>   Int64Buffer;
+typedef struct TypedBuffer<float>  Float32Buffer;
+typedef struct TypedBuffer<double> Float64Buffer;
 // }}}
 
 
@@ -391,10 +399,44 @@ static VALUE function_launch_grid(int argc, VALUE* argv, VALUE self)
 
 
 // {{{ Buffer
+static void memory_buffer_free(void* p)
+{
+    MemoryBuffer* pbuffer = static_cast<MemoryBuffer*>(p);
+    delete[] pbuffer->p;
+    delete pbuffer;
+}
+
+static VALUE memory_buffer_alloc(VALUE klass)
+{
+    MemoryBuffer* pbuffer = new MemoryBuffer;
+    pbuffer->size = 0;
+    pbuffer->p = NULL;
+    return Data_Wrap_Struct(klass, 0, memory_buffer_free, pbuffer);
+}
+
+static VALUE memory_buffer_initialize(VALUE self, VALUE nbytes)
+{
+    size_t n = NUM2ULONG(nbytes);
+    MemoryBuffer* pbuffer;
+    Data_Get_Struct(self, MemoryBuffer, pbuffer);
+    pbuffer->size = n;
+    pbuffer->p = new char[n];
+    bzero(static_cast<void*>(pbuffer->p), n*sizeof(char));
+    return self;
+}
+
+static VALUE memory_buffer_size(VALUE self)
+{
+    MemoryBuffer* pbuffer;
+    Data_Get_Struct(self, MemoryBuffer, pbuffer);
+    return LONG2NUM(pbuffer->size);
+}
+
 template <typename TElement>
 static void buffer_free(void* p)
 {
-    TElement* pbuffer = static_cast<TElement*>(p);
+    typedef struct TypedBuffer<TElement> TBuffer;
+    TBuffer* pbuffer = static_cast<TBuffer*>(p);
     delete[] pbuffer->p;
     delete pbuffer;
 }
@@ -402,23 +444,23 @@ static void buffer_free(void* p)
 template <typename TElement>
 static VALUE buffer_alloc(VALUE klass)
 {
-    TElement* p = new TElement;
-    return Data_Wrap_Struct(klass, 0, buffer_free<TElement>, p);
+    typedef struct TypedBuffer<TElement> TBuffer;
+    TBuffer* pbuffer = new TBuffer;
+    pbuffer->size = 0;
+    pbuffer->p = NULL;
+    return Data_Wrap_Struct(klass, 0, &buffer_free<TElement>, pbuffer);
 }
 
 template <typename TElement>
 static VALUE buffer_initialize(VALUE self, VALUE nelements)
 {
     typedef struct TypedBuffer<TElement> TBuffer;
-
     size_t n = NUM2ULONG(nelements);
     TBuffer* pbuffer;
     Data_Get_Struct(self, TBuffer, pbuffer);
-    pbuffer->size = nelements;
-    pbuffer->p = new TElement[n];
-    for (size_t i = 0; i < n; ++i) {
-        pbuffer->p[i] = TElement(0);
-    }
+    pbuffer->size = n*sizeof(TElement);
+    pbuffer->p = reinterpret_cast<char*>(new TElement[n]);
+    bzero(static_cast<void*>(pbuffer->p), n*sizeof(TElement));
     return self;
 }
 typedef VALUE (*BufferInitializeFunctionType)(VALUE, VALUE);
@@ -427,11 +469,11 @@ template <typename TElement>
 static VALUE buffer_element_get(VALUE self, VALUE index)
 {
     typedef struct TypedBuffer<TElement> TBuffer;
-
     size_t i = NUM2ULONG(index);
     TBuffer* pbuffer;
     Data_Get_Struct(self, TBuffer, pbuffer);
-    TElement element = pbuffer->p[i];
+    TElement* e = reinterpret_cast<TElement*>(pbuffer->p);
+    TElement element = e[i];
     return to_rb<TElement>(element);
 }
 typedef VALUE (*BufferElementGetFunctionType)(VALUE, VALUE);
@@ -440,12 +482,12 @@ template <typename TElement>
 static VALUE buffer_element_set(VALUE self, VALUE index, VALUE value)
 {
     typedef struct TypedBuffer<TElement> TBuffer;
-
     size_t i = NUM2ULONG(index);
     TElement v = to_ctype<TElement>(value);
     TBuffer* pbuffer;
     Data_Get_Struct(self, TBuffer, pbuffer);
-    pbuffer->p[i] = v;
+    TElement* e = reinterpret_cast<TElement*>(pbuffer->p);
+    e[i] = v;
     return value;
 }
 typedef VALUE (*BufferElementSetFunctionType)(VALUE, VALUE, VALUE);
@@ -453,25 +495,25 @@ typedef VALUE (*BufferElementSetFunctionType)(VALUE, VALUE, VALUE);
 
 
 // {{{ Memory transfer functions.
-static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_buffer, VALUE rb_nbytes)
+static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE rb_nbytes)
 {
     CUdeviceptr* pdevice_ptr;
-    Int32Buffer* pbuffer;
+    MemoryBuffer* pmem;
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
-    Data_Get_Struct(rb_buffer, Int32Buffer, pbuffer);
+    Data_Get_Struct(rb_memory, MemoryBuffer, pmem);
     size_t nbytes = NUM2ULONG(rb_nbytes);
-    cuMemcpyHtoD(*pdevice_ptr, pbuffer->p, nbytes);
+    cuMemcpyHtoD(*pdevice_ptr, static_cast<void*>(pmem->p), nbytes);
     return Qnil; // TODO: Return the status of the transfer.
 }
 
-static VALUE memcpy_dtoh(VALUE self, VALUE rb_buffer, VALUE rb_device_ptr, VALUE rb_nbytes)
+static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE rb_nbytes)
 {
-    Int32Buffer* pbuffer;
+    MemoryBuffer* pmem;
     CUdeviceptr* pdevice_ptr;
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
-    Data_Get_Struct(rb_buffer, Int32Buffer, pbuffer);
+    Data_Get_Struct(rb_memory, MemoryBuffer, pmem);
     size_t nbytes = NUM2ULONG(rb_nbytes);
-    cuMemcpyDtoH(pbuffer->p, *pdevice_ptr, nbytes);
+    cuMemcpyDtoH(static_cast<void*>(pmem->p), *pdevice_ptr, nbytes);
     return Qnil; // TODO: Return the status of the transfer.
 }
 // }}}
@@ -558,17 +600,34 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUFunction, "set_block_shape", (VALUE(*)(ANYARGS))function_set_block_shape, -1);
     rb_define_method(rb_cCUFunction, "launch_grid"    , (VALUE(*)(ANYARGS))function_launch_grid    , -1);
 
-    rb_cInt32Buffer = rb_define_class_under(rb_mCU, "Int32Buffer", rb_cObject);
-    rb_define_alloc_func(rb_cInt32Buffer, buffer_alloc<Int32Buffer>);
+    rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cObject);
+    rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
+    rb_define_method(rb_cMemoryBuffer, "initialize", (VALUE(*)(ANYARGS))memory_buffer_initialize, 1);
+    rb_define_method(rb_cMemoryBuffer, "size"      , (VALUE(*)(ANYARGS))memory_buffer_size      , 0);
+
+    rb_cInt32Buffer = rb_define_class_under(rb_mCU, "Int32Buffer", rb_cMemoryBuffer);
+    rb_define_alloc_func(rb_cInt32Buffer, buffer_alloc<int>);
     rb_define_method(rb_cInt32Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<int>) , 1);
     rb_define_method(rb_cInt32Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<int>), 1);
     rb_define_method(rb_cInt32Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<int>), 2);
 
-    rb_cFloat32Buffer = rb_define_class_under(rb_mCU, "Float32Buffer", rb_cObject);
-    rb_define_alloc_func(rb_cFloat32Buffer, buffer_alloc<Float32Buffer>);
+    rb_cInt64Buffer = rb_define_class_under(rb_mCU, "Int64Buffer", rb_cMemoryBuffer);
+    rb_define_alloc_func(rb_cInt64Buffer, buffer_alloc<long>);
+    rb_define_method(rb_cInt64Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<long>) , 1);
+    rb_define_method(rb_cInt64Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<long>), 1);
+    rb_define_method(rb_cInt64Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<long>), 2);
+
+    rb_cFloat32Buffer = rb_define_class_under(rb_mCU, "Float32Buffer", rb_cMemoryBuffer);
+    rb_define_alloc_func(rb_cFloat32Buffer, buffer_alloc<float>);
     rb_define_method(rb_cFloat32Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<float>) , 1);
     rb_define_method(rb_cFloat32Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<float>), 1);
     rb_define_method(rb_cFloat32Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<float>), 2);
+
+    rb_cFloat64Buffer = rb_define_class_under(rb_mCU, "Float64Buffer", rb_cMemoryBuffer);
+    rb_define_alloc_func(rb_cFloat64Buffer, buffer_alloc<double>);
+    rb_define_method(rb_cFloat64Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<double>) , 1);
+    rb_define_method(rb_cFloat64Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<double>), 1);
+    rb_define_method(rb_cFloat64Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<double>), 2);
 
     rb_define_module_function(rb_mCU, "memcpy_htod", (VALUE(*)(ANYARGS))memcpy_htod, 3);
     rb_define_module_function(rb_mCU, "memcpy_dtoh", (VALUE(*)(ANYARGS))memcpy_dtoh, 3);
