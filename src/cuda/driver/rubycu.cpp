@@ -65,6 +65,10 @@ typedef struct TypedBuffer<float>  Float32Buffer;
 typedef struct TypedBuffer<double> Float64Buffer;
 // }}}
 
+// {{{ Function prototypes.
+static VALUE device_ptr_alloc(VALUE klass);
+static VALUE device_ptr_initialize(int argc, VALUE* argv, VALUE self);
+// }}}
 
 // {{{ SGC helpers.
 template <typename T>
@@ -327,6 +331,14 @@ static VALUE module_load(VALUE self, VALUE str)
     return self;
 }
 
+static VALUE module_unload(VALUE self)
+{
+    CUmodule* p;
+    Data_Get_Struct(self, CUmodule, p);
+    cuModuleUnload(*p);
+    return self;
+}
+
 static VALUE module_get_function(VALUE self, VALUE str)
 {
     CUmodule* p;
@@ -334,6 +346,19 @@ static VALUE module_get_function(VALUE self, VALUE str)
     CUfunction* pfunc = new CUfunction;
     cuModuleGetFunction(pfunc, *p, StringValuePtr(str));
     return Data_Wrap_Struct(rb_cCUFunction, 0, generic_free<CUfunction>, pfunc);
+}
+
+static VALUE module_get_global(VALUE self, VALUE str)
+{
+    CUmodule* p;
+    Data_Get_Struct(self, CUmodule, p);
+    VALUE rb_devptr = device_ptr_alloc(rb_cCUDevicePtr);
+    device_ptr_initialize(0, NULL, rb_devptr);
+    CUdeviceptr* pdevptr;
+    Data_Get_Struct(rb_devptr, CUdeviceptr, pdevptr);
+    unsigned int nbytes;
+    cuModuleGetGlobal(pdevptr, &nbytes, *p, StringValuePtr(str));
+    return rb_ary_new3(2, rb_devptr, LONG2NUM(nbytes));
 }
 // }}}
 
@@ -683,7 +708,9 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cCUModule, module_alloc);
     rb_define_method(rb_cCUModule, "initialize"  , (VALUE(*)(ANYARGS))module_initialize  , -1);
     rb_define_method(rb_cCUModule, "load"        , (VALUE(*)(ANYARGS))module_load        ,  1);
+    rb_define_method(rb_cCUModule, "unload"      , (VALUE(*)(ANYARGS))module_unload      ,  0);
     rb_define_method(rb_cCUModule, "get_function", (VALUE(*)(ANYARGS))module_get_function,  1);
+    rb_define_method(rb_cCUModule, "get_global"  , (VALUE(*)(ANYARGS))module_get_global  ,  1);
 
     rb_cCUDevicePtr = rb_define_class_under(rb_mCU, "CUDevicePtr", rb_cObject);
     rb_define_alloc_func(rb_cCUDevicePtr, device_ptr_alloc);
