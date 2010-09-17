@@ -37,6 +37,8 @@ static VALUE rb_cCUContextFlagsEnum;
 static VALUE rb_cCULimitEnum;
 static VALUE rb_cCUModule;
 static VALUE rb_cCUFunction;
+static VALUE rb_cCUFunctionAttributeEnum;
+static VALUE rb_cCUFunctionCacheEnum;
 static VALUE rb_cCUDevicePtr;
 static VALUE rb_cCUDeviceAttributeEnum;
 static VALUE rb_cCUComputeModeEnum;
@@ -471,6 +473,22 @@ static VALUE function_set_block_shape(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+static VALUE function_set_shared_size(VALUE self, VALUE nbytes)
+{
+    CUfunction* p;
+    Data_Get_Struct(self, CUfunction, p);
+    cuFuncSetSharedSize(*p, NUM2UINT(nbytes));
+    return self;
+}
+
+static VALUE function_launch(VALUE self)
+{
+    CUfunction* p;
+    Data_Get_Struct(self, CUfunction, p);
+    cuLaunch(*p);
+    return self;
+}
+
 static VALUE function_launch_grid(int argc, VALUE* argv, VALUE self)
 {
     if (argc <= 0 || argc > 2) {
@@ -488,6 +506,23 @@ static VALUE function_launch_grid(int argc, VALUE* argv, VALUE self)
     }
 
     cuLaunchGrid(*pfunc, xdim, ydim);
+    return self;
+}
+
+static VALUE function_get_attribute(VALUE self, VALUE attribute)
+{
+    CUfunction* p;
+    Data_Get_Struct(self, CUfunction, p);
+    int v;
+    cuFuncGetAttribute(&v, static_cast<CUfunction_attribute>(FIX2INT(attribute)), *p);
+    return INT2FIX(v);
+}
+
+static VALUE function_set_cache_config(VALUE self, VALUE config)
+{
+    CUfunction* p;
+    Data_Get_Struct(self, CUfunction, p);
+    cuFuncSetCacheConfig(*p, static_cast<CUfunc_cache>(FIX2UINT(config)));
     return self;
 }
 // }}}
@@ -852,7 +887,25 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUFunction, "initialize"     , (VALUE(*)(ANYARGS))function_initialize     , -1);
     rb_define_method(rb_cCUFunction, "set_param"      , (VALUE(*)(ANYARGS))function_set_param      , -1);
     rb_define_method(rb_cCUFunction, "set_block_shape", (VALUE(*)(ANYARGS))function_set_block_shape, -1);
+    rb_define_method(rb_cCUFunction, "set_shared_size", (VALUE(*)(ANYARGS))function_set_shared_size,  1);
+    rb_define_method(rb_cCUFunction, "launch"         , (VALUE(*)(ANYARGS))function_launch         ,  0);
     rb_define_method(rb_cCUFunction, "launch_grid"    , (VALUE(*)(ANYARGS))function_launch_grid    , -1);
+    rb_define_method(rb_cCUFunction, "get_attribute"  , (VALUE(*)(ANYARGS))function_get_attribute  ,  1);
+    rb_define_method(rb_cCUFunction, "set_cache_config", (VALUE(*)(ANYARGS))function_set_cache_config, 1);
+
+    rb_cCUFunctionAttributeEnum = rb_define_class_under(rb_mCU, "CUFunctionAttributeEnum", rb_cObject);
+    rb_define_const(rb_cCUFunctionAttributeEnum, "MAX_THREADS_PER_BLOCK", INT2FIX(CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK));
+    rb_define_const(rb_cCUFunctionAttributeEnum, "SHARED_SIZE_BYTES"    , INT2FIX(CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES));
+    rb_define_const(rb_cCUFunctionAttributeEnum, "CONST_SIZE_BYTES"     , INT2FIX(CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES));
+    rb_define_const(rb_cCUFunctionAttributeEnum, "LOCAL_SIZE_BYTES"     , INT2FIX(CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES));
+    rb_define_const(rb_cCUFunctionAttributeEnum, "NUM_REGS"             , INT2FIX(CU_FUNC_ATTRIBUTE_NUM_REGS));
+    rb_define_const(rb_cCUFunctionAttributeEnum, "PTX_VERSION"          , INT2FIX(CU_FUNC_ATTRIBUTE_PTX_VERSION));
+    rb_define_const(rb_cCUFunctionAttributeEnum, "BINARY_VERSION"       , INT2FIX(CU_FUNC_ATTRIBUTE_BINARY_VERSION));
+
+    rb_cCUFunctionCacheEnum = rb_define_class_under(rb_mCU, "CUFunctionCacheEnum", rb_cObject);
+    rb_define_const(rb_cCUFunctionCacheEnum, "PREFER_NONE"  , INT2FIX(CU_FUNC_CACHE_PREFER_NONE));
+    rb_define_const(rb_cCUFunctionCacheEnum, "PREFER_SHARED", INT2FIX(CU_FUNC_CACHE_PREFER_SHARED));
+    rb_define_const(rb_cCUFunctionCacheEnum, "PREFER_L1"    , INT2FIX(CU_FUNC_CACHE_PREFER_L1));
 
     rb_cCUStream = rb_define_class_under(rb_mCU, "CUStream", rb_cObject);
     rb_define_alloc_func(rb_cCUStream, stream_alloc);
