@@ -286,13 +286,13 @@ static VALUE context_get_limit(VALUE klass, VALUE limit)
     CUlimit l = static_cast<CUlimit>(FIX2UINT(limit));
     size_t v = 0;
     cuCtxGetLimit(&v, l);
-    return LONG2FIX(v);
+    return SIZET2NUM(v);
 }
 
 static VALUE context_set_limit(VALUE klass, VALUE limit, VALUE value)
 {
     CUlimit l = static_cast<CUlimit>(FIX2UINT(limit));
-    size_t v = NUM2UINT(value);
+    size_t v = NUM2SIZET(value);
     cuCtxSetLimit(l, v);
     return Qnil;
 }
@@ -384,7 +384,7 @@ static VALUE device_ptr_mem_alloc(VALUE self, VALUE nbytes)
 {
     CUdeviceptr* p;
     Data_Get_Struct(self, CUdeviceptr, p);
-    size_t n = NUM2ULONG(nbytes);
+    size_t n = NUM2SIZET(nbytes);
     cuMemAlloc(p, n);
     return self;
 }
@@ -638,7 +638,7 @@ static VALUE memory_buffer_alloc(VALUE klass)
 
 static VALUE memory_buffer_initialize(VALUE self, VALUE nbytes)
 {
-    size_t n = NUM2ULONG(nbytes);
+    size_t n = NUM2SIZET(nbytes);
     MemoryBuffer* pbuffer;
     Data_Get_Struct(self, MemoryBuffer, pbuffer);
     pbuffer->size = n;
@@ -677,7 +677,7 @@ template <typename TElement>
 static VALUE buffer_initialize(VALUE self, VALUE nelements)
 {
     typedef struct TypedBuffer<TElement> TBuffer;
-    size_t n = NUM2ULONG(nelements);
+    size_t n = NUM2SIZET(nelements);
     TBuffer* pbuffer;
     Data_Get_Struct(self, TBuffer, pbuffer);
     pbuffer->size = n*sizeof(TElement);
@@ -691,7 +691,7 @@ template <typename TElement>
 static VALUE buffer_element_get(VALUE self, VALUE index)
 {
     typedef struct TypedBuffer<TElement> TBuffer;
-    size_t i = NUM2ULONG(index);
+    size_t i = NUM2SIZET(index);
     TBuffer* pbuffer;
     Data_Get_Struct(self, TBuffer, pbuffer);
     TElement* e = reinterpret_cast<TElement*>(pbuffer->p);
@@ -704,7 +704,7 @@ template <typename TElement>
 static VALUE buffer_element_set(VALUE self, VALUE index, VALUE value)
 {
     typedef struct TypedBuffer<TElement> TBuffer;
-    size_t i = NUM2ULONG(index);
+    size_t i = NUM2SIZET(index);
     TElement v = to_ctype<TElement>(value);
     TBuffer* pbuffer;
     Data_Get_Struct(self, TBuffer, pbuffer);
@@ -723,7 +723,7 @@ static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE
     MemoryBuffer* pmem;
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
     Data_Get_Struct(rb_memory, MemoryBuffer, pmem);
-    size_t nbytes = NUM2ULONG(rb_nbytes);
+    size_t nbytes = NUM2SIZET(rb_nbytes);
     cuMemcpyHtoD(*pdevice_ptr, static_cast<void*>(pmem->p), nbytes);
     return Qnil; // TODO: Return the status of the transfer.
 }
@@ -734,7 +734,7 @@ static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE
     CUdeviceptr* pdevice_ptr;
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
     Data_Get_Struct(rb_memory, MemoryBuffer, pmem);
-    size_t nbytes = NUM2ULONG(rb_nbytes);
+    size_t nbytes = NUM2SIZET(rb_nbytes);
     cuMemcpyDtoH(static_cast<void*>(pmem->p), *pdevice_ptr, nbytes);
     return Qnil; // TODO: Return the status of the transfer.
 }
