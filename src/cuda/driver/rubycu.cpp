@@ -41,6 +41,7 @@ static VALUE rb_cCUDevicePtr;
 static VALUE rb_cCUDeviceAttributeEnum;
 static VALUE rb_cCUComputeModeEnum;
 static VALUE rb_cCUStream;
+static VALUE rb_cCUEvent;
 // }}}
 
 // {{{ SGC Ruby classes.
@@ -540,6 +541,85 @@ static VALUE stream_synchronize(VALUE self)
 // }}}
 
 
+// {{{ CUevent
+static VALUE event_alloc(VALUE klass)
+{
+    CUevent* p = new CUevent;
+    return Data_Wrap_Struct(klass, 0, generic_free<CUevent>, p);
+}
+
+static VALUE event_initialize(VALUE self)
+{
+    return self;
+}
+
+static VALUE event_create(VALUE self, VALUE flags)
+{
+    CUevent* p;
+    Data_Get_Struct(self, CUevent, p);
+    cuEventCreate(p, FIX2UINT(flags));
+    return self;
+}
+
+static VALUE event_destroy(VALUE self)
+{
+    CUevent* p;
+    Data_Get_Struct(self, CUevent, p);
+    cuEventDestroy(*p);
+    return Qnil;
+}
+
+static VALUE event_query(VALUE self)
+{
+    CUevent* p;
+    Data_Get_Struct(self, CUevent, p);
+    CUresult status = cuEventQuery(*p);
+    if (status == CUDA_SUCCESS)
+        return Qtrue;
+    // TODO: handle status == CUDA_ERROR_INVALID_VALUE
+    return Qfalse;
+}
+
+static VALUE event_record(VALUE self, VALUE rb_stream)
+{
+    CUevent* pevent = NULL;
+    CUstream* pstream = NULL;
+    CUresult status;
+    Data_Get_Struct(self, CUevent, pevent);
+    if (CLASS_OF(rb_stream) == rb_cCUStream) {
+        Data_Get_Struct(rb_stream, CUstream, pstream);
+        status = cuEventRecord(*pevent, *pstream);
+    } else {
+        status = cuEventRecord(*pevent, 0);
+    }
+    // TODO: handle status == CUDA_ERROR_INVALID_VALUE
+    if (status == CUDA_ERROR_INVALID_VALUE) {}
+    return self;
+}
+
+static VALUE event_synchronize(VALUE self)
+{
+    CUevent* p;
+    Data_Get_Struct(self, CUevent, p);
+    CUresult status = cuEventSynchronize(*p);
+    // TODO: handle status == CUDA_ERROR_INVALID_VALUE
+    if (status == CUDA_ERROR_INVALID_VALUE) {}
+    return self;
+}
+
+static VALUE event_elapsed_time(VALUE klass, VALUE event_start, VALUE event_end)
+{
+    CUevent* pevent_start;
+    CUevent* pevent_end;
+    Data_Get_Struct(event_start, CUevent, pevent_start);
+    Data_Get_Struct(event_end, CUevent, pevent_end);
+    float etime;
+    cuEventElapsedTime(&etime, *pevent_start, *pevent_end);
+    return DBL2NUM(etime);
+}
+// }}}
+
+
 // {{{ Buffer
 static void memory_buffer_free(void* p)
 {
@@ -781,6 +861,16 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUStream, "destroy"    , (VALUE(*)(ANYARGS))stream_destroy    , 0);
     rb_define_method(rb_cCUStream, "query"      , (VALUE(*)(ANYARGS))stream_query      , 0);
     rb_define_method(rb_cCUStream, "synchronize", (VALUE(*)(ANYARGS))stream_synchronize, 0);
+
+    rb_cCUEvent = rb_define_class_under(rb_mCU, "CUEvent", rb_cObject);
+    rb_define_alloc_func(rb_cCUEvent, event_alloc);
+    rb_define_method(rb_cCUEvent, "initialize" , (VALUE(*)(ANYARGS))event_initialize , 0);
+    rb_define_method(rb_cCUEvent, "create"     , (VALUE(*)(ANYARGS))event_create     , 1);
+    rb_define_method(rb_cCUEvent, "destroy"    , (VALUE(*)(ANYARGS))event_destroy    , 0);
+    rb_define_method(rb_cCUEvent, "query"      , (VALUE(*)(ANYARGS))event_query      , 0);
+    rb_define_method(rb_cCUEvent, "record"     , (VALUE(*)(ANYARGS))event_record     , 1);
+    rb_define_method(rb_cCUEvent, "synchronize", (VALUE(*)(ANYARGS))event_synchronize, 0);
+    rb_define_singleton_method(rb_cCUEvent, "elapsed_time", (VALUE(*)(ANYARGS))event_elapsed_time, 2);
 
     rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cObject);
     rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
