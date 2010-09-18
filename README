@@ -1,0 +1,65 @@
+== Welcome to SGC-Ruby-CUDA
+
+SGC-Ruby-CUDA implements Ruby bindings to Nvidia CUDA SDK. It provides easy
+access to CUDA-enabled GPU from a Ruby program.
+
+SGC-Ruby-CUDA is incomplete in many ways. Currently, it supports only some
+crucial CUDA Driver API functions. We aim to include the supports for most CUDA
+Driver API and CUDA Runtime API functions.
+
+SGC-Ruby-CUDA is tested on 64bit Fedora 13. We have not tested it against
+32bit Linux OS and Windows. We certainly wish to improve the code base to
+support multiple platforms in the future.
+
+
+Fedora and the Infinity design logo are trademarks of Red Hat, Inc.
+
+Linux is a registered trademark of Linus Torvalds.
+
+NVIDIA, the NVIDIA logo, CUDA, GeForce, Quadro, and Tesla are trademarks or
+registered trademarks of NVIDIA Corporation in the U.S. and other countries.
+
+Windows is a registered trademark of Microsoft Corporation in the United States
+and other countries.
+
+
+== Design philosophy
+
+The Ruby bindings, Ruby CUDA API, which deal directly with Nvidia CUDA SDK C/C++
+bindings retain the CUDA Driver and Runtime API in a systematic way whenever
+possible. This facilitates developers familiar with CUDA C who should be able to
+use SGC-Ruby-CUDA with minimum effort.
+
+Ruby classes and methods to ease the use of the API or making CUDA the
+Ruby way would be built on of the Ruby CUDA API.
+
+
+== Prerequisites
+
+* Ruby         (Tested with Ruby 1.9.2)
+* CUDA Toolkit (Tested with CUDA Toolkit 3.1)
+* C++ compiler (Tested with GCC 4.5.1)
+
+
+== How to get SGC-Ruby-CUDA
+
+The SGC-Ruby-CUDA git repository can be found in the following:
+
+    http://github.com/xman/sgc-ruby-cuda
+
+The master branch can be checked out with the following command:
+
+    git clone git://github.com/xman/sgc-ruby-cuda.git sgc-ruby-cuda
+
+
+== License
+
+SGC-Ruby-CUDA is released under the GNU GPLv3. See the file COPYING.
+
+
+== The Author
+
+All kinds of feedbacks and bug reports are welcomed. Here is the author's email
+address:
+
+    shinyee@speedgocomputing.com
