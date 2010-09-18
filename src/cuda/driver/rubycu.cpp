@@ -44,6 +44,7 @@ static VALUE rb_cCUDeviceAttribute;
 static VALUE rb_cCUComputeMode;
 static VALUE rb_cCUStream;
 static VALUE rb_cCUEvent;
+static VALUE rb_cCUResult;
 // }}}
 
 // {{{ SGC Ruby classes.
@@ -924,6 +925,43 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUEvent, "record"     , (VALUE(*)(ANYARGS))event_record     , 1);
     rb_define_method(rb_cCUEvent, "synchronize", (VALUE(*)(ANYARGS))event_synchronize, 0);
     rb_define_singleton_method(rb_cCUEvent, "elapsed_time", (VALUE(*)(ANYARGS))event_elapsed_time, 2);
+
+    rb_cCUResult = rb_define_class_under(rb_mCU, "CUResult", rb_cObject);
+    rb_define_const(rb_cCUResult, "SUCCESS"                             , INT2FIX(CUDA_SUCCESS));
+    rb_define_const(rb_cCUResult, "ERROR_INVALID_VALUE"                 , INT2FIX(CUDA_ERROR_INVALID_VALUE));
+    rb_define_const(rb_cCUResult, "ERROR_OUT_OF_MEMORY"                 , INT2FIX(CUDA_ERROR_OUT_OF_MEMORY));
+    rb_define_const(rb_cCUResult, "ERROR_NOT_INITIALIZED"               , INT2FIX(CUDA_ERROR_NOT_INITIALIZED));
+    rb_define_const(rb_cCUResult, "ERROR_DEINITIALIZED"                 , INT2FIX(CUDA_ERROR_DEINITIALIZED));
+    rb_define_const(rb_cCUResult, "ERROR_NO_DEVICE"                     , INT2FIX(CUDA_ERROR_NO_DEVICE));
+    rb_define_const(rb_cCUResult, "ERROR_INVALID_DEVICE"                , INT2FIX(CUDA_ERROR_INVALID_DEVICE));
+    rb_define_const(rb_cCUResult, "ERROR_INVALID_IMAGE"                 , INT2FIX(CUDA_ERROR_INVALID_IMAGE));
+    rb_define_const(rb_cCUResult, "ERROR_INVALID_CONTEXT"               , INT2FIX(CUDA_ERROR_INVALID_CONTEXT));
+    rb_define_const(rb_cCUResult, "ERROR_CONTEXT_ALREADY_CURRENT"       , INT2FIX(CUDA_ERROR_CONTEXT_ALREADY_CURRENT));
+    rb_define_const(rb_cCUResult, "ERROR_MAP_FAILED"                    , INT2FIX(CUDA_ERROR_MAP_FAILED));
+    rb_define_const(rb_cCUResult, "ERROR_UNMAP_FAILED"                  , INT2FIX(CUDA_ERROR_UNMAP_FAILED));
+    rb_define_const(rb_cCUResult, "ERROR_ARRAY_IS_MAPPED"               , INT2FIX(CUDA_ERROR_ARRAY_IS_MAPPED));
+    rb_define_const(rb_cCUResult, "ERROR_ALREADY_MAPPED"                , INT2FIX(CUDA_ERROR_ALREADY_MAPPED));
+    rb_define_const(rb_cCUResult, "ERROR_NO_BINARY_FOR_GPU"             , INT2FIX(CUDA_ERROR_NO_BINARY_FOR_GPU));
+    rb_define_const(rb_cCUResult, "ERROR_ALREADY_ACQUIRED"              , INT2FIX(CUDA_ERROR_ALREADY_ACQUIRED));
+    rb_define_const(rb_cCUResult, "ERROR_NOT_MAPPED"                    , INT2FIX(CUDA_ERROR_NOT_MAPPED));
+    rb_define_const(rb_cCUResult, "ERROR_NOT_MAPPED_AS_ARRAY"           , INT2FIX(CUDA_ERROR_NOT_MAPPED_AS_ARRAY));
+    rb_define_const(rb_cCUResult, "ERROR_NOT_MAPPED_AS_POINTER"         , INT2FIX(CUDA_ERROR_NOT_MAPPED_AS_POINTER));
+    rb_define_const(rb_cCUResult, "ERROR_ECC_UNCORRECTABLE"             , INT2FIX(CUDA_ERROR_ECC_UNCORRECTABLE));
+    rb_define_const(rb_cCUResult, "ERROR_UNSUPPORTED_LIMIT"             , INT2FIX(CUDA_ERROR_UNSUPPORTED_LIMIT));
+    rb_define_const(rb_cCUResult, "ERROR_INVALID_SOURCE"                , INT2FIX(CUDA_ERROR_INVALID_SOURCE));
+    rb_define_const(rb_cCUResult, "ERROR_FILE_NOT_FOUND"                , INT2FIX(CUDA_ERROR_FILE_NOT_FOUND));
+    rb_define_const(rb_cCUResult, "ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND", INT2FIX(CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND));
+    rb_define_const(rb_cCUResult, "ERROR_SHARED_OBJECT_INIT_FAILED"     , INT2FIX(CUDA_ERROR_SHARED_OBJECT_INIT_FAILED));
+    rb_define_const(rb_cCUResult, "ERROR_INVALID_HANDLE"                , INT2FIX(CUDA_ERROR_INVALID_HANDLE));
+    rb_define_const(rb_cCUResult, "ERROR_NOT_FOUND"                     , INT2FIX(CUDA_ERROR_NOT_FOUND));
+    rb_define_const(rb_cCUResult, "ERROR_NOT_READY"                     , INT2FIX(CUDA_ERROR_NOT_READY));
+    rb_define_const(rb_cCUResult, "ERROR_LAUNCH_FAILED"                 , INT2FIX(CUDA_ERROR_LAUNCH_FAILED));
+    rb_define_const(rb_cCUResult, "ERROR_LAUNCH_OUT_OF_RESOURCES"       , INT2FIX(CUDA_ERROR_LAUNCH_OUT_OF_RESOURCES));
+    rb_define_const(rb_cCUResult, "ERROR_LAUNCH_TIMEOUT"                , INT2FIX(CUDA_ERROR_LAUNCH_TIMEOUT));
+    rb_define_const(rb_cCUResult, "ERROR_LAUNCH_INCOMPATIBLE_TEXTURING" , INT2FIX(CUDA_ERROR_LAUNCH_INCOMPATIBLE_TEXTURING));
+    rb_define_const(rb_cCUResult, "ERROR_POINTER_IS_64BIT"              , INT2FIX(CUDA_ERROR_POINTER_IS_64BIT));
+    rb_define_const(rb_cCUResult, "ERROR_SIZE_IS_64BIT"                 , INT2FIX(CUDA_ERROR_SIZE_IS_64BIT));
+    rb_define_const(rb_cCUResult, "ERROR_UNKNOWN"                       , INT2FIX(CUDA_ERROR_UNKNOWN));
 
     rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cObject);
     rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
