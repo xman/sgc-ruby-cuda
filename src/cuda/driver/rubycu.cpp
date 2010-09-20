@@ -1178,5 +1178,8 @@ extern "C" void Init_rubycu()
 
     rb_define_module_function(rb_mCU, "driver_get_version", (VALUE(*)(ANYARGS))driver_get_version, 0);
 
-    cuInit(0);
+    CUresult status = cuInit(0);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to initialize the CUDA driver API.");
+    }
 }
