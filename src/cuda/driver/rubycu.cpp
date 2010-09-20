@@ -261,7 +261,10 @@ static VALUE device_compute_capability(VALUE self)
     Data_Get_Struct(self, CUdevice, p);
     int major;
     int minor;
-    cuDeviceComputeCapability(&major, &minor, *p);
+    CUresult status = cuDeviceComputeCapability(&major, &minor, *p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to query device compute capability.");
+    }
     VALUE h = rb_hash_new();
     rb_hash_aset(h, ID2SYM(rb_intern("major")), INT2FIX(major));
     rb_hash_aset(h, ID2SYM(rb_intern("minor")), INT2FIX(minor));
