@@ -242,7 +242,10 @@ static VALUE device_get(VALUE self, VALUE num)
     CUdevice* p;
     Data_Get_Struct(self, CUdevice, p);
     int i = FIX2INT(num);
-    cuDeviceGet(p, i);
+    CUresult status = cuDeviceGet(p, i);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get device %d.", i);
+    }
     return self;
 }
 
