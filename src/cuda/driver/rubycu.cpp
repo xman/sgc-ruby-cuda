@@ -208,6 +208,9 @@ double to_ctype(VALUE v)
 {
     return NUM2DBL(v);
 }
+
+#define RAISE_CU_STD_ERROR_FORMATTED(status, format, ...) rb_raise(rb_hash_aref(rb_error_class_by_enum, INT2FIX(status)), "%s:%d " format, __FILE__, __LINE__, __VA_ARGS__)
+#define RAISE_CU_STD_ERROR(status, message) RAISE_CU_STD_ERROR_FORMATTED(status, "%s", message)
 // }}}
 
 // {{{ SGC Ruby data.
