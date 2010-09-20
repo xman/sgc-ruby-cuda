@@ -210,6 +210,10 @@ double to_ctype(VALUE v)
 }
 // }}}
 
+// {{{ SGC Ruby data.
+static VALUE rb_error_class_by_enum;
+// }}}
+
 
 // {{{ CUdevice
 static VALUE device_get_count(VALUE klass)
@@ -1084,6 +1088,54 @@ extern "C" void Init_rubycu()
     rb_eCUNotReadyError        = rb_define_class_under(rb_mCU, "CUNotReadyError"       , rb_eCUOtherError);
 
     rb_eCUUnknownError = rb_define_class_under(rb_mCU, "CUUnknownError", rb_eCUStandardError);
+
+    rb_error_class_by_enum = rb_hash_new();
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_NOT_INITIALIZED), rb_eCUDeviceNotInitializedError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_DEINITIALIZED)  , rb_eCUDeviceDeinitializedError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_NO_DEVICE)      , rb_eCUNoDeviceError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_INVALID_DEVICE) , rb_eCUInvalidDeviceError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_MAP_FAILED)           , rb_eCUMapFailedError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_UNMAP_FAILED)         , rb_eCUUnMapFailedError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_ARRAY_IS_MAPPED)      , rb_eCUArrayIsMappedError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_ALREADY_MAPPED)       , rb_eCUAlreadyMappedError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_NOT_MAPPED)           , rb_eCUNotMappedError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_NOT_MAPPED_AS_ARRAY)  , rb_eCUNotMappedAsArrayError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_NOT_MAPPED_AS_POINTER), rb_eCUNotMappedAsPointerError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_INVALID_CONTEXT)        , rb_eCUInvalidContextError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_CONTEXT_ALREADY_CURRENT), rb_eCUContextAlreadyCurrentError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_UNSUPPORTED_LIMIT)      , rb_eCUUnsupportedLimitError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_LAUNCH_FAILED)                , rb_eCULaunchFailedError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_LAUNCH_OUT_OF_RESOURCES)      , rb_eCULaunchOutOfResourcesError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_LAUNCH_TIMEOUT)               , rb_eCULaunchTimeoutError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_LAUNCH_INCOMPATIBLE_TEXTURING), rb_eCULaunchIncompatibleTexturingError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_POINTER_IS_64BIT), rb_eCUPointerIs64BitError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_SIZE_IS_64BIT)   , rb_eCUSizeIs64BitError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_INVALID_VALUE)  , rb_eCUInvalidValueError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_INVALID_HANDLE) , rb_eCUInvalidHandleError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_OUT_OF_MEMORY), rb_eCUOutOfMemoryError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND), rb_eCUSharedObjectSymbolNotFoundError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_SHARED_OBJECT_INIT_FAILED)     , rb_eCUSharedObjectInitFailedError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_ECC_UNCORRECTABLE), rb_eCUECCUncorrectableError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_NO_BINARY_FOR_GPU), rb_eCUNoBinaryForGPUError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_FILE_NOT_FOUND)   , rb_eCUFileNotFoundError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_INVALID_SOURCE)   , rb_eCUInvalidSourceError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_INVALID_IMAGE)    , rb_eCUInvalidImageError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_NOT_FOUND), rb_eCUReferenceNotFoundError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_ALREADY_ACQUIRED), rb_eCUAlreadyAcquiredError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_NOT_READY)       , rb_eCUNotReadyError);
+
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_UNKNOWN), rb_eCUUnknownError);
 
     rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cObject);
     rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
