@@ -262,7 +262,10 @@ static VALUE device_compute_capability(VALUE self)
     int major;
     int minor;
     cuDeviceComputeCapability(&major, &minor, *p);
-    return rb_ary_new3(2, INT2FIX(major), INT2FIX(minor));
+    VALUE h = rb_hash_new();
+    rb_hash_aset(h, ID2SYM(rb_intern("major")), INT2FIX(major));
+    rb_hash_aset(h, ID2SYM(rb_intern("minor")), INT2FIX(minor));
+    return h;
 }
 
 static VALUE device_get_attribute(VALUE self, VALUE attribute)
