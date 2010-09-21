@@ -411,7 +411,13 @@ static VALUE context_get_limit(VALUE klass, VALUE limit)
 {
     CUlimit l = static_cast<CUlimit>(FIX2UINT(limit));
     size_t v = 0;
-    cuCtxGetLimit(&v, l);
+    CUresult status = cuCtxGetLimit(&v, l);
+    if (status != CUDA_SUCCESS) {
+        VALUE limits = rb_funcall(rb_cCULimit, rb_intern("constants"), 0);
+        VALUE ary[3] = { rb_cCULimit, limit, Qnil };
+        rb_block_call(limits, rb_intern("find"), 0, NULL, (VALUE(*)(ANYARGS))class_const_match, (VALUE)ary);
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get context limit: %s.", rb_id2name(SYM2ID(ary[2])));
+    }
     return SIZET2NUM(v);
 }
 
