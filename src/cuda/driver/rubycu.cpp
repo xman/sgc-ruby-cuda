@@ -381,7 +381,10 @@ static VALUE context_detach(VALUE self)
 {
     CUcontext* p;
     Data_Get_Struct(self, CUcontext, p);
-    cuCtxDetach(*p);
+    CUresult status = cuCtxDetach(*p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to detach context.");
+    }
     return Qnil;
 }
 
