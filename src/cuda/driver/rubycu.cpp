@@ -400,7 +400,10 @@ static VALUE context_get_device(VALUE klass, VALUE device)
 {
     CUdevice* pdevice;
     Data_Get_Struct(device, CUdevice, pdevice);
-    cuCtxGetDevice(pdevice);
+    CUresult status = cuCtxGetDevice(pdevice);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get current context's device.");
+    }
     return Qnil;
 }
 
