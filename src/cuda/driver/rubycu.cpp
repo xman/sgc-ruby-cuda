@@ -295,7 +295,13 @@ static VALUE device_get_attribute(VALUE self, VALUE attribute)
     CUdevice* p;
     Data_Get_Struct(self, CUdevice, p);
     int v;
-    cuDeviceGetAttribute(&v, static_cast<CUdevice_attribute>(FIX2INT(attribute)), *p);
+    CUresult status = cuDeviceGetAttribute(&v, static_cast<CUdevice_attribute>(FIX2INT(attribute)), *p);
+    if (status != CUDA_SUCCESS) {
+        VALUE attributes = rb_funcall(rb_cCUDeviceAttribute, rb_intern("constants"), 0);
+        VALUE ary[3] = { rb_cCUDeviceAttribute, attribute, Qnil };
+        rb_block_call(attributes, rb_intern("find"), 0, NULL, (VALUE(*)(ANYARGS))class_const_match, (VALUE)ary);
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to query device attribute: %s.", rb_id2name(SYM2ID(ary[2])));
+    }
     return INT2FIX(v);
 }
 
