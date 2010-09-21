@@ -428,7 +428,13 @@ static VALUE context_set_limit(VALUE klass, VALUE limit, VALUE value)
 {
     CUlimit l = static_cast<CUlimit>(FIX2UINT(limit));
     size_t v = NUM2SIZET(value);
-    cuCtxSetLimit(l, v);
+    CUresult status = cuCtxSetLimit(l, v);
+    if (status != CUDA_SUCCESS) {
+        VALUE limits = rb_funcall(rb_cCULimit, rb_intern("constants"), 0);
+        VALUE ary[3] = { rb_cCULimit, limit, Qnil };
+        rb_block_call(limits, rb_intern("find"), 0, NULL, (VALUE(*)(ANYARGS))class_const_match, (VALUE)ary);
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set context limit: %s to %u.", rb_id2name(SYM2ID(ary[2])), v);
+    }
     return Qnil;
 }
 
