@@ -433,7 +433,10 @@ static VALUE context_pop_current(VALUE klass, VALUE context)
 {
     CUcontext* pcontext;
     Data_Get_Struct(context, CUcontext, pcontext);
-    cuCtxPopCurrent(pcontext);
+    CUresult status = cuCtxPopCurrent(pcontext);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to pop current context.");
+    }
     return Qnil;
 }
 
