@@ -238,7 +238,10 @@ static VALUE rb_error_class_by_enum;
 static VALUE device_get_count(VALUE klass)
 {
     int count;
-    cuDeviceGetCount(&count);
+    CUresult status = cuDeviceGetCount(&count);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get device count.");
+    }
     return INT2FIX(count);
 }
 
