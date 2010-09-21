@@ -355,7 +355,10 @@ static VALUE context_destroy(VALUE self)
 {
     CUcontext* p;
     Data_Get_Struct(self, CUcontext, p);
-    cuCtxDestroy(*p);
+    CUresult status = cuCtxDestroy(*p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to destroy context.");
+    }
     return Qnil;
 }
 
