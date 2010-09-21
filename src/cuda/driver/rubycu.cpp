@@ -451,7 +451,10 @@ static VALUE context_pop_current(VALUE klass, VALUE context)
 
 static VALUE context_synchronize(VALUE klass)
 {
-    cuCtxSynchronize();
+    CUresult status = cuCtxSynchronize();
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to synchronize this context.");
+    }
     return Qnil;
 }
 // }}}
