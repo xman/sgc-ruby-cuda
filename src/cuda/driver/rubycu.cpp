@@ -364,7 +364,10 @@ static VALUE context_attach(int argc, VALUE* argv, VALUE self)
     if (argc == 1) {
         flags = FIX2UINT(argv[0]);
     }
-    cuCtxAttach(p, flags);
+    CUresult status = cuCtxAttach(p, flags);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to attach context: flags = %x.", flags);
+    }
     return self;
 }
 
