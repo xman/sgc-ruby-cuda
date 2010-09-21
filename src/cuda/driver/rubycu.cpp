@@ -316,7 +316,10 @@ static VALUE device_total_mem(VALUE self)
     CUdevice* p;
     Data_Get_Struct(self, CUdevice, p);
     unsigned int nbytes;
-    cuDeviceTotalMem(&nbytes, *p);
+    CUresult status = cuDeviceTotalMem(&nbytes, *p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get device total amount of memory available.");
+    }
     long n = static_cast<long>(nbytes);
     return LONG2NUM(n);
 }
