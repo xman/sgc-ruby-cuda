@@ -209,6 +209,22 @@ double to_ctype(VALUE v)
     return NUM2DBL(v);
 }
 
+// in  ary[0]: Class contains class constants.
+// in  ary[1]: Constant to match.
+// out ary[2]: Label matches with constant.
+static VALUE class_const_match(VALUE current_label, VALUE* ary)
+{
+    const VALUE& rb_class_const = ary[0];
+    const VALUE& constant_value = ary[1];
+    VALUE& label = ary[2];
+    VALUE v = rb_funcall(rb_class_const, rb_intern("const_get"), 1, current_label);
+    if (FIX2INT(v) == FIX2INT(constant_value)) {
+        label = current_label;
+        return Qtrue;
+    }
+    return Qfalse;
+}
+
 #define RAISE_CU_STD_ERROR_FORMATTED(status, format, ...) rb_raise(rb_hash_aref(rb_error_class_by_enum, INT2FIX(status)), "%s:%d " format, __FILE__, __LINE__, __VA_ARGS__)
 #define RAISE_CU_STD_ERROR(status, message) RAISE_CU_STD_ERROR_FORMATTED(status, "%s", message)
 // }}}
