@@ -344,7 +344,10 @@ static VALUE context_create(VALUE self, VALUE flags, VALUE rb_device)
     CUdevice* pdevice;
     Data_Get_Struct(self, CUcontext, pcontext);
     Data_Get_Struct(rb_device, CUdevice, pdevice);
-    cuCtxCreate(pcontext, FIX2UINT(flags), *pdevice);
+    CUresult status = cuCtxCreate(pcontext, FIX2UINT(flags), *pdevice);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create context: flags = %x.", FIX2UINT(flags));
+    }
     return self;
 }
 
