@@ -273,7 +273,10 @@ static VALUE device_get_name(VALUE self)
     CUdevice* p;
     Data_Get_Struct(self, CUdevice, p);
     char name[256];
-    cuDeviceGetName(name, 256, *p);
+    CUresult status = cuDeviceGetName(name, 256, *p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get device name.");
+    }
     return rb_str_new2(name);
 }
 
