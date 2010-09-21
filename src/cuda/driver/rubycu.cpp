@@ -392,7 +392,10 @@ static VALUE context_push_current(VALUE self)
 {
     CUcontext* p;
     Data_Get_Struct(self, CUcontext, p);
-    cuCtxPushCurrent(*p);
+    CUresult status = cuCtxPushCurrent(*p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to push this context.");
+    }
     return self;
 }
 
