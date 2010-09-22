@@ -476,7 +476,10 @@ static VALUE module_load(VALUE self, VALUE str)
 {
     CUmodule* p;
     Data_Get_Struct(self, CUmodule, p);
-    cuModuleLoad(p, StringValuePtr(str));
+    CUresult status = cuModuleLoad(p, StringValuePtr(str));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to load module: %s.", StringValuePtr(str));
+    }
     return self;
 }
 
