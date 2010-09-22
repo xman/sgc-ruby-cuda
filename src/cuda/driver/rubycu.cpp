@@ -786,10 +786,15 @@ static VALUE event_query(VALUE self)
     CUevent* p;
     Data_Get_Struct(self, CUevent, p);
     CUresult status = cuEventQuery(*p);
-    if (status == CUDA_SUCCESS)
+    if (status == CUDA_SUCCESS) {
         return Qtrue;
-    // TODO: handle status == CUDA_ERROR_INVALID_VALUE
-    return Qfalse;
+    } else if (status == CUDA_ERROR_NOT_READY) {
+        return Qfalse;
+    } else if (status == CUDA_ERROR_INVALID_VALUE) {
+        RAISE_CU_STD_ERROR(status, "Failed to query event: cuEventRecord() has not been called on this event.");
+    } else {
+        RAISE_CU_STD_ERROR(status, "Failed to query event.");
+    }
 }
 
 static VALUE event_record(VALUE self, VALUE rb_stream)
