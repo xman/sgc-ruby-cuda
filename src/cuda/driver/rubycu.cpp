@@ -487,7 +487,10 @@ static VALUE module_unload(VALUE self)
 {
     CUmodule* p;
     Data_Get_Struct(self, CUmodule, p);
-    cuModuleUnload(*p);
+    CUresult status = cuModuleUnload(*p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to unload module.");
+    }
     return self;
 }
 
