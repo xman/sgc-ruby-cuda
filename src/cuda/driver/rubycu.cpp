@@ -545,7 +545,10 @@ static VALUE device_ptr_mem_alloc(VALUE self, VALUE nbytes)
     CUdeviceptr* p;
     Data_Get_Struct(self, CUdeviceptr, p);
     size_t n = NUM2SIZET(nbytes);
-    cuMemAlloc(p, n);
+    CUresult status = cuMemAlloc(p, n);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to allocate memory: size = %u.", NUM2SIZET(nbytes));
+    }
     return self;
 }
 
