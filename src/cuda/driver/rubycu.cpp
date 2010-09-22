@@ -962,8 +962,11 @@ static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
     Data_Get_Struct(rb_memory, MemoryBuffer, pmem);
     size_t nbytes = NUM2SIZET(rb_nbytes);
-    cuMemcpyDtoH(static_cast<void*>(pmem->p), *pdevice_ptr, nbytes);
-    return Qnil; // TODO: Return the status of the transfer.
+    CUresult status = cuMemcpyDtoH(static_cast<void*>(pmem->p), *pdevice_ptr, nbytes);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to copy memory from device to host.");
+    }
+    return Qnil;
 }
 // }}}
 
