@@ -510,7 +510,10 @@ static VALUE module_get_global(VALUE self, VALUE str)
     CUdeviceptr* pdevptr;
     Data_Get_Struct(rb_devptr, CUdeviceptr, pdevptr);
     unsigned int nbytes;
-    cuModuleGetGlobal(pdevptr, &nbytes, *p, StringValuePtr(str));
+    CUresult status = cuModuleGetGlobal(pdevptr, &nbytes, *p, StringValuePtr(str));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get module global: %s.", StringValuePtr(str));
+    }
     return rb_ary_new3(2, rb_devptr, LONG2NUM(nbytes));
 }
 // }}}
