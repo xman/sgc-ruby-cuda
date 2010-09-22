@@ -738,7 +738,10 @@ static VALUE stream_synchronize(VALUE self)
 {
     CUstream* p;
     Data_Get_Struct(self, CUstream, p);
-    cuStreamSynchronize(*p);
+    CUresult status = cuStreamSynchronize(*p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to synchronize stream.");
+    }
     return self;
 }
 // }}}
