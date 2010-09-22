@@ -725,9 +725,13 @@ static VALUE stream_query(VALUE self)
     CUstream* p;
     Data_Get_Struct(self, CUstream, p);
     CUresult status = cuStreamQuery(*p);
-    if (status == CUDA_SUCCESS)
+    if (status == CUDA_SUCCESS) {
         return Qtrue;
-    return Qfalse;
+    } else if (status == CUDA_ERROR_NOT_READY) {
+        return Qfalse;
+    } else {
+        RAISE_CU_STD_ERROR(status, "Failed to query stream.");
+    }
 }
 
 static VALUE stream_synchronize(VALUE self)
