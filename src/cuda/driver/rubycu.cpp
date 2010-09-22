@@ -774,7 +774,10 @@ static VALUE event_destroy(VALUE self)
 {
     CUevent* p;
     Data_Get_Struct(self, CUevent, p);
-    cuEventDestroy(*p);
+    CUresult status = cuEventDestroy(*p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to destroy event.");
+    }
     return Qnil;
 }
 
