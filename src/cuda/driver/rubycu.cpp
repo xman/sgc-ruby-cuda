@@ -493,7 +493,11 @@ static VALUE module_get_function(VALUE self, VALUE str)
     CUmodule* p;
     Data_Get_Struct(self, CUmodule, p);
     CUfunction* pfunc = new CUfunction;
-    cuModuleGetFunction(pfunc, *p, StringValuePtr(str));
+    CUresult status = cuModuleGetFunction(pfunc, *p, StringValuePtr(str));
+    if (status != CUDA_SUCCESS) {
+        delete pfunc;
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get module function: %s.", StringValuePtr(str));
+    }
     return Data_Wrap_Struct(rb_cCUFunction, 0, generic_free<CUfunction>, pfunc);
 }
 
