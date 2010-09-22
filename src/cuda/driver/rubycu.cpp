@@ -556,7 +556,10 @@ static VALUE device_ptr_mem_free(VALUE self)
 {
     CUdeviceptr* p;
     Data_Get_Struct(self, CUdeviceptr, p);
-    cuMemFree(*p);
+    CUresult status = cuMemFree(*p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to free memory.");
+    }
     return self;
 }
 // }}}
