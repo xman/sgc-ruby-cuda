@@ -836,7 +836,12 @@ static VALUE event_elapsed_time(VALUE klass, VALUE event_start, VALUE event_end)
     Data_Get_Struct(event_start, CUevent, pevent_start);
     Data_Get_Struct(event_end, CUevent, pevent_end);
     float etime;
-    cuEventElapsedTime(&etime, *pevent_start, *pevent_end);
+    CUresult status = cuEventElapsedTime(&etime, *pevent_start, *pevent_end);
+    if (status == CUDA_ERROR_NOT_READY) {
+        RAISE_CU_STD_ERROR(status, "Failed to get elapsed time of events: either event has not been recorded yet.");
+    } else if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get elapsed time of events.");
+    }
     return DBL2NUM(etime);
 }
 // }}}
