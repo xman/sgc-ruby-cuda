@@ -702,7 +702,10 @@ static VALUE stream_create(VALUE self, VALUE flags)
 {
     CUstream* p;
     Data_Get_Struct(self, CUstream, p);
-    cuStreamCreate(p, FIX2UINT(flags));
+    CUresult status = cuStreamCreate(p, FIX2UINT(flags));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create stream: flags = %x", FIX2UINT(flags));
+    }
     return self;
 }
 
