@@ -809,8 +809,11 @@ static VALUE event_record(VALUE self, VALUE rb_stream)
     } else {
         status = cuEventRecord(*pevent, 0);
     }
-    // TODO: handle status == CUDA_ERROR_INVALID_VALUE
-    if (status == CUDA_ERROR_INVALID_VALUE) {}
+    if (status == CUDA_ERROR_INVALID_VALUE) {
+        RAISE_CU_STD_ERROR(status, "Failed to record event: cuEventRecord() has been called and has not been recorded yet.");
+    } else if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to record event.");
+    }
     return self;
 }
 
