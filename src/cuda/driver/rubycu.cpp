@@ -822,8 +822,10 @@ static VALUE event_synchronize(VALUE self)
     CUevent* p;
     Data_Get_Struct(self, CUevent, p);
     CUresult status = cuEventSynchronize(*p);
-    // TODO: handle status == CUDA_ERROR_INVALID_VALUE
-    if (status == CUDA_ERROR_INVALID_VALUE) {}
+    // TODO: Handle status == CUDA_ERROR_INVALID_VALUE
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to synchronize event.");
+    }
     return self;
 }
 
