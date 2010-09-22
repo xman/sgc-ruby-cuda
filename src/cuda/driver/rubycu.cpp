@@ -763,7 +763,10 @@ static VALUE event_create(VALUE self, VALUE flags)
 {
     CUevent* p;
     Data_Get_Struct(self, CUevent, p);
-    cuEventCreate(p, FIX2UINT(flags));
+    CUresult status = cuEventCreate(p, FIX2UINT(flags));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create event: flags = %x.", FIX2UINT(flags));
+    }
     return self;
 }
 
