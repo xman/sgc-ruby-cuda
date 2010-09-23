@@ -346,7 +346,7 @@ static VALUE context_create(VALUE self, VALUE flags, VALUE rb_device)
     Data_Get_Struct(rb_device, CUdevice, pdevice);
     CUresult status = cuCtxCreate(pcontext, FIX2UINT(flags), *pdevice);
     if (status != CUDA_SUCCESS) {
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create context: flags = %x.", FIX2UINT(flags));
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create context: flags = 0x%x.", FIX2UINT(flags));
     }
     return self;
 }
@@ -372,7 +372,7 @@ static VALUE context_attach(int argc, VALUE* argv, VALUE self)
     }
     CUresult status = cuCtxAttach(p, flags);
     if (status != CUDA_SUCCESS) {
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to attach context: flags = %x.", flags);
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to attach context: flags = 0x%x.", flags);
     }
     return self;
 }
@@ -744,7 +744,7 @@ static VALUE stream_create(VALUE self, VALUE flags)
     Data_Get_Struct(self, CUstream, p);
     CUresult status = cuStreamCreate(p, FIX2UINT(flags));
     if (status != CUDA_SUCCESS) {
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create stream: flags = %x", FIX2UINT(flags));
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create stream: flags = 0x%x", FIX2UINT(flags));
     }
     return self;
 }
@@ -805,7 +805,7 @@ static VALUE event_create(VALUE self, VALUE flags)
     Data_Get_Struct(self, CUevent, p);
     CUresult status = cuEventCreate(p, FIX2UINT(flags));
     if (status != CUDA_SUCCESS) {
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create event: flags = %x.", FIX2UINT(flags));
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create event: flags = 0x%x.", FIX2UINT(flags));
     }
     return self;
 }
