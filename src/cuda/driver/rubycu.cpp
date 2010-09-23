@@ -655,7 +655,10 @@ static VALUE function_launch(VALUE self)
 {
     CUfunction* p;
     Data_Get_Struct(self, CUfunction, p);
-    cuLaunch(*p);
+    CUresult status = cuLaunch(*p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to launch kernel function on 1x1x1 grid of blocks.");
+    }
     return self;
 }
 
