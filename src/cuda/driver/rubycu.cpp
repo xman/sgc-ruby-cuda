@@ -609,7 +609,7 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
             if (status != CUDA_SUCCESS) break;
             offset += sizeof(float);
         } else {
-            rb_raise(rb_eRuntimeError, "Invalid parameters to CUFunction set.");
+            rb_raise(rb_eArgError, "Invalid type of argument %d.", i+1);
         }
     }
     if (status != CUDA_SUCCESS) {
@@ -626,7 +626,7 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
 static VALUE function_set_block_shape(int argc, VALUE* argv, VALUE self)
 {
     if (argc <= 0 || argc > 3) {
-        rb_raise(rb_eRuntimeError, "Invalid number of parameters to set block shape. Expect 1 to 3 integers.");
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 2 or 3 integers).", argc);
     }
 
     CUfunction* pfunc;
@@ -675,7 +675,7 @@ static VALUE function_launch(VALUE self)
 static VALUE function_launch_grid(int argc, VALUE* argv, VALUE self)
 {
     if (argc <= 0 || argc > 2) {
-        rb_raise(rb_eRuntimeError, "Invalid number of parameters to launch grid. Expect 1 to 2 integers.");
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 1 or 2 integers).", argc);
     }
 
     CUfunction* pfunc;
