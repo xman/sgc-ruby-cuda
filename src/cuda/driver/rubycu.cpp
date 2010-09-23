@@ -585,6 +585,7 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
     CUfunction* pfunc;
     Data_Get_Struct(self, CUfunction, pfunc);
 
+    CUresult status = CUDA_ERROR_UNKNOWN;
     for (int i = 0; i < argc; ++i) {
         if (CLASS_OF(argv[i]) == rb_cCUDevicePtr) {
             CUdeviceptr* p;
@@ -592,24 +593,33 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
             Data_Get_Struct(argv[i], CUdeviceptr, p);
             vp = (void*)(size_t)(*p);
             ALIGN_UP(offset, __alignof(vp));
-            cuParamSetv(*pfunc, offset, &vp, sizeof(vp));
+            status = cuParamSetv(*pfunc, offset, &vp, sizeof(vp));
+            if (status != CUDA_SUCCESS) break;
             offset += sizeof(vp);
         } else if (CLASS_OF(argv[i]) == rb_cFixnum) {
             int num = FIX2INT(argv[i]);
             ALIGN_UP(offset, __alignof(num));
-            cuParamSeti(*pfunc, offset, num);
+            status = cuParamSeti(*pfunc, offset, num);
+            if (status != CUDA_SUCCESS) break;
             offset += sizeof(int);
         } else if (CLASS_OF(argv[i]) == rb_cFloat) {
             float num = static_cast<float>(NUM2DBL(argv[i]));
             ALIGN_UP(offset, __alignof(num));
-            cuParamSetf(*pfunc, offset, num);
+            status = cuParamSetf(*pfunc, offset, num);
+            if (status != CUDA_SUCCESS) break;
             offset += sizeof(float);
         } else {
             rb_raise(rb_eRuntimeError, "Invalid parameters to CUFunction set.");
         }
     }
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to set function parameters.");
+    }
 
-    cuParamSetSize(*pfunc, offset);
+    status = cuParamSetSize(*pfunc, offset);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to set function parameter size.");
+    }
     return self;
 }
 
