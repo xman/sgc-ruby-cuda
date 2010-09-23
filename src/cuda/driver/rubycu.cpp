@@ -678,7 +678,10 @@ static VALUE function_launch_grid(int argc, VALUE* argv, VALUE self)
         ydim = FIX2INT(argv[1]);
     }
 
-    cuLaunchGrid(*pfunc, xdim, ydim);
+    CUresult status = cuLaunchGrid(*pfunc, xdim, ydim);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to launch kernel function on %dx%d grid of blocks.", xdim, ydim);
+    }
     return self;
 }
 
