@@ -633,7 +633,10 @@ static VALUE function_set_block_shape(int argc, VALUE* argv, VALUE self)
         zdim = FIX2INT(argv[2]);
     }
 
-    cuFuncSetBlockShape(*pfunc, xdim, ydim, zdim);
+    CUresult status = cuFuncSetBlockShape(*pfunc, xdim, ydim, zdim);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set function block shape: (x,y,z) = (%d,%d,%d).", xdim, ydim, zdim);
+    }
     return self;
 }
 
