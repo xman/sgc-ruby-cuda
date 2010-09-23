@@ -695,7 +695,13 @@ static VALUE function_set_cache_config(VALUE self, VALUE config)
 {
     CUfunction* p;
     Data_Get_Struct(self, CUfunction, p);
-    cuFuncSetCacheConfig(*p, static_cast<CUfunc_cache>(FIX2UINT(config)));
+    CUresult status = cuFuncSetCacheConfig(*p, static_cast<CUfunc_cache>(FIX2UINT(config)));
+    if (status != CUDA_SUCCESS) {
+        VALUE configs = rb_funcall(rb_cCUFunctionCache, rb_intern("constants"), 0);
+        VALUE ary[3] = { rb_cCUFunctionCache, config, Qnil };
+        rb_block_call(configs, rb_intern("find"), 0, NULL, (VALUE(*)(ANYARGS))class_const_match, (VALUE)ary);
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set function cache config: %s.", rb_id2name(SYM2ID(ary[2])));
+    }
     return self;
 }
 // }}}
