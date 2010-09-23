@@ -644,7 +644,10 @@ static VALUE function_set_shared_size(VALUE self, VALUE nbytes)
 {
     CUfunction* p;
     Data_Get_Struct(self, CUfunction, p);
-    cuFuncSetSharedSize(*p, NUM2UINT(nbytes));
+    CUresult status = cuFuncSetSharedSize(*p, NUM2UINT(nbytes));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set function shared memory size: %u.", FIX2UINT(nbytes));
+    }
     return self;
 }
 
