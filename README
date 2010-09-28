@@ -31,7 +31,7 @@ possible. This facilitates developers familiar with CUDA C who should be able to
 use SGC-Ruby-CUDA with minimum effort.
 
 Ruby classes and methods to ease the use of the API or making CUDA the
-Ruby way would be built on of the Ruby CUDA API.
+Ruby way would be built on top of the Ruby CUDA API.
 
 
 == Prerequisites
