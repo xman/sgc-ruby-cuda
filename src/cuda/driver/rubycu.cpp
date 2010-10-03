@@ -25,6 +25,9 @@
 #include "ruby.h"
 #include "cuda.h"
 
+namespace SGC {
+namespace CU {
+
 // {{{ SGC Ruby modules.
 static VALUE rb_mSGC;
 static VALUE rb_mCU;
@@ -1352,3 +1355,6 @@ extern "C" void Init_rubycu()
         RAISE_CU_STD_ERROR(status, "Failed to initialize the CUDA driver API.");
     }
 }
+
+} // namespace
+} // namespace
