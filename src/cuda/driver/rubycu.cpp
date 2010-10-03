@@ -547,6 +547,17 @@ static VALUE device_ptr_initialize(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+static VALUE device_ptr_offset(VALUE self, VALUE offset)
+{
+    CUdeviceptr* pdevptr;
+    CUdeviceptr* pdevptr_offset;
+    Data_Get_Struct(self, CUdeviceptr, pdevptr);
+    VALUE rb_pdevptr_offset = rb_class_new_instance(0, NULL, rb_cCUDevicePtr);
+    Data_Get_Struct(rb_pdevptr_offset, CUdeviceptr, pdevptr_offset);
+    *pdevptr_offset = *pdevptr + NUM2SIZET(offset);
+    return rb_pdevptr_offset;
+}
+
 static VALUE device_ptr_mem_alloc(VALUE self, VALUE nbytes)
 {
     CUdeviceptr* p;
@@ -1139,6 +1150,7 @@ extern "C" void Init_rubycu()
     rb_cCUDevicePtr = rb_define_class_under(rb_mCU, "CUDevicePtr", rb_cObject);
     rb_define_alloc_func(rb_cCUDevicePtr, device_ptr_alloc);
     rb_define_method(rb_cCUDevicePtr, "initialize", (VALUE(*)(ANYARGS))device_ptr_initialize, -1);
+    rb_define_method(rb_cCUDevicePtr, "offset"    , (VALUE(*)(ANYARGS))device_ptr_offset    ,  1);
     rb_define_method(rb_cCUDevicePtr, "mem_alloc" , (VALUE(*)(ANYARGS))device_ptr_mem_alloc ,  1);
     rb_define_method(rb_cCUDevicePtr, "mem_free"  , (VALUE(*)(ANYARGS))device_ptr_mem_free  ,  0);
 
