@@ -127,6 +127,7 @@ typedef struct {
 
 typedef struct : MemoryPointer {
     size_t size;
+    bool is_page_locked;
 } MemoryBuffer;
 
 template <typename TElement>
@@ -924,7 +925,11 @@ static VALUE memory_pointer_initialize(VALUE self)
 static void memory_buffer_free(void* p)
 {
     MemoryBuffer* pbuffer = static_cast<MemoryBuffer*>(p);
-    delete[] pbuffer->p;
+    if (pbuffer->is_page_locked) {
+        cuMemFreeHost(reinterpret_cast<void*>(pbuffer->p));
+    } else {
+        delete[] pbuffer->p;
+    }
     delete pbuffer;
 }
 
@@ -932,17 +937,40 @@ static VALUE memory_buffer_alloc(VALUE klass)
 {
     MemoryBuffer* pbuffer = new MemoryBuffer;
     pbuffer->size = 0;
+    pbuffer->is_page_locked = false;
     pbuffer->p = NULL;
     return Data_Wrap_Struct(klass, 0, memory_buffer_free, pbuffer);
 }
 
-static VALUE memory_buffer_initialize(VALUE self, VALUE nbytes)
+static VALUE memory_buffer_initialize(int argc, VALUE* argv, VALUE self)
 {
+    if (argc < 1 || argc > 2) {
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 1 or 2).", argc);
+    }
+
+    bool use_page_locked = false;
+    VALUE nbytes = argv[0];
+    VALUE hash = Qnil;
+    if (argc == 2 && CLASS_OF(argv[1]) == rb_cHash) {
+        if (rb_hash_aref(argv[1], ID2SYM(rb_intern("page_locked"))) == Qtrue) {
+            use_page_locked = true;
+        }
+    }
+
     size_t n = NUM2SIZET(nbytes);
     MemoryBuffer* pbuffer;
     Data_Get_Struct(self, MemoryBuffer, pbuffer);
     pbuffer->size = n;
-    pbuffer->p = new char[n];
+    if (use_page_locked) {
+        CUresult status = cuMemAllocHost(reinterpret_cast<void**>(&pbuffer->p), n);
+        if (status != CUDA_SUCCESS) {
+            RAISE_CU_STD_ERROR(status, "Failed to allocate page-locked host memory.");
+        }
+        pbuffer->is_page_locked = true;
+    } else {
+        pbuffer->p = new char[n];
+        pbuffer->is_page_locked = false;
+    }
     std::memset(static_cast<void*>(pbuffer->p), 0, pbuffer->size);
     return self;
 }
@@ -959,7 +987,11 @@ static void buffer_free(void* p)
 {
     typedef struct TypedBuffer<TElement> TBuffer;
     TBuffer* pbuffer = static_cast<TBuffer*>(p);
-    delete[] pbuffer->p;
+    if (pbuffer->is_page_locked) {
+        cuMemFreeHost(reinterpret_cast<void*>(pbuffer->p));
+    } else {
+        delete[] pbuffer->p;
+    }
     delete pbuffer;
 }
 
@@ -974,18 +1006,40 @@ static VALUE buffer_alloc(VALUE klass)
 }
 
 template <typename TElement>
-static VALUE buffer_initialize(VALUE self, VALUE nelements)
+static VALUE buffer_initialize(int argc, VALUE* argv, VALUE self)
 {
+    if (argc <= 0 || argc >= 3) {
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 1 or 2).", argc);
+    }
+
+    bool use_page_locked = false;
+    VALUE nelements = argv[0];
+    VALUE hash = Qnil;
+    if (argc == 2 && CLASS_OF(argv[1]) == rb_cHash) {
+        if (rb_hash_aref(argv[1], ID2SYM(rb_intern("page_locked"))) == Qtrue) {
+            use_page_locked = true;
+        }
+    }
+
     typedef struct TypedBuffer<TElement> TBuffer;
     size_t n = NUM2SIZET(nelements);
     TBuffer* pbuffer;
     Data_Get_Struct(self, TBuffer, pbuffer);
     pbuffer->size = n*sizeof(TElement);
-    pbuffer->p = reinterpret_cast<char*>(new TElement[n]);
+    if (use_page_locked) {
+        CUresult status = cuMemAllocHost(reinterpret_cast<void**>(&pbuffer->p), n*sizeof(TElement));
+        if (status != CUDA_SUCCESS) {
+            RAISE_CU_STD_ERROR(status, "Failed to allocate page-locked host memory.");
+        }
+        pbuffer->is_page_locked = true;
+    } else {
+        pbuffer->p = reinterpret_cast<char*>(new TElement[n]);
+        pbuffer->is_page_locked = false;
+    }
     std::memset(static_cast<void*>(pbuffer->p), 0, pbuffer->size);
     return self;
 }
-typedef VALUE (*BufferInitializeFunctionType)(VALUE, VALUE);
+typedef VALUE (*BufferInitializeFunctionType)(int, VALUE*, VALUE);
 
 template <typename TElement>
 static VALUE buffer_offset(VALUE self, VALUE offset)
@@ -1390,13 +1444,13 @@ extern "C" void Init_rubycu()
 
     rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cMemoryPointer);
     rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
-    rb_define_method(rb_cMemoryBuffer, "initialize", (VALUE(*)(ANYARGS))memory_buffer_initialize, 1);
+    rb_define_method(rb_cMemoryBuffer, "initialize", (VALUE(*)(ANYARGS))memory_buffer_initialize, -1);
     rb_define_method(rb_cMemoryBuffer, "size"      , (VALUE(*)(ANYARGS))memory_buffer_size      , 0);
 
     rb_cInt32Buffer = rb_define_class_under(rb_mCU, "Int32Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cInt32Buffer, buffer_alloc<int>);
     rb_define_const(rb_cInt32Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(int)));
-    rb_define_method(rb_cInt32Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<int>) , 1);
+    rb_define_method(rb_cInt32Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<int>) , -1);
     rb_define_method(rb_cInt32Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<int>), 1);
     rb_define_method(rb_cInt32Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<int>), 1);
     rb_define_method(rb_cInt32Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<int>), 2);
@@ -1404,7 +1458,7 @@ extern "C" void Init_rubycu()
     rb_cInt64Buffer = rb_define_class_under(rb_mCU, "Int64Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cInt64Buffer, buffer_alloc<long>);
     rb_define_const(rb_cInt64Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(long)));
-    rb_define_method(rb_cInt64Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<long>) , 1);
+    rb_define_method(rb_cInt64Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<long>) , -1);
     rb_define_method(rb_cInt64Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<long>), 1);
     rb_define_method(rb_cInt64Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<long>), 1);
     rb_define_method(rb_cInt64Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<long>), 2);
@@ -1412,7 +1466,7 @@ extern "C" void Init_rubycu()
     rb_cFloat32Buffer = rb_define_class_under(rb_mCU, "Float32Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cFloat32Buffer, buffer_alloc<float>);
     rb_define_const(rb_cFloat32Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(float)));
-    rb_define_method(rb_cFloat32Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<float>) , 1);
+    rb_define_method(rb_cFloat32Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<float>) , -1);
     rb_define_method(rb_cFloat32Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<float>), 1);
     rb_define_method(rb_cFloat32Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<float>), 1);
     rb_define_method(rb_cFloat32Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<float>), 2);
@@ -1420,7 +1474,7 @@ extern "C" void Init_rubycu()
     rb_cFloat64Buffer = rb_define_class_under(rb_mCU, "Float64Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cFloat64Buffer, buffer_alloc<double>);
     rb_define_const(rb_cFloat64Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(double)));
-    rb_define_method(rb_cFloat64Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<double>) , 1);
+    rb_define_method(rb_cFloat64Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<double>) , -1);
     rb_define_method(rb_cFloat64Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<double>), 1);
     rb_define_method(rb_cFloat64Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<double>), 1);
     rb_define_method(rb_cFloat64Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<double>), 2);
