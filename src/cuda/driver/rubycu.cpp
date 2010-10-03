@@ -1030,7 +1030,7 @@ typedef VALUE (*BufferElementSetFunctionType)(VALUE, VALUE, VALUE);
 // }}}
 
 
-// {{{ Memory transfer functions.
+// {{{ Memory
 static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE rb_nbytes)
 {
     CUdeviceptr* pdevice_ptr;
@@ -1070,6 +1070,20 @@ static VALUE memcpy_dtod(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_pt
         RAISE_CU_STD_ERROR(status, "Failed to copy memory from device to device.");
     }
     return Qnil;
+}
+
+static VALUE mem_get_info(VALUE self)
+{
+    unsigned int free_memory;
+    unsigned int total_memory;
+    CUresult status = cuMemGetInfo(&free_memory, &total_memory);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get memory information.");
+    }
+    VALUE h = rb_hash_new();
+    rb_hash_aset(h, ID2SYM(rb_intern("free")), SIZET2NUM(free_memory));
+    rb_hash_aset(h, ID2SYM(rb_intern("total")), SIZET2NUM(total_memory));
+    return h;
 }
 // }}}
 
@@ -1414,6 +1428,7 @@ extern "C" void Init_rubycu()
     rb_define_module_function(rb_mCU, "memcpy_htod", (VALUE(*)(ANYARGS))memcpy_htod, 3);
     rb_define_module_function(rb_mCU, "memcpy_dtoh", (VALUE(*)(ANYARGS))memcpy_dtoh, 3);
     rb_define_module_function(rb_mCU, "memcpy_dtod", (VALUE(*)(ANYARGS))memcpy_dtod, 3);
+    rb_define_module_function(rb_mCU, "mem_get_info", (VALUE(*)(ANYARGS))mem_get_info, 0);
 
     rb_define_module_function(rb_mCU, "driver_get_version", (VALUE(*)(ANYARGS))driver_get_version, 0);
 
