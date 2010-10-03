@@ -1099,6 +1099,26 @@ static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE
     return Qnil;
 }
 
+static VALUE memcpy_htod_async(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE rb_nbytes, VALUE rb_stream)
+{
+    CUdeviceptr* pdevice_ptr;
+    MemoryPointer* pmem;
+    CUstream* pstream;
+    CUstream stream0 = 0;
+    Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
+    Data_Get_Struct(rb_memory, MemoryPointer, pmem);
+    if (CLASS_OF(rb_stream) == rb_cCUStream) {
+        Data_Get_Struct(rb_stream, CUstream, pstream);
+    } else {
+        pstream = &stream0;
+    }
+    CUresult status = cuMemcpyHtoDAsync(*pdevice_ptr, static_cast<void*>(pmem->p), NUM2SIZET(rb_nbytes), *pstream);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to copy memory asynchronously from host to device.");
+    }
+    return Qnil;
+}
+
 static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE rb_nbytes)
 {
     MemoryPointer* pmem;
@@ -1113,6 +1133,26 @@ static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE
     return Qnil;
 }
 
+static VALUE memcpy_dtoh_async(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE rb_nbytes, VALUE rb_stream)
+{
+    MemoryPointer* pmem;
+    CUdeviceptr* pdevice_ptr;
+    CUstream* pstream;
+    CUstream stream0 = 0;
+    Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
+    Data_Get_Struct(rb_memory, MemoryPointer, pmem);
+    if (CLASS_OF(rb_stream) == rb_cCUStream) {
+        Data_Get_Struct(rb_stream, CUstream, pstream);
+    } else {
+        pstream = &stream0;
+    }
+    CUresult status = cuMemcpyDtoHAsync(static_cast<void*>(pmem->p), *pdevice_ptr, NUM2SIZET(rb_nbytes), *pstream);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to copy memory asynchronously from device to host.");
+    }
+    return Qnil;
+}
+
 static VALUE memcpy_dtod(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_ptr_src, VALUE rb_nbytes)
 {
     CUdeviceptr* dst;
@@ -1122,6 +1162,26 @@ static VALUE memcpy_dtod(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_pt
     CUresult status = cuMemcpyDtoD(*dst, *src, NUM2SIZET(rb_nbytes));
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to copy memory from device to device.");
+    }
+    return Qnil;
+}
+
+static VALUE memcpy_dtod_async(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_ptr_src, VALUE rb_nbytes, VALUE rb_stream)
+{
+    CUdeviceptr* dst;
+    CUdeviceptr* src;
+    CUstream *pstream;
+    CUstream stream0 = 0;
+    Data_Get_Struct(rb_device_ptr_dst, CUdeviceptr, dst);
+    Data_Get_Struct(rb_device_ptr_src, CUdeviceptr, src);
+    if (CLASS_OF(rb_stream) == rb_cCUStream) {
+        Data_Get_Struct(rb_stream, CUstream, pstream);
+    } else {
+        pstream = &stream0;
+    }
+    CUresult status = cuMemcpyDtoDAsync(*dst, *src, NUM2SIZET(rb_nbytes), *pstream);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to copy memory asynchronously from device to device.");
     }
     return Qnil;
 }
@@ -1482,6 +1542,9 @@ extern "C" void Init_rubycu()
     rb_define_module_function(rb_mCU, "memcpy_htod", (VALUE(*)(ANYARGS))memcpy_htod, 3);
     rb_define_module_function(rb_mCU, "memcpy_dtoh", (VALUE(*)(ANYARGS))memcpy_dtoh, 3);
     rb_define_module_function(rb_mCU, "memcpy_dtod", (VALUE(*)(ANYARGS))memcpy_dtod, 3);
+    rb_define_module_function(rb_mCU, "memcpy_htod_async", (VALUE(*)(ANYARGS))memcpy_htod_async, 4);
+    rb_define_module_function(rb_mCU, "memcpy_dtoh_async", (VALUE(*)(ANYARGS))memcpy_dtoh_async, 4);
+    rb_define_module_function(rb_mCU, "memcpy_dtod_async", (VALUE(*)(ANYARGS))memcpy_dtod_async, 4);
     rb_define_module_function(rb_mCU, "mem_get_info", (VALUE(*)(ANYARGS))mem_get_info, 0);
 
     rb_define_module_function(rb_mCU, "driver_get_version", (VALUE(*)(ANYARGS))driver_get_version, 0);
