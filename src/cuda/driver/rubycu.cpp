@@ -988,6 +988,20 @@ static VALUE buffer_initialize(VALUE self, VALUE nelements)
 typedef VALUE (*BufferInitializeFunctionType)(VALUE, VALUE);
 
 template <typename TElement>
+static VALUE buffer_offset(VALUE self, VALUE offset)
+{
+    typedef struct TypedBuffer<TElement> TBuffer;
+    TBuffer* pbuffer;
+    MemoryPointer* ppointer_offset;
+    Data_Get_Struct(self, TBuffer, pbuffer);
+    VALUE rb_ppointer_offset = rb_class_new_instance(0, NULL, rb_cMemoryPointer);
+    Data_Get_Struct(rb_ppointer_offset, MemoryPointer, ppointer_offset);
+    ppointer_offset->p = pbuffer->p + NUM2SIZET(offset)*sizeof(TElement);
+    return rb_ppointer_offset;
+}
+typedef VALUE (*BufferOffsetFunctionType)(VALUE, VALUE);
+
+template <typename TElement>
 static VALUE buffer_element_get(VALUE self, VALUE index)
 {
     typedef struct TypedBuffer<TElement> TBuffer;
@@ -1356,6 +1370,7 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cInt32Buffer, buffer_alloc<int>);
     rb_define_const(rb_cInt32Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(int)));
     rb_define_method(rb_cInt32Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<int>) , 1);
+    rb_define_method(rb_cInt32Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<int>), 1);
     rb_define_method(rb_cInt32Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<int>), 1);
     rb_define_method(rb_cInt32Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<int>), 2);
 
@@ -1363,6 +1378,7 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cInt64Buffer, buffer_alloc<long>);
     rb_define_const(rb_cInt64Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(long)));
     rb_define_method(rb_cInt64Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<long>) , 1);
+    rb_define_method(rb_cInt64Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<long>), 1);
     rb_define_method(rb_cInt64Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<long>), 1);
     rb_define_method(rb_cInt64Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<long>), 2);
 
@@ -1370,6 +1386,7 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cFloat32Buffer, buffer_alloc<float>);
     rb_define_const(rb_cFloat32Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(float)));
     rb_define_method(rb_cFloat32Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<float>) , 1);
+    rb_define_method(rb_cFloat32Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<float>), 1);
     rb_define_method(rb_cFloat32Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<float>), 1);
     rb_define_method(rb_cFloat32Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<float>), 2);
 
@@ -1377,6 +1394,7 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cFloat64Buffer, buffer_alloc<double>);
     rb_define_const(rb_cFloat64Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(double)));
     rb_define_method(rb_cFloat64Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<double>) , 1);
+    rb_define_method(rb_cFloat64Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<double>), 1);
     rb_define_method(rb_cFloat64Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<double>), 1);
     rb_define_method(rb_cFloat64Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<double>), 2);
 
