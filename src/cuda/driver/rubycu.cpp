@@ -112,6 +112,7 @@ static VALUE rb_eCUNotReadyError;
 
 static VALUE rb_eCUUnknownError;
 
+static VALUE rb_cMemoryPointer;
 static VALUE rb_cMemoryBuffer;
 static VALUE rb_cInt32Buffer;
 static VALUE rb_cInt64Buffer;
@@ -121,8 +122,11 @@ static VALUE rb_cFloat64Buffer;
 
 // {{{ SGC C/C++ structures.
 typedef struct {
-    size_t size;
     char* p;
+} MemoryPointer;
+
+typedef struct : MemoryPointer {
+    size_t size;
 } MemoryBuffer;
 
 template <typename TElement>
@@ -890,6 +894,21 @@ static VALUE event_elapsed_time(VALUE klass, VALUE event_start, VALUE event_end)
 // }}}
 
 
+// {{{ Memory pointer
+static VALUE memory_pointer_alloc(VALUE klass)
+{
+    MemoryPointer* ppointer = new MemoryPointer;
+    ppointer->p = NULL;
+    return Data_Wrap_Struct(klass, 0, generic_free<MemoryPointer>, ppointer);
+}
+
+static VALUE memory_pointer_initialize(VALUE self)
+{
+    return self;
+}
+// }}}
+
+
 // {{{ Buffer
 static void memory_buffer_free(void* p)
 {
@@ -1312,7 +1331,11 @@ extern "C" void Init_rubycu()
 
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_UNKNOWN), rb_eCUUnknownError);
 
-    rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cObject);
+    rb_cMemoryPointer = rb_define_class_under(rb_mCU, "MemoryPointer", rb_cObject);
+    rb_define_alloc_func(rb_cMemoryPointer, memory_pointer_alloc);
+    rb_define_method(rb_cMemoryPointer, "initialize", (VALUE(*)(ANYARGS))memory_pointer_initialize, 0);
+
+    rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cMemoryPointer);
     rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
     rb_define_method(rb_cMemoryBuffer, "initialize", (VALUE(*)(ANYARGS))memory_buffer_initialize, 1);
     rb_define_method(rb_cMemoryBuffer, "size"      , (VALUE(*)(ANYARGS))memory_buffer_size      , 0);
