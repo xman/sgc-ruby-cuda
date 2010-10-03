@@ -1009,9 +1009,9 @@ typedef VALUE (*BufferElementSetFunctionType)(VALUE, VALUE, VALUE);
 static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE rb_nbytes)
 {
     CUdeviceptr* pdevice_ptr;
-    MemoryBuffer* pmem;
+    MemoryPointer* pmem;
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
-    Data_Get_Struct(rb_memory, MemoryBuffer, pmem);
+    Data_Get_Struct(rb_memory, MemoryPointer, pmem);
     size_t nbytes = NUM2SIZET(rb_nbytes);
     CUresult status = cuMemcpyHtoD(*pdevice_ptr, static_cast<void*>(pmem->p), nbytes);
     if (status != CUDA_SUCCESS) {
@@ -1022,10 +1022,10 @@ static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE
 
 static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE rb_nbytes)
 {
-    MemoryBuffer* pmem;
+    MemoryPointer* pmem;
     CUdeviceptr* pdevice_ptr;
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
-    Data_Get_Struct(rb_memory, MemoryBuffer, pmem);
+    Data_Get_Struct(rb_memory, MemoryPointer, pmem);
     size_t nbytes = NUM2SIZET(rb_nbytes);
     CUresult status = cuMemcpyDtoH(static_cast<void*>(pmem->p), *pdevice_ptr, nbytes);
     if (status != CUDA_SUCCESS) {
