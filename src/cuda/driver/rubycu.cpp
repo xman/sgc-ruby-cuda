@@ -1058,6 +1058,19 @@ static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE
     }
     return Qnil;
 }
+
+static VALUE memcpy_dtod(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_ptr_src, VALUE rb_nbytes)
+{
+    CUdeviceptr* dst;
+    CUdeviceptr* src;
+    Data_Get_Struct(rb_device_ptr_dst, CUdeviceptr, dst);
+    Data_Get_Struct(rb_device_ptr_src, CUdeviceptr, src);
+    CUresult status = cuMemcpyDtoD(*dst, *src, NUM2SIZET(rb_nbytes));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to copy memory from device to device.");
+    }
+    return Qnil;
+}
 // }}}
 
 
@@ -1400,6 +1413,7 @@ extern "C" void Init_rubycu()
 
     rb_define_module_function(rb_mCU, "memcpy_htod", (VALUE(*)(ANYARGS))memcpy_htod, 3);
     rb_define_module_function(rb_mCU, "memcpy_dtoh", (VALUE(*)(ANYARGS))memcpy_dtoh, 3);
+    rb_define_module_function(rb_mCU, "memcpy_dtod", (VALUE(*)(ANYARGS))memcpy_dtod, 3);
 
     rb_define_module_function(rb_mCU, "driver_get_version", (VALUE(*)(ANYARGS))driver_get_version, 0);
 
