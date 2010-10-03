@@ -714,6 +714,42 @@ static VALUE function_launch_grid(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+static VALUE function_launch_grid_async(int argc, VALUE* argv, VALUE self)
+{
+    if (argc < 2 || argc > 3) {
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 2 or 3).", argc);
+    }
+
+    CUfunction* pfunc;
+    CUstream *pstream = NULL;
+    CUstream stream0 = 0;
+    Data_Get_Struct(self, CUfunction, pfunc);
+
+    int xdim = FIX2INT(argv[0]);
+    int ydim = 1;
+
+    if (argc == 2) {
+        if (CLASS_OF(argv[1]) == rb_cCUStream) {
+            Data_Get_Struct(argv[1], CUstream, pstream);
+        } else {
+            pstream = &stream0;
+        }
+    } else if (argc == 3) {
+        ydim = FIX2INT(argv[1]);
+        if (CLASS_OF(argv[2]) == rb_cCUStream) {
+            Data_Get_Struct(argv[2], CUstream, pstream);
+        } else {
+            pstream = &stream0;
+        }
+    }
+
+    CUresult status = cuLaunchGridAsync(*pfunc, xdim, ydim, *pstream);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to launch kernel function asynchronously on %dx%d grid of blocks.", xdim, ydim);
+    }
+    return self;
+}
+
 static VALUE function_get_attribute(VALUE self, VALUE attribute)
 {
     CUfunction* p;
@@ -1317,6 +1353,7 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUFunction, "set_shared_size", (VALUE(*)(ANYARGS))function_set_shared_size,  1);
     rb_define_method(rb_cCUFunction, "launch"         , (VALUE(*)(ANYARGS))function_launch         ,  0);
     rb_define_method(rb_cCUFunction, "launch_grid"    , (VALUE(*)(ANYARGS))function_launch_grid    , -1);
+    rb_define_method(rb_cCUFunction, "launch_grid_async", (VALUE(*)(ANYARGS))function_launch_grid_async, -1);
     rb_define_method(rb_cCUFunction, "get_attribute"  , (VALUE(*)(ANYARGS))function_get_attribute  ,  1);
     rb_define_method(rb_cCUFunction, "set_cache_config", (VALUE(*)(ANYARGS))function_set_cache_config, 1);
 
