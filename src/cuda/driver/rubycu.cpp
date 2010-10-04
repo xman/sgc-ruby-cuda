@@ -491,6 +491,17 @@ static VALUE module_load(VALUE self, VALUE str)
     return self;
 }
 
+static VALUE module_load_data(VALUE self, VALUE image)
+{
+    CUmodule* p;
+    Data_Get_Struct(self, CUmodule, p);
+    CUresult status = cuModuleLoadData(p, StringValuePtr(image));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to load module data.");
+    }
+    return self;
+}
+
 static VALUE module_unload(VALUE self)
 {
     CUmodule* p;
@@ -1334,6 +1345,7 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cCUModule, module_alloc);
     rb_define_method(rb_cCUModule, "initialize"  , (VALUE(*)(ANYARGS))module_initialize  , -1);
     rb_define_method(rb_cCUModule, "load"        , (VALUE(*)(ANYARGS))module_load        ,  1);
+    rb_define_method(rb_cCUModule, "load_data"   , (VALUE(*)(ANYARGS))module_load_data   ,  1);
     rb_define_method(rb_cCUModule, "unload"      , (VALUE(*)(ANYARGS))module_unload      ,  0);
     rb_define_method(rb_cCUModule, "get_function", (VALUE(*)(ANYARGS))module_get_function,  1);
     rb_define_method(rb_cCUModule, "get_global"  , (VALUE(*)(ANYARGS))module_get_global  ,  1);
