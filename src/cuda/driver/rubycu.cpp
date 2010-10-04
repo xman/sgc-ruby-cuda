@@ -545,6 +545,20 @@ static VALUE module_get_global(VALUE self, VALUE str)
     }
     return rb_ary_new3(2, rb_devptr, LONG2NUM(nbytes));
 }
+
+static VALUE module_get_texref(VALUE self, VALUE str)
+{
+    CUmodule* pmodule;
+    CUtexref* ptexref;
+    Data_Get_Struct(self, CUmodule, pmodule);
+    VALUE rb_texref = rb_class_new_instance(0, NULL, rb_cCUTexRef);
+    Data_Get_Struct(rb_texref, CUtexref, ptexref);
+    CUresult status = cuModuleGetTexRef(ptexref, *pmodule, StringValuePtr(str));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get module texture reference: %s.", StringValuePtr(str));
+    }
+    return rb_texref;
+}
 // }}}
 
 
@@ -653,6 +667,19 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
     status = cuParamSetSize(*pfunc, offset);
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to set function parameter size.");
+    }
+    return self;
+}
+
+static VALUE function_set_texref(VALUE self, VALUE texref)
+{
+    CUfunction* pfunc;
+    CUtexref* ptexref;
+    Data_Get_Struct(self, CUfunction, pfunc);
+    Data_Get_Struct(texref, CUtexref, ptexref);
+    CUresult status = cuParamSetTexRef(*pfunc, CU_PARAM_TR_DEFAULT, *ptexref);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to set function texture reference.");
     }
     return self;
 }
@@ -1486,6 +1513,7 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUModule, "unload"      , (VALUE(*)(ANYARGS))module_unload      ,  0);
     rb_define_method(rb_cCUModule, "get_function", (VALUE(*)(ANYARGS))module_get_function,  1);
     rb_define_method(rb_cCUModule, "get_global"  , (VALUE(*)(ANYARGS))module_get_global  ,  1);
+    rb_define_method(rb_cCUModule, "get_texref"  , (VALUE(*)(ANYARGS))module_get_texref  ,  1);
 
     rb_cCUDevicePtr = rb_define_class_under(rb_mCU, "CUDevicePtr", rb_cObject);
     rb_define_alloc_func(rb_cCUDevicePtr, device_ptr_alloc);
@@ -1498,6 +1526,7 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cCUFunction, function_alloc);
     rb_define_method(rb_cCUFunction, "initialize"     , (VALUE(*)(ANYARGS))function_initialize     , -1);
     rb_define_method(rb_cCUFunction, "set_param"      , (VALUE(*)(ANYARGS))function_set_param      , -1);
+    rb_define_method(rb_cCUFunction, "set_texref"     , (VALUE(*)(ANYARGS))function_set_texref     ,  1);
     rb_define_method(rb_cCUFunction, "set_block_shape", (VALUE(*)(ANYARGS))function_set_block_shape, -1);
     rb_define_method(rb_cCUFunction, "set_shared_size", (VALUE(*)(ANYARGS))function_set_shared_size,  1);
     rb_define_method(rb_cCUFunction, "launch"         , (VALUE(*)(ANYARGS))function_launch         ,  0);
