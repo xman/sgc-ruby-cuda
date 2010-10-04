@@ -47,6 +47,10 @@ static VALUE rb_cCUDeviceAttribute;
 static VALUE rb_cCUComputeMode;
 static VALUE rb_cCUStream;
 static VALUE rb_cCUEvent;
+static VALUE rb_cCUAddressMode;
+static VALUE rb_cCUFilterMode;
+static VALUE rb_cCUTexRefFlags;
+static VALUE rb_cCUTexRef;
 static VALUE rb_cCUResult;
 // }}}
 
@@ -953,6 +957,139 @@ static VALUE event_elapsed_time(VALUE klass, VALUE event_start, VALUE event_end)
 // }}}
 
 
+// {{{ CUtexref
+static VALUE texref_alloc(VALUE klass)
+{
+    CUtexref* p = new CUtexref;
+    return Data_Wrap_Struct(klass, 0, generic_free<CUtexref>, p);
+}
+
+static VALUE texref_initialize(VALUE self)
+{
+    return self;
+}
+
+static VALUE texref_create(VALUE self)
+{
+    CUtexref* p;
+    Data_Get_Struct(self, CUtexref, p);
+    CUresult status = cuTexRefCreate(p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to create texture.");
+    }
+    return self;
+}
+
+static VALUE texref_destroy(VALUE self)
+{
+    CUtexref* p;
+    Data_Get_Struct(self, CUtexref, p);
+    CUresult status = cuTexRefDestroy(*p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to destroy texture.");
+    }
+    return Qnil;
+}
+
+static VALUE texref_get_address(VALUE self)
+{
+    CUtexref* ptexref;
+    CUdeviceptr* pdevptr;
+    Data_Get_Struct(self, CUtexref, ptexref);
+    VALUE rb_devptr = rb_class_new_instance(0, NULL, rb_cCUDevicePtr);
+    Data_Get_Struct(rb_devptr, CUdeviceptr, pdevptr);
+    CUresult status = cuTexRefGetAddress(pdevptr, *ptexref);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get texture address.");
+    }
+    return rb_devptr;
+}
+
+static VALUE texref_get_address_mode(VALUE self, VALUE dim)
+{
+    CUtexref* p;
+    CUaddress_mode mode;
+    Data_Get_Struct(self, CUtexref, p);
+    CUresult status = cuTexRefGetAddressMode(&mode, *p, FIX2INT(dim));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get texture address mode: dim = %d.", FIX2INT(dim));
+    }
+    return INT2FIX(mode);
+}
+
+static VALUE texref_get_filter_mode(VALUE self)
+{
+    CUtexref* p;
+    CUfilter_mode mode;
+    Data_Get_Struct(self, CUtexref, p);
+    CUresult status = cuTexRefGetFilterMode(&mode, *p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get texture filter mode.");
+    }
+    return INT2FIX(mode);
+}
+
+static VALUE texref_get_flags(VALUE self)
+{
+    CUtexref* p;
+    unsigned int flags;
+    Data_Get_Struct(self, CUtexref, p);
+    CUresult status = cuTexRefGetFlags(&flags, *p);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get texture flags.");
+    }
+    return UINT2NUM(flags);
+}
+
+static VALUE texref_set_address(VALUE self, VALUE rb_device_ptr, VALUE nbytes)
+{
+    CUtexref* ptexref;
+    CUdeviceptr* pdevptr;
+    unsigned int offset;
+    Data_Get_Struct(self, CUtexref, ptexref);
+    Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevptr);
+    CUresult status = cuTexRefSetAddress(&offset, *ptexref, *pdevptr, NUM2UINT(nbytes));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set texture address: nbytes = %u.", NUM2UINT(nbytes));
+    }
+    return UINT2NUM(offset);
+}
+
+static VALUE texref_set_address_mode(VALUE self, VALUE dim, VALUE mode)
+{
+    CUtexref* p;
+    Data_Get_Struct(self, CUtexref, p);
+    CUresult status = cuTexRefSetAddressMode(*p, FIX2INT(dim), static_cast<CUaddress_mode>(FIX2INT(mode)));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set texture address mode: dim = %d, mode = %d", FIX2INT(dim), FIX2INT(mode));
+    }
+    return self;
+}
+
+static VALUE texref_set_filter_mode(VALUE self, VALUE mode)
+{
+    CUtexref* p;
+    Data_Get_Struct(self, CUtexref, p);
+    CUresult status = cuTexRefSetFilterMode(*p, static_cast<CUfilter_mode>(FIX2INT(mode)));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set texture filter mode: mode = %d.", FIX2INT(mode));
+    }
+    return self;
+}
+
+static VALUE texref_set_flags(VALUE self, VALUE flags)
+{
+    CUtexref* p;
+    Data_Get_Struct(self, CUtexref, p);
+    CUresult status = cuTexRefSetFlags(*p, NUM2UINT(flags));
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set texture flags: flags = 0x%x.", NUM2UINT(flags));
+    }
+    return self;
+}
+// }}}
+
+
 // {{{ Memory pointer
 static VALUE memory_pointer_alloc(VALUE klass)
 {
@@ -1400,6 +1537,33 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUEvent, "record"     , (VALUE(*)(ANYARGS))event_record     , 1);
     rb_define_method(rb_cCUEvent, "synchronize", (VALUE(*)(ANYARGS))event_synchronize, 0);
     rb_define_singleton_method(rb_cCUEvent, "elapsed_time", (VALUE(*)(ANYARGS))event_elapsed_time, 2);
+
+    rb_cCUAddressMode = rb_define_class_under(rb_mCU, "CUAddressMode", rb_cObject);
+    rb_define_const(rb_cCUAddressMode, "WRAP"  , INT2FIX(CU_TR_ADDRESS_MODE_WRAP));
+    rb_define_const(rb_cCUAddressMode, "CLAMP" , INT2FIX(CU_TR_ADDRESS_MODE_CLAMP));
+    rb_define_const(rb_cCUAddressMode, "MIRROR", INT2FIX(CU_TR_ADDRESS_MODE_MIRROR));
+
+    rb_cCUFilterMode = rb_define_class_under(rb_mCU, "CUFilterMode", rb_cObject);
+    rb_define_const(rb_cCUFilterMode, "POINT" , INT2FIX(CU_TR_FILTER_MODE_POINT));
+    rb_define_const(rb_cCUFilterMode, "LINEAR", INT2FIX(CU_TR_FILTER_MODE_LINEAR));
+
+    rb_cCUTexRefFlags = rb_define_class_under(rb_mCU, "CUTexRefFlags", rb_cObject);
+    rb_define_const(rb_cCUTexRefFlags, "READ_AS_INTEGER"       , INT2FIX(CU_TRSF_READ_AS_INTEGER));
+    rb_define_const(rb_cCUTexRefFlags, "NORMALIZED_COORDINATES", INT2FIX(CU_TRSF_NORMALIZED_COORDINATES));
+
+    rb_cCUTexRef = rb_define_class_under(rb_mCU, "CUTexRef", rb_cObject);
+    rb_define_alloc_func(rb_cCUTexRef, texref_alloc);
+    rb_define_method(rb_cCUTexRef, "initialize"      , (VALUE(*)(ANYARGS))texref_initialize      , 0);
+    rb_define_method(rb_cCUTexRef, "create"          , (VALUE(*)(ANYARGS))texref_create          , 0);
+    rb_define_method(rb_cCUTexRef, "destroy"         , (VALUE(*)(ANYARGS))texref_destroy         , 0);
+    rb_define_method(rb_cCUTexRef, "get_address"     , (VALUE(*)(ANYARGS))texref_get_address     , 0);
+    rb_define_method(rb_cCUTexRef, "get_address_mode", (VALUE(*)(ANYARGS))texref_get_address_mode, 1);
+    rb_define_method(rb_cCUTexRef, "get_filter_mode" , (VALUE(*)(ANYARGS))texref_get_filter_mode , 0);
+    rb_define_method(rb_cCUTexRef, "get_flags"       , (VALUE(*)(ANYARGS))texref_get_flags       , 0);
+    rb_define_method(rb_cCUTexRef, "set_address"     , (VALUE(*)(ANYARGS))texref_set_address     , 2);
+    rb_define_method(rb_cCUTexRef, "set_address_mode", (VALUE(*)(ANYARGS))texref_set_address_mode, 2);
+    rb_define_method(rb_cCUTexRef, "set_filter_mode" , (VALUE(*)(ANYARGS))texref_set_filter_mode , 1);
+    rb_define_method(rb_cCUTexRef, "set_flags"       , (VALUE(*)(ANYARGS))texref_set_flags       , 1);
 
     rb_cCUResult = rb_define_class_under(rb_mCU, "CUResult", rb_cObject);
     rb_define_const(rb_cCUResult, "SUCCESS"                             , INT2FIX(CUDA_SUCCESS));
