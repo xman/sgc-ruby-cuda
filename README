@@ -46,10 +46,12 @@ Ruby way would be built on top of the Ruby CUDA API.
 The SGC-Ruby-CUDA git repository can be found in the following:
 
     http://github.com/xman/sgc-ruby-cuda
+    git://rubyforge.org/rubycuda.git
 
 The master branch can be checked out with the following command:
 
     git clone git://github.com/xman/sgc-ruby-cuda.git sgc-ruby-cuda
+    git clone git://rubyforge.org/rubycuda.git sgc-ruby-cuda
 
 
 == License
