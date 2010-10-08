@@ -333,8 +333,7 @@ static VALUE device_total_mem(VALUE self)
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to get device total amount of memory available.");
     }
-    long n = static_cast<long>(nbytes);
-    return LONG2NUM(n);
+    return UINT2NUM(nbytes);
 }
 // }}}
 
@@ -441,13 +440,12 @@ static VALUE context_get_limit(VALUE klass, VALUE limit)
 static VALUE context_set_limit(VALUE klass, VALUE limit, VALUE value)
 {
     CUlimit l = static_cast<CUlimit>(FIX2UINT(limit));
-    size_t v = NUM2SIZET(value);
-    CUresult status = cuCtxSetLimit(l, v);
+    CUresult status = cuCtxSetLimit(l, NUM2SIZET(value));
     if (status != CUDA_SUCCESS) {
         VALUE limits = rb_funcall(rb_cCULimit, rb_intern("constants"), 0);
         VALUE ary[3] = { rb_cCULimit, limit, Qnil };
         rb_block_call(limits, rb_intern("find"), 0, NULL, (VALUE(*)(ANYARGS))class_const_match, (VALUE)ary);
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set context limit: %s to %u.", rb_id2name(SYM2ID(ary[2])), v);
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set context limit: %s to %lu.", rb_id2name(SYM2ID(ary[2])), NUM2SIZET(value));
     }
     return Qnil;
 }
@@ -546,7 +544,7 @@ static VALUE module_get_global(VALUE self, VALUE str)
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get module global: %s.", StringValuePtr(str));
     }
-    return rb_ary_new3(2, rb_devptr, LONG2NUM(nbytes));
+    return rb_ary_new3(2, rb_devptr, UINT2NUM(nbytes));
 }
 
 static VALUE module_get_texref(VALUE self, VALUE str)
@@ -587,7 +585,7 @@ static VALUE device_ptr_offset(VALUE self, VALUE offset)
     Data_Get_Struct(self, CUdeviceptr, pdevptr);
     VALUE rb_pdevptr_offset = rb_class_new_instance(0, NULL, rb_cCUDevicePtr);
     Data_Get_Struct(rb_pdevptr_offset, CUdeviceptr, pdevptr_offset);
-    *pdevptr_offset = *pdevptr + NUM2SIZET(offset);
+    *pdevptr_offset = *pdevptr + NUM2UINT(offset);
     return rb_pdevptr_offset;
 }
 
@@ -595,10 +593,9 @@ static VALUE device_ptr_mem_alloc(VALUE self, VALUE nbytes)
 {
     CUdeviceptr* p;
     Data_Get_Struct(self, CUdeviceptr, p);
-    size_t n = NUM2SIZET(nbytes);
-    CUresult status = cuMemAlloc(p, n);
+    CUresult status = cuMemAlloc(p, NUM2UINT(nbytes));
     if (status != CUDA_SUCCESS) {
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to allocate memory: size = %u.", NUM2SIZET(nbytes));
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to allocate memory: size = %u.", NUM2UINT(nbytes));
     }
     return self;
 }
@@ -720,7 +717,7 @@ static VALUE function_set_shared_size(VALUE self, VALUE nbytes)
     Data_Get_Struct(self, CUfunction, p);
     CUresult status = cuFuncSetSharedSize(*p, NUM2UINT(nbytes));
     if (status != CUDA_SUCCESS) {
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set function shared memory size: %u.", FIX2UINT(nbytes));
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set function shared memory size: %u.", NUM2UINT(nbytes));
     }
     return self;
 }
@@ -1163,26 +1160,24 @@ static VALUE memory_buffer_initialize(int argc, VALUE* argv, VALUE self)
     }
 
     bool use_page_locked = false;
-    VALUE nbytes = argv[0];
-    VALUE hash = Qnil;
+    size_t nbytes = NUM2SIZET(argv[0]);
     if (argc == 2 && CLASS_OF(argv[1]) == rb_cHash) {
         if (rb_hash_aref(argv[1], ID2SYM(rb_intern("page_locked"))) == Qtrue) {
             use_page_locked = true;
         }
     }
 
-    size_t n = NUM2SIZET(nbytes);
     MemoryBuffer* pbuffer;
     Data_Get_Struct(self, MemoryBuffer, pbuffer);
-    pbuffer->size = n;
+    pbuffer->size = nbytes;
     if (use_page_locked) {
-        CUresult status = cuMemAllocHost(reinterpret_cast<void**>(&pbuffer->p), n);
+        CUresult status = cuMemAllocHost(reinterpret_cast<void**>(&pbuffer->p), nbytes);
         if (status != CUDA_SUCCESS) {
             RAISE_CU_STD_ERROR(status, "Failed to allocate page-locked host memory.");
         }
         pbuffer->is_page_locked = true;
     } else {
-        pbuffer->p = new char[n];
+        pbuffer->p = new char[nbytes];
         pbuffer->is_page_locked = false;
     }
     std::memset(static_cast<void*>(pbuffer->p), 0, pbuffer->size);
@@ -1193,7 +1188,7 @@ static VALUE memory_buffer_size(VALUE self)
 {
     MemoryBuffer* pbuffer;
     Data_Get_Struct(self, MemoryBuffer, pbuffer);
-    return LONG2NUM(pbuffer->size);
+    return SIZET2NUM(pbuffer->size);
 }
 
 template <typename TElement>
@@ -1227,8 +1222,7 @@ static VALUE buffer_initialize(int argc, VALUE* argv, VALUE self)
     }
 
     bool use_page_locked = false;
-    VALUE nelements = argv[0];
-    VALUE hash = Qnil;
+    VALUE n = NUM2SIZET(argv[0]);
     if (argc == 2 && CLASS_OF(argv[1]) == rb_cHash) {
         if (rb_hash_aref(argv[1], ID2SYM(rb_intern("page_locked"))) == Qtrue) {
             use_page_locked = true;
@@ -1236,7 +1230,6 @@ static VALUE buffer_initialize(int argc, VALUE* argv, VALUE self)
     }
 
     typedef struct TypedBuffer<TElement> TBuffer;
-    size_t n = NUM2SIZET(nelements);
     TBuffer* pbuffer;
     Data_Get_Struct(self, TBuffer, pbuffer);
     pbuffer->size = n*sizeof(TElement);
@@ -1299,21 +1292,20 @@ typedef VALUE (*BufferElementSetFunctionType)(VALUE, VALUE, VALUE);
 
 
 // {{{ Memory
-static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE rb_nbytes)
+static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE nbytes)
 {
     CUdeviceptr* pdevice_ptr;
     MemoryPointer* pmem;
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
     Data_Get_Struct(rb_memory, MemoryPointer, pmem);
-    size_t nbytes = NUM2SIZET(rb_nbytes);
-    CUresult status = cuMemcpyHtoD(*pdevice_ptr, static_cast<void*>(pmem->p), nbytes);
+    CUresult status = cuMemcpyHtoD(*pdevice_ptr, static_cast<void*>(pmem->p), NUM2UINT(nbytes));
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to copy memory from host to device.");
     }
     return Qnil;
 }
 
-static VALUE memcpy_htod_async(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE rb_nbytes, VALUE rb_stream)
+static VALUE memcpy_htod_async(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE nbytes, VALUE rb_stream)
 {
     CUdeviceptr* pdevice_ptr;
     MemoryPointer* pmem;
@@ -1326,28 +1318,27 @@ static VALUE memcpy_htod_async(VALUE self, VALUE rb_device_ptr, VALUE rb_memory,
     } else {
         pstream = &stream0;
     }
-    CUresult status = cuMemcpyHtoDAsync(*pdevice_ptr, static_cast<void*>(pmem->p), NUM2SIZET(rb_nbytes), *pstream);
+    CUresult status = cuMemcpyHtoDAsync(*pdevice_ptr, static_cast<void*>(pmem->p), NUM2UINT(nbytes), *pstream);
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to copy memory asynchronously from host to device.");
     }
     return Qnil;
 }
 
-static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE rb_nbytes)
+static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE nbytes)
 {
     MemoryPointer* pmem;
     CUdeviceptr* pdevice_ptr;
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevice_ptr);
     Data_Get_Struct(rb_memory, MemoryPointer, pmem);
-    size_t nbytes = NUM2SIZET(rb_nbytes);
-    CUresult status = cuMemcpyDtoH(static_cast<void*>(pmem->p), *pdevice_ptr, nbytes);
+    CUresult status = cuMemcpyDtoH(static_cast<void*>(pmem->p), *pdevice_ptr, NUM2UINT(nbytes));
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to copy memory from device to host.");
     }
     return Qnil;
 }
 
-static VALUE memcpy_dtoh_async(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE rb_nbytes, VALUE rb_stream)
+static VALUE memcpy_dtoh_async(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE nbytes, VALUE rb_stream)
 {
     MemoryPointer* pmem;
     CUdeviceptr* pdevice_ptr;
@@ -1360,27 +1351,27 @@ static VALUE memcpy_dtoh_async(VALUE self, VALUE rb_memory, VALUE rb_device_ptr,
     } else {
         pstream = &stream0;
     }
-    CUresult status = cuMemcpyDtoHAsync(static_cast<void*>(pmem->p), *pdevice_ptr, NUM2SIZET(rb_nbytes), *pstream);
+    CUresult status = cuMemcpyDtoHAsync(static_cast<void*>(pmem->p), *pdevice_ptr, NUM2UINT(nbytes), *pstream);
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to copy memory asynchronously from device to host.");
     }
     return Qnil;
 }
 
-static VALUE memcpy_dtod(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_ptr_src, VALUE rb_nbytes)
+static VALUE memcpy_dtod(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_ptr_src, VALUE nbytes)
 {
     CUdeviceptr* dst;
     CUdeviceptr* src;
     Data_Get_Struct(rb_device_ptr_dst, CUdeviceptr, dst);
     Data_Get_Struct(rb_device_ptr_src, CUdeviceptr, src);
-    CUresult status = cuMemcpyDtoD(*dst, *src, NUM2SIZET(rb_nbytes));
+    CUresult status = cuMemcpyDtoD(*dst, *src, NUM2UINT(nbytes));
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to copy memory from device to device.");
     }
     return Qnil;
 }
 
-static VALUE memcpy_dtod_async(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_ptr_src, VALUE rb_nbytes, VALUE rb_stream)
+static VALUE memcpy_dtod_async(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_ptr_src, VALUE nbytes, VALUE rb_stream)
 {
     CUdeviceptr* dst;
     CUdeviceptr* src;
@@ -1393,7 +1384,7 @@ static VALUE memcpy_dtod_async(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_dev
     } else {
         pstream = &stream0;
     }
-    CUresult status = cuMemcpyDtoDAsync(*dst, *src, NUM2SIZET(rb_nbytes), *pstream);
+    CUresult status = cuMemcpyDtoDAsync(*dst, *src, NUM2UINT(nbytes), *pstream);
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to copy memory asynchronously from device to device.");
     }
@@ -1409,8 +1400,8 @@ static VALUE mem_get_info(VALUE self)
         RAISE_CU_STD_ERROR(status, "Failed to get memory information.");
     }
     VALUE h = rb_hash_new();
-    rb_hash_aset(h, ID2SYM(rb_intern("free")), SIZET2NUM(free_memory));
-    rb_hash_aset(h, ID2SYM(rb_intern("total")), SIZET2NUM(total_memory));
+    rb_hash_aset(h, ID2SYM(rb_intern("free")), UINT2NUM(free_memory));
+    rb_hash_aset(h, ID2SYM(rb_intern("total")), UINT2NUM(total_memory));
     return h;
 }
 // }}}
