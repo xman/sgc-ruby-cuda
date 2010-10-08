@@ -451,15 +451,16 @@ static VALUE context_set_limit(VALUE klass, VALUE limit, VALUE value)
     return Qnil;
 }
 
-static VALUE context_pop_current(VALUE klass, VALUE context)
+static VALUE context_pop_current(VALUE klass)
 {
+    VALUE context = rb_class_new_instance(0, NULL, rb_cCUContext);
     CUcontext* pcontext;
     Data_Get_Struct(context, CUcontext, pcontext);
     CUresult status = cuCtxPopCurrent(pcontext);
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to pop current context.");
     }
-    return Qnil;
+    return context;
 }
 
 static VALUE context_synchronize(VALUE klass)
@@ -1491,7 +1492,7 @@ extern "C" void Init_rubycu()
     rb_define_singleton_method(rb_cCUContext, "get_device" , (VALUE(*)(ANYARGS))context_get_device , 0);
     rb_define_singleton_method(rb_cCUContext, "get_limit"  , (VALUE(*)(ANYARGS))context_get_limit  , 1);
     rb_define_singleton_method(rb_cCUContext, "set_limit"  , (VALUE(*)(ANYARGS))context_set_limit  , 2);
-    rb_define_singleton_method(rb_cCUContext, "pop_current", (VALUE(*)(ANYARGS))context_pop_current, 1);
+    rb_define_singleton_method(rb_cCUContext, "pop_current", (VALUE(*)(ANYARGS))context_pop_current, 0);
     rb_define_singleton_method(rb_cCUContext, "synchronize", (VALUE(*)(ANYARGS))context_synchronize, 0);
 
     rb_cCUContextFlags = rb_define_class_under(rb_mCU, "CUContextFlags", rb_cObject);
