@@ -411,15 +411,16 @@ static VALUE context_push_current(VALUE self)
     return self;
 }
 
-static VALUE context_get_device(VALUE klass, VALUE device)
+static VALUE context_get_device(VALUE klass)
 {
+    VALUE device = rb_class_new_instance(0, NULL, rb_cCUDevice);
     CUdevice* pdevice;
     Data_Get_Struct(device, CUdevice, pdevice);
     CUresult status = cuCtxGetDevice(pdevice);
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to get current context's device.");
     }
-    return Qnil;
+    return device;
 }
 
 static VALUE context_get_limit(VALUE klass, VALUE limit)
@@ -1487,7 +1488,7 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUContext, "attach"      , (VALUE(*)(ANYARGS))context_attach      , -1);
     rb_define_method(rb_cCUContext, "detach"      , (VALUE(*)(ANYARGS))context_detach      ,  0);
     rb_define_method(rb_cCUContext, "push_current", (VALUE(*)(ANYARGS))context_push_current,  0);
-    rb_define_singleton_method(rb_cCUContext, "get_device" , (VALUE(*)(ANYARGS))context_get_device , 1);
+    rb_define_singleton_method(rb_cCUContext, "get_device" , (VALUE(*)(ANYARGS))context_get_device , 0);
     rb_define_singleton_method(rb_cCUContext, "get_limit"  , (VALUE(*)(ANYARGS))context_get_limit  , 1);
     rb_define_singleton_method(rb_cCUContext, "set_limit"  , (VALUE(*)(ANYARGS))context_set_limit  , 2);
     rb_define_singleton_method(rb_cCUContext, "pop_current", (VALUE(*)(ANYARGS))context_pop_current, 1);
