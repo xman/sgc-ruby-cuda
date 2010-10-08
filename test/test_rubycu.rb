@@ -11,9 +11,12 @@ class TestRubyCU < Test::Unit::TestCase
     def setup
         @dev = CUDevice.new.get(DEVID)
         @ctx = CUContext.new.create(0, @dev)
+        @mod = prepare_loaded_module
     end
 
     def teardown
+        @mod.unload
+        @mod = nil
         @ctx.destroy
         @ctx = nil
         @dev = nil
@@ -116,6 +119,103 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_module_load_unload
+        assert_nothing_raised do
+            path = prepare_ptx
+            m = CUModule.new
+            m = m.load(path)
+            assert_not_nil(m)
+            m = m.unload
+            assert_not_nil(m)
+        end
+    end
+
+    def test_module_load_with_invalid_ptx
+        assert_raise(CUInvalidImageError) do
+            m = CUModule.new
+            m = m.load('test/bad.ptx')
+        end
+
+        assert_raise(CUFileNotFoundError) do
+            m = CUModule.new
+            m = m.load('test/notexists.ptx')
+        end
+    end
+
+    def test_module_load_data
+        path = prepare_ptx
+        assert_nothing_raised do
+            m = CUModule.new
+            File.open(path) do |f|
+                str = f.read
+                m.load_data(str)
+                m.unload
+            end
+        end
+    end
+
+    def test_module_load_data_with_invalid_ptx
+        assert_raise(CUInvalidImageError) do
+            m = CUModule.new
+            str = "invalid ptx"
+            m.load_data(str)
+        end
+    end
+
+    def test_module_get_function
+        assert_nothing_raised do
+            f = @mod.get_function('vadd')
+            assert_not_nil(f)
+        end
+    end
+
+    def test_module_get_function_with_invalid_name
+        assert_raise(CUInvalidValueError) do
+            f = @mod.get_function('')
+        end
+
+        assert_raise(CUReferenceNotFoundError) do
+            f = @mod.get_function('badname')
+        end
+    end
+
+    def test_module_get_global
+        assert_nothing_raised do
+            devptr, nbytes = @mod.get_global('gvar')
+            assert_equal(4, nbytes)
+            u = Int32Buffer.new(1)
+            memcpy_dtoh(u, devptr, nbytes)
+            assert_equal(1997, u[0])
+        end
+    end
+
+    def test_module_get_global_with_invalid_name
+        assert_raise(CUInvalidValueError) do
+            devptr, nbytes = @mod.get_global('')
+        end
+
+        assert_raise(CUReferenceNotFoundError) do
+            devptr, nbytes = @mod.get_global('badname')
+        end
+    end
+
+    def test_module_get_texref
+        assert_nothing_raised do
+            tex = @mod.get_texref('tex')
+            assert_not_nil(tex)
+        end
+    end
+
+    def test_module_get_texref_with_invalid_name
+        assert_raise(CUInvalidValueError) do
+            tex = @mod.get_texref('')
+        end
+
+        assert_raise(CUReferenceNotFoundError) do
+            tex = @mod.get_texref('badname')
+        end
+    end
+
 private
 
     def assert_device(dev)
@@ -135,6 +235,19 @@ private
     def assert_device_capability(dev)
         cap = dev.compute_capability
         assert(cap[:major] > 0 && cap[:minor] >= 0, "Device compute capability failed.")
+    end
+
+    def prepare_ptx
+        if File.exists?('test/vadd.ptx') == false || File.mtime('test/vadd.cu') > File.mtime('test/vadd.ptx')
+            system %{cd test; nvcc --ptx vadd.cu}
+        end
+        'test/vadd.ptx'
+    end
+
+    def prepare_loaded_module
+        path = prepare_ptx
+        m = CUModule.new
+        m.load(path)
     end
 
 end

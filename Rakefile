@@ -48,7 +48,7 @@ spec = Gem::Specification.new do |s|
     s.files      = FileList['lib/**/*.rb', RUBYCU_LIB].to_a
     s.files     += ['Rakefile', 'VERSION', 'COPYING']
     s.files.reject! { |f| f.include? 'extconf.rb' }
-    s.test_files = FileList['test/**/test_*.rb'].to_a
+    s.test_files = FileList['test/{**/test_*.rb,vadd.cu,bad.ptx}'].to_a
 
     s.has_rdoc         = true
     s.extra_rdoc_files = ['README.rdoc']
@@ -89,3 +89,4 @@ end
 CLEAN.include ['pkg', 'html']
 CLEAN.include ["#{CUDA_DRIVER_PATH}/{Makefile,mkmf.log}"]
 CLEAN.include ['**/*.o', '**/*.so']
+CLEAN.include ['test/vadd.ptx']
