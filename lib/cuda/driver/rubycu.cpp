@@ -4,6 +4,7 @@
 #       shinyee@speedgocomputing.com
 #       http://www.speedgocomputing.com
 #       http://github.com/xman/sgc-ruby-cuda
+#       http://rubyforge.org/projects/rubycuda
 #
 # This file is part of SGC-Ruby-CUDA.
 #
