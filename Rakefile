@@ -35,7 +35,7 @@ spec = Gem::Specification.new do |s|
     s.summary     = 'Ruby bindings for using Nvidia CUDA.'
     s.description = 'SGC-Ruby-CUDA implements Ruby bindings to Nvidia CUDA SDK. It provides easy access to CUDA-enabled GPU from a Ruby program.'
 
-    s.required_ruby_version     = '>= 1.8.7'
+    s.required_ruby_version     = '>= 1.9.2'
     s.required_rubygems_version = '>= 1.3.6'
 
     s.author            = 'Chung Shin Yee'
