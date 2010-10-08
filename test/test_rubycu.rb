@@ -216,6 +216,33 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_device_ptr_mem_alloc_free
+        assert_nothing_raised do
+            devptr = CUDevicePtr.new
+            devptr.mem_free
+            devptr.mem_alloc(1024)
+            devptr.mem_free
+        end
+    end
+
+    def test_device_ptr_mem_alloc_with_huge_mem
+        assert_raise(CUOutOfMemoryError) do
+            devptr = CUDevicePtr.new
+            size = @dev.total_mem + 1
+            devptr.mem_alloc(size)
+        end
+    end
+
+    def test_device_ptr_offset
+        assert_nothing_raised do
+            devptr = CUDevicePtr.new
+            p = devptr.offset(1024)
+            assert_instance_of(CUDevicePtr, p)
+            p = devptr.offset(-1024)
+            assert_instance_of(CUDevicePtr, p)
+        end
+    end
+
 private
 
     def assert_device(dev)
