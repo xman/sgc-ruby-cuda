@@ -258,6 +258,19 @@ static VALUE device_get_count(VALUE klass)
     return INT2FIX(count);
 }
 
+static VALUE device_get(VALUE klass, VALUE num)
+{
+    CUdevice* pdev;
+    VALUE rb_pdev = rb_class_new_instance(0, NULL, rb_cCUDevice);
+    Data_Get_Struct(rb_pdev, CUdevice, pdev);
+    int i = FIX2INT(num);
+    CUresult status = cuDeviceGet(pdev, i);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get device %d.", i);
+    }
+    return rb_pdev;
+}
+
 static VALUE device_alloc(VALUE klass)
 {
     CUdevice* p = new CUdevice;
@@ -266,18 +279,6 @@ static VALUE device_alloc(VALUE klass)
 
 static VALUE device_initialize(int argc, VALUE* argv, VALUE self)
 {
-    return self;
-}
-
-static VALUE device_get(VALUE self, VALUE num)
-{
-    CUdevice* p;
-    Data_Get_Struct(self, CUdevice, p);
-    int i = FIX2INT(num);
-    CUresult status = cuDeviceGet(p, i);
-    if (status != CUDA_SUCCESS) {
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get device %d.", i);
-    }
     return self;
 }
 
@@ -1424,9 +1425,9 @@ extern "C" void Init_rubycu()
 
     rb_cCUDevice = rb_define_class_under(rb_mCU, "CUDevice", rb_cObject);
     rb_define_singleton_method(rb_cCUDevice, "get_count", (VALUE(*)(ANYARGS))device_get_count, 0);
+    rb_define_singleton_method(rb_cCUDevice, "get"      , (VALUE(*)(ANYARGS))device_get      , 1);
     rb_define_alloc_func(rb_cCUDevice, device_alloc);
     rb_define_method(rb_cCUDevice, "initialize", (VALUE(*)(ANYARGS))device_initialize, -1);
-    rb_define_method(rb_cCUDevice, "get"       , (VALUE(*)(ANYARGS))device_get       ,  1);
     rb_define_method(rb_cCUDevice, "get_name"  , (VALUE(*)(ANYARGS))device_get_name  ,  0);
     rb_define_method(rb_cCUDevice, "compute_capability", (VALUE(*)(ANYARGS))device_compute_capability, 0);
     rb_define_method(rb_cCUDevice, "get_attribute"     , (VALUE(*)(ANYARGS))device_get_attribute     , 1);
