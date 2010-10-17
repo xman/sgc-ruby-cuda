@@ -33,7 +33,7 @@ DEVID = ENV['DEVID'].to_i
 class TestRubyCU < Test::Unit::TestCase
 
     def setup
-        @dev = CUDevice.new.get(DEVID)
+        @dev = CUDevice.get(DEVID)
         @ctx = CUContext.new.create(0, @dev)
         @mod = prepare_loaded_module
     end
@@ -55,7 +55,7 @@ class TestRubyCU < Test::Unit::TestCase
 
     def test_device_query
         assert_nothing_raised do
-            d = CUDevice.new.get(DEVID)
+            d = CUDevice.get(DEVID)
             assert_not_nil(d)
             assert_device_name(d)
             assert_device_memory_size(d)
