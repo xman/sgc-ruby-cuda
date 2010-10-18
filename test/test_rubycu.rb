@@ -22,7 +22,7 @@ class TestRubyCU < Test::Unit::TestCase
     def test_device_count
         assert_nothing_raised do
             count = CUDevice.get_count
-            assert(count > 0)
+            assert(count > 0, "Device count failed.")
         end
     end
 
@@ -50,16 +50,16 @@ private
     end
 
     def assert_device_name(dev)
-        assert(dev.get_name.size > 0)
+        assert(dev.get_name.size > 0, "Device name failed.")
     end
 
     def assert_device_memory_size(dev)
-        assert(dev.total_mem > 0)
+        assert(dev.total_mem > 0, "Device total memory size failed.")
     end
 
     def assert_device_capability(dev)
         cap = dev.compute_capability
-        assert(cap[:major] > 0 && cap[:minor] > 0)
+        assert(cap[:major] > 0 && cap[:minor] >= 0, "Device compute capability failed.")
     end
 
 end
