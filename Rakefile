@@ -4,6 +4,8 @@ require 'rake/rdoctask'
 require 'rake/testtask'
 require 'rake/clean'
 
+load 'version.rb'
+
 CUDA_PATH         = "lib/cuda"
 CUDA_DRIVER_PATH  = "#{CUDA_PATH}/driver"
 CUDA_RUNTIME_PATH = "#{CUDA_PATH}/runtime"
@@ -31,7 +33,7 @@ end
 spec = Gem::Specification.new do |s|
     s.platform    = Gem::Platform::CURRENT
     s.name        = 'sgc-ruby-cuda'
-    s.version     = File.read('VERSION').strip
+    s.version     = SGC_RUBY_CUDA_VERSION
     s.summary     = 'Ruby bindings for using Nvidia CUDA.'
     s.description = 'SGC-Ruby-CUDA implements Ruby bindings to Nvidia CUDA SDK. It provides easy access to CUDA-enabled GPU from a Ruby program.'
 
@@ -46,7 +48,7 @@ spec = Gem::Specification.new do |s|
     s.require_path = 'lib'
 
     s.files      = FileList['lib/**/*.rb', RUBYCU_LIB].to_a
-    s.files     += ['Rakefile', 'VERSION', 'COPYING']
+    s.files     += ['Rakefile', 'version.rb', 'COPYING']
     s.files.reject! { |f| f.include? 'extconf.rb' }
     s.test_files = FileList['test/{**/test_*.rb,vadd.cu,bad.ptx}'].to_a
 
