@@ -1,0 +1,78 @@
+== Development Plan
+SGC-Ruby-CUDA development plan provides an outline of features, issues, etc.
+that will be tackled in order. There is currently no strict timeline on when
+these features or issues will be covered. We hope at least we are progressing
+consistently and catching up the development of Nvidia CUDA SDK.
+
+
+== Creating Ruby bindings for using CUDA Driver API on Linux Platform
+
+=== On-going
+* Document the Ruby bindings.
+* Provide a matrix on features supported.
+
+=== Todo
+* Port some CUDA samples to SGC-Ruby-CUDA with benchmark.
+* Include Ruby bindings for the use of CUDA compiler to compile a .cu file to
+  generate a .ptx file.
+
+
+== Towards robust development of Ruby CUDA Driver API
+
+=== On-going
+* Develop test cases for each of the supported CUDA Driver API.
+* Document parameters of Ruby CUDA methods.
+
+=== Todo
+* Allow flags must be 0 types of methods to accept flags optionally.
+* Document the API details.
+* Update the memory abstraction or parameter passing.
+  * To allow one to specify a paramater as a float or double, int or long, etc.
+  * To provide memory buffers for more data types?
+
+
+== Creating Ruby bindings for using CUDA Runtime API on Linux Platform
+
+=== Todo
+* Investigate on how to support CUDA Runtime API? using Ruby C API or Ruby
+  classes with rubycu?
+* Investigate Runtime APIs that are significantly different from the Driver API.
+* Develop Ruby bindings for CUDA Runtime API with rdoc.
+* Develop test cases.
+* Develop sample programs.
+
+
+== Towards portable platform - supporting Linux, Mac, Windows
+
+=== Todo
+* Support portable compilations.
+* Support portable paths?
+* Configurable tools? compiler commands, flags, etc.
+* Release SGC-Ruby-CUDA gems for multiple platforms.
+
+
+== Development of generic kernel programs
+
+=== Todo
+* Identify interesting sample kernel programs bundled with CUDA Toolkit, pycuda,
+  ruby-opencl, etc.
+* Identify open source kernels available on the web.
+* Adopt or develop kernel programs.
+* Develop tests and benchmark programs for the kernels.
+* Optimizing the kernel performance.
+
+
+== Development of benchmarking suite
+
+=== Todo
+* Identify existing benchmarking suites for GPU.
+* Porting existing CUDA kernels and benchmark programs to SGC-Ruby-CUDA.
+
+
+== Supporting multiple GPUs
+
+=== Todo
+* Test the use of multiple contexts on the same GPU in rubycu.
+* Test the use of multiple contexts with multiple threads on the same GPU.
+* Test the use of multiple contexts on multiple GPUs.
+* Write test cases for testing multiple GPUs.

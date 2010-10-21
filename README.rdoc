@@ -11,6 +11,8 @@ SGC-Ruby-CUDA is tested on 64bit Fedora 13. We have not tested it against
 32bit Linux OS and Windows. We certainly wish to improve the code base to
 support multiple platforms in the future.
 
+See devel.rdoc for the latest development plan.
+
 
 Fedora and the Infinity design logo are trademarks of Red Hat, Inc.
 

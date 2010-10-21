@@ -53,7 +53,7 @@ spec = Gem::Specification.new do |s|
     s.test_files = FileList['test/{**/test_*.rb,vadd.cu,bad.ptx}'].to_a
 
     s.has_rdoc         = true
-    s.extra_rdoc_files = ['README.rdoc']
+    s.extra_rdoc_files = ['README.rdoc', 'devel.rdoc']
 
     s.requirements << 'CUDA Toolkit 3.1'
     s.requirements << 'C++ compiler'
@@ -69,7 +69,7 @@ desc 'Generate SGC Ruby CUDA documentation.'
 Rake::RDocTask.new do |r|
     r.main       = 'README.rdoc'
 
-    r.rdoc_files.include 'README.rdoc'
+    r.rdoc_files.include 'README.rdoc', 'devel.rdoc'
     r.rdoc_files.include 'lib/**/*.rb', 'lib/**/*.cpp'
 
     r.options << '--inline-source'
