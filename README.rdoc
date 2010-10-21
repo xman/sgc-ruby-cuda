@@ -53,6 +53,12 @@ The master branch can be checked out with the following command:
     git clone git://github.com/xman/sgc-ruby-cuda.git sgc-ruby-cuda
     git clone git://rubyforge.org/rubycuda.git sgc-ruby-cuda
 
+The devel* branches may be checked out for a peep on the latest development.
+However, they are highly volatile and _rebase_ may be applied for cleaner
+commits. The devel* branches serve as grace period before commits move into
+mainstream or master branches which are considered stable commits. This would
+minimize unnecessary fixing commits.
+
 
 == License
 
