@@ -1434,8 +1434,8 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUDevice, "total_mem", RUBY_METHOD_FUNC(device_total_mem), 0);
 
     rb_cCUComputeMode = rb_define_class_under(rb_mCU, "CUComputeMode", rb_cObject);
-    rb_define_const(rb_cCUComputeMode, "DEFAULT"   , INT2FIX(CU_COMPUTEMODE_DEFAULT));
-    rb_define_const(rb_cCUComputeMode, "EXCLUSIVE" , INT2FIX(CU_COMPUTEMODE_EXCLUSIVE));
+    rb_define_const(rb_cCUComputeMode, "DEFAULT", INT2FIX(CU_COMPUTEMODE_DEFAULT));
+    rb_define_const(rb_cCUComputeMode, "EXCLUSIVE", INT2FIX(CU_COMPUTEMODE_EXCLUSIVE));
     rb_define_const(rb_cCUComputeMode, "PROHIBITED", INT2FIX(CU_COMPUTEMODE_PROHIBITED));
 
     rb_cCUDeviceAttribute = rb_define_class_under(rb_mCU, "CUDeviceAttribute", rb_cObject);
