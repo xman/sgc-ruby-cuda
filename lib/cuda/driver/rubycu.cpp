@@ -1476,17 +1476,17 @@ extern "C" void Init_rubycu()
 
     rb_cCUContext = rb_define_class_under(rb_mCU, "CUContext", rb_cObject);
     rb_define_alloc_func(rb_cCUContext, context_alloc);
-    rb_define_method(rb_cCUContext, "initialize"  , (VALUE(*)(ANYARGS))context_initialize  , -1);
-    rb_define_method(rb_cCUContext, "create"      , (VALUE(*)(ANYARGS))context_create      ,  2);
-    rb_define_method(rb_cCUContext, "destroy"     , (VALUE(*)(ANYARGS))context_destroy     ,  0);
-    rb_define_method(rb_cCUContext, "attach"      , (VALUE(*)(ANYARGS))context_attach      , -1);
-    rb_define_method(rb_cCUContext, "detach"      , (VALUE(*)(ANYARGS))context_detach      ,  0);
-    rb_define_method(rb_cCUContext, "push_current", (VALUE(*)(ANYARGS))context_push_current,  0);
-    rb_define_singleton_method(rb_cCUContext, "get_device" , (VALUE(*)(ANYARGS))context_get_device , 0);
-    rb_define_singleton_method(rb_cCUContext, "get_limit"  , (VALUE(*)(ANYARGS))context_get_limit  , 1);
-    rb_define_singleton_method(rb_cCUContext, "set_limit"  , (VALUE(*)(ANYARGS))context_set_limit  , 2);
-    rb_define_singleton_method(rb_cCUContext, "pop_current", (VALUE(*)(ANYARGS))context_pop_current, 0);
-    rb_define_singleton_method(rb_cCUContext, "synchronize", (VALUE(*)(ANYARGS))context_synchronize, 0);
+    rb_define_method(rb_cCUContext, "initialize", RUBY_METHOD_FUNC(context_initialize), -1);
+    rb_define_method(rb_cCUContext, "create", RUBY_METHOD_FUNC(context_create), 2);
+    rb_define_method(rb_cCUContext, "destroy", RUBY_METHOD_FUNC(context_destroy), 0);
+    rb_define_method(rb_cCUContext, "attach", RUBY_METHOD_FUNC(context_attach), -1);
+    rb_define_method(rb_cCUContext, "detach", RUBY_METHOD_FUNC(context_detach), 0);
+    rb_define_method(rb_cCUContext, "push_current", RUBY_METHOD_FUNC(context_push_current), 0);
+    rb_define_singleton_method(rb_cCUContext, "get_device", RUBY_METHOD_FUNC(context_get_device), 0);
+    rb_define_singleton_method(rb_cCUContext, "get_limit", RUBY_METHOD_FUNC(context_get_limit), 1);
+    rb_define_singleton_method(rb_cCUContext, "set_limit", RUBY_METHOD_FUNC(context_set_limit), 2);
+    rb_define_singleton_method(rb_cCUContext, "pop_current", RUBY_METHOD_FUNC(context_pop_current), 0);
+    rb_define_singleton_method(rb_cCUContext, "synchronize", RUBY_METHOD_FUNC(context_synchronize), 0);
 
     rb_cCUContextFlags = rb_define_class_under(rb_mCU, "CUContextFlags", rb_cObject);
     rb_define_const(rb_cCUContextFlags, "SCHED_AUTO"        , INT2FIX(CU_CTX_SCHED_AUTO));
