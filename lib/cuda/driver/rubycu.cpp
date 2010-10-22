@@ -1540,9 +1540,9 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUFunctionAttribute, "BINARY_VERSION", INT2FIX(CU_FUNC_ATTRIBUTE_BINARY_VERSION));
 
     rb_cCUFunctionCache = rb_define_class_under(rb_mCU, "CUFunctionCache", rb_cObject);
-    rb_define_const(rb_cCUFunctionCache, "PREFER_NONE"  , INT2FIX(CU_FUNC_CACHE_PREFER_NONE));
+    rb_define_const(rb_cCUFunctionCache, "PREFER_NONE", INT2FIX(CU_FUNC_CACHE_PREFER_NONE));
     rb_define_const(rb_cCUFunctionCache, "PREFER_SHARED", INT2FIX(CU_FUNC_CACHE_PREFER_SHARED));
-    rb_define_const(rb_cCUFunctionCache, "PREFER_L1"    , INT2FIX(CU_FUNC_CACHE_PREFER_L1));
+    rb_define_const(rb_cCUFunctionCache, "PREFER_L1", INT2FIX(CU_FUNC_CACHE_PREFER_L1));
 
     rb_cCUStream = rb_define_class_under(rb_mCU, "CUStream", rb_cObject);
     rb_define_alloc_func(rb_cCUStream, stream_alloc);
