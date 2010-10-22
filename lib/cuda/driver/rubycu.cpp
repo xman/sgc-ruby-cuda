@@ -48,6 +48,7 @@ static VALUE rb_cCUDeviceAttribute;
 static VALUE rb_cCUComputeMode;
 static VALUE rb_cCUStream;
 static VALUE rb_cCUEvent;
+static VALUE rb_cCUEventFlags;
 static VALUE rb_cCUAddressMode;
 static VALUE rb_cCUFilterMode;
 static VALUE rb_cCUTexRefFlags;
@@ -1870,6 +1871,10 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUEvent, "record", RUBY_METHOD_FUNC(event_record), 1);
     rb_define_method(rb_cCUEvent, "synchronize", RUBY_METHOD_FUNC(event_synchronize), 0);
     rb_define_singleton_method(rb_cCUEvent, "elapsed_time", RUBY_METHOD_FUNC(event_elapsed_time), 2);
+
+    rb_cCUEventFlags = rb_define_class_under(rb_mCU, "CUEventFlags", rb_cObject);
+    rb_define_const(rb_cCUEventFlags, "DEFAULT", INT2FIX(CU_EVENT_DEFAULT));
+    rb_define_const(rb_cCUEventFlags, "BLOCKING_SYNC", INT2FIX(CU_EVENT_BLOCKING_SYNC));
 
     rb_cCUAddressMode = rb_define_class_under(rb_mCU, "CUAddressMode", rb_cObject);
     rb_define_const(rb_cCUAddressMode, "WRAP", INT2FIX(CU_TR_ADDRESS_MODE_WRAP));
