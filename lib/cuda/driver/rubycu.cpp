@@ -1512,10 +1512,10 @@ extern "C" void Init_rubycu()
 
     rb_cCUDevicePtr = rb_define_class_under(rb_mCU, "CUDevicePtr", rb_cObject);
     rb_define_alloc_func(rb_cCUDevicePtr, device_ptr_alloc);
-    rb_define_method(rb_cCUDevicePtr, "initialize", (VALUE(*)(ANYARGS))device_ptr_initialize, -1);
-    rb_define_method(rb_cCUDevicePtr, "offset"    , (VALUE(*)(ANYARGS))device_ptr_offset    ,  1);
-    rb_define_method(rb_cCUDevicePtr, "mem_alloc" , (VALUE(*)(ANYARGS))device_ptr_mem_alloc ,  1);
-    rb_define_method(rb_cCUDevicePtr, "mem_free"  , (VALUE(*)(ANYARGS))device_ptr_mem_free  ,  0);
+    rb_define_method(rb_cCUDevicePtr, "initialize", RUBY_METHOD_FUNC(device_ptr_initialize), -1);
+    rb_define_method(rb_cCUDevicePtr, "offset", RUBY_METHOD_FUNC(device_ptr_offset), 1);
+    rb_define_method(rb_cCUDevicePtr, "mem_alloc", RUBY_METHOD_FUNC(device_ptr_mem_alloc), 1);
+    rb_define_method(rb_cCUDevicePtr, "mem_free", RUBY_METHOD_FUNC(device_ptr_mem_free), 0);
 
     rb_cCUFunction = rb_define_class_under(rb_mCU, "CUFunction", rb_cObject);
     rb_define_alloc_func(rb_cCUFunction, function_alloc);
