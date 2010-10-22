@@ -373,6 +373,7 @@ static VALUE device_total_mem(VALUE self)
 
 
 // {{{ CUcontext
+
 static VALUE context_alloc(VALUE klass)
 {
     CUcontext* p = new CUcontext;
@@ -384,6 +385,17 @@ static VALUE context_initialize(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+/*  call-seq: ctx.create(flags, device)    ->    self
+ *
+ *  Create a new CUDA context with _flags_ (CUContextFlags) and _device_,
+ *  then associate it with the calling thread, and return the context.
+ *  Setting flags to 0 uses SCHED_AUTO.
+ *
+ *      dev = CUDevice.get(0)
+ *      ctx = CUContext.new
+ *      ctx.create(0, dev)        #=>    ctx
+ *      ctx.create(CUContextFlags::SCHED_SPIN | CUContextFlags::BLOCKING_SYNC, dev)        #=>    ctx
+ */
 static VALUE context_create(VALUE self, VALUE flags, VALUE rb_device)
 {
     CUcontext* pcontext;
@@ -397,6 +409,10 @@ static VALUE context_create(VALUE self, VALUE flags, VALUE rb_device)
     return self;
 }
 
+/*  call-seq: ctx.destroy    ->    nil
+ *
+ *  Destroy the CUDA context _self_.
+ */
 static VALUE context_destroy(VALUE self)
 {
     CUcontext* p;
@@ -408,6 +424,12 @@ static VALUE context_destroy(VALUE self)
     return Qnil;
 }
 
+/*  call-seq: ctx.attach           ->    self
+ *            ctx.attach(flags)    ->    self
+ *
+ *  Increment the reference count on _self_.
+ *  Currently, _flags_ must be set to 0.
+ */
 static VALUE context_attach(int argc, VALUE* argv, VALUE self)
 {
     CUcontext* p;
@@ -423,6 +445,11 @@ static VALUE context_attach(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+
+/*  call-seq: ctx.detach    ->    nil
+ *
+ *  Decrement the reference count on _self_.
+ */
 static VALUE context_detach(VALUE self)
 {
     CUcontext* p;
@@ -434,6 +461,10 @@ static VALUE context_detach(VALUE self)
     return Qnil;
 }
 
+/*  call-seq: ctx.push_current    ->    self
+ *
+ *  Push _self_ onto the context stack, which becomes currently active context.
+ */
 static VALUE context_push_current(VALUE self)
 {
     CUcontext* p;
@@ -445,6 +476,10 @@ static VALUE context_push_current(VALUE self)
     return self;
 }
 
+/*  call-seq: CUContext.get_device    ->    CUDevice
+ *
+ *  Return the device associated to the current CUDA context.
+ */
 static VALUE context_get_device(VALUE klass)
 {
     VALUE device = rb_class_new_instance(0, NULL, rb_cCUDevice);
@@ -457,6 +492,12 @@ static VALUE context_get_device(VALUE klass)
     return device;
 }
 
+/*  call-seq: CUContext.get_limit(limit)    ->    Numeric
+ *
+ *  Return the _limit_ (CULimit) of the current CUDA context.
+ *
+ *      CUContext.get_limit(CULimit::STACK_SIZE)        #=>    8192
+ */
 static VALUE context_get_limit(VALUE klass, VALUE limit)
 {
     CUlimit l = static_cast<CUlimit>(FIX2UINT(limit));
@@ -471,6 +512,12 @@ static VALUE context_get_limit(VALUE klass, VALUE limit)
     return SIZET2NUM(v);
 }
 
+/*  call-seq: CUContext.set_limit(limit, value)    ->    nil
+ *
+ *  Set the _limit_ (CULimit) of the current CUDA context.
+ *
+ *      CUContext.set_limit(CULimit::STACK_SIZE, 8192)        #=>    nil
+ */
 static VALUE context_set_limit(VALUE klass, VALUE limit, VALUE value)
 {
     CUlimit l = static_cast<CUlimit>(FIX2UINT(limit));
@@ -484,6 +531,10 @@ static VALUE context_set_limit(VALUE klass, VALUE limit, VALUE value)
     return Qnil;
 }
 
+/*  call-seq: CUContext.pop_current        ->    CUContext
+ *
+ *  Pop the current CUDA context from the context stack, which becomes inactive.
+ */
 static VALUE context_pop_current(VALUE klass)
 {
     VALUE context = rb_class_new_instance(0, NULL, rb_cCUContext);
@@ -496,6 +547,10 @@ static VALUE context_pop_current(VALUE klass)
     return context;
 }
 
+/*  call-seq: CUContext.synchronize        ->    nil
+ *
+ *  Block until all the tasks of the current CUDA context complete.
+ */
 static VALUE context_synchronize(VALUE klass)
 {
     CUresult status = cuCtxSynchronize();
@@ -504,6 +559,7 @@ static VALUE context_synchronize(VALUE klass)
     }
     return Qnil;
 }
+
 // }}}
 
 
