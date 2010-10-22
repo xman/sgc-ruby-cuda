@@ -36,9 +36,11 @@ class TestRubyCU < Test::Unit::TestCase
         @dev = CUDevice.get(DEVID)
         @ctx = CUContext.new.create(0, @dev)
         @mod = prepare_loaded_module
+        @func = @mod.get_function("vadd")
     end
 
     def teardown
+        @func = nil
         @mod.unload
         @mod = nil
         @ctx.destroy
@@ -267,6 +269,100 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_function_set_param
+        assert_nothing_raised do
+            da = CUDevicePtr.new
+            db = CUDevicePtr.new
+            dc = CUDevicePtr.new
+            f = @func.set_param(da, db, dc, 10)
+            assert_instance_of(CUFunction, f)
+        end
+    end
+
+    def test_function_set_texref
+        assert_nothing_raised do
+            a = CUDevicePtr.new.mem_alloc(16)
+            t = @mod.get_texref("tex")
+            t.set_address(a, 16)
+            f = @func.set_texref(t)
+            a.mem_free
+            assert_instance_of(CUFunction, f)
+        end
+    end
+
+    def test_function_set_block_shape
+        assert_nothing_raised do
+            f = @func.set_block_shape(2)
+            assert_instance_of(CUFunction, f)
+            f = @func.set_block_shape(2, 3)
+            assert_instance_of(CUFunction, f)
+            f = @func.set_block_shape(2, 3, 4)
+            assert_instance_of(CUFunction, f)
+        end
+    end
+
+    def test_function_set_shared_size
+        assert_nothing_raised do
+            f = @func.set_shared_size(0)
+            assert_instance_of(CUFunction, f)
+            f = @func.set_shared_size(1024)
+            assert_instance_of(CUFunction, f)
+        end
+    end
+
+    def test_function_launch
+        assert_nothing_raised do
+            assert_function_launch(10) do |f|
+                f.set_block_shape(10)
+                f.launch
+            end
+        end
+    end
+
+    def test_function_launch_grid
+        assert_nothing_raised do
+            assert_function_launch(10) do |f|
+                f.set_block_shape(10)
+                f.launch_grid(1)
+            end
+
+            assert_function_launch(20) do |f|
+                f.set_block_shape(5)
+                f.launch_grid(4)
+            end
+        end
+    end
+
+    def test_function_launch_async
+        assert_nothing_raised do
+            assert_function_launch(10) do |f|
+                f.set_block_shape(10)
+                f.launch_grid_async(1, 0)
+            end
+
+            assert_function_launch(20) do |f|
+                f.set_block_shape(5)
+                f.launch_grid_async(4, 0)
+            end
+        end
+    end
+
+    def test_function_get_attribute
+        CUFunctionAttribute.constants.each do |symbol|
+            k = CUFunctionAttribute.const_get(symbol)
+            v = @func.get_attribute(k)
+            assert_instance_of(Fixnum, v)
+        end
+    end
+
+    def test_function_set_cache_config
+        CUFunctionCache.constants.each do |symbol|
+            k = CUFunctionCache.const_get(symbol)
+            f = @func.set_cache_config(k)
+            assert_instance_of(CUFunction, f)
+        end
+    end
+
 private
 
     def assert_device(dev)
@@ -286,6 +382,37 @@ private
     def assert_device_capability(dev)
         cap = dev.compute_capability
         assert(cap[:major] > 0 && cap[:minor] >= 0, "Device compute capability failed.")
+    end
+
+    def assert_function_launch(size)
+        assert_nothing_raised do
+            da = CUDevicePtr.new.mem_alloc(size*Int32Buffer::ELEMENT_SIZE)
+            db = CUDevicePtr.new.mem_alloc(size*Int32Buffer::ELEMENT_SIZE)
+            dc = CUDevicePtr.new.mem_alloc(size*Int32Buffer::ELEMENT_SIZE)
+            ha = Int32Buffer.new(size)
+            hb = Int32Buffer.new(size)
+            hc = Array.new(size)
+            hd = Int32Buffer.new(size)
+            (0...size).each { |i|
+                ha[i] = i
+                hb[i] = 1
+                hc[i] = ha[i] + hb[i]
+                hd[i] = 0
+            }
+            memcpy_htod(da, ha, size*Int32Buffer::ELEMENT_SIZE)
+            memcpy_htod(db, hb, size*Int32Buffer::ELEMENT_SIZE)
+            @func.set_param(da, db, dc, size)
+
+            yield @func
+
+            memcpy_dtoh(hd, dc, size*Int32Buffer::ELEMENT_SIZE)
+            (0...size).each { |i|
+                assert_equal(hc[i], hd[i])
+            }
+            da.mem_free
+            db.mem_free
+            dc.mem_free
+        end
     end
 
     def prepare_ptx
