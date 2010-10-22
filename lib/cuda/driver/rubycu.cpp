@@ -1489,11 +1489,11 @@ extern "C" void Init_rubycu()
     rb_define_singleton_method(rb_cCUContext, "synchronize", RUBY_METHOD_FUNC(context_synchronize), 0);
 
     rb_cCUContextFlags = rb_define_class_under(rb_mCU, "CUContextFlags", rb_cObject);
-    rb_define_const(rb_cCUContextFlags, "SCHED_AUTO"        , INT2FIX(CU_CTX_SCHED_AUTO));
-    rb_define_const(rb_cCUContextFlags, "SCHED_SPIN"        , INT2FIX(CU_CTX_SCHED_SPIN));
-    rb_define_const(rb_cCUContextFlags, "SCHED_YIELD"       , INT2FIX(CU_CTX_SCHED_YIELD));
-    rb_define_const(rb_cCUContextFlags, "BLOCKING_SYNC"     , INT2FIX(CU_CTX_BLOCKING_SYNC));
-    rb_define_const(rb_cCUContextFlags, "MAP_HOST"          , INT2FIX(CU_CTX_MAP_HOST));
+    rb_define_const(rb_cCUContextFlags, "SCHED_AUTO", INT2FIX(CU_CTX_SCHED_AUTO));
+    rb_define_const(rb_cCUContextFlags, "SCHED_SPIN", INT2FIX(CU_CTX_SCHED_SPIN));
+    rb_define_const(rb_cCUContextFlags, "SCHED_YIELD", INT2FIX(CU_CTX_SCHED_YIELD));
+    rb_define_const(rb_cCUContextFlags, "BLOCKING_SYNC", INT2FIX(CU_CTX_BLOCKING_SYNC));
+    rb_define_const(rb_cCUContextFlags, "MAP_HOST", INT2FIX(CU_CTX_MAP_HOST));
     rb_define_const(rb_cCUContextFlags, "LMEM_RESIZE_TO_MAX", INT2FIX(CU_CTX_LMEM_RESIZE_TO_MAX));
 
     rb_cCULimit = rb_define_class_under(rb_mCU, "CULimit", rb_cObject);
