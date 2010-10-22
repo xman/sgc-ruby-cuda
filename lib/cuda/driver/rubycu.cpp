@@ -1086,6 +1086,7 @@ static VALUE stream_synchronize(VALUE self)
 
 
 // {{{ CUevent
+
 static VALUE event_alloc(VALUE klass)
 {
     CUevent* p = new CUevent;
@@ -1097,6 +1098,10 @@ static VALUE event_initialize(VALUE self)
     return self;
 }
 
+/*  call-seq: event.create(flags)    ->    self
+ *
+ *  Create an event and set _self_ to this event.
+ */
 static VALUE event_create(VALUE self, VALUE flags)
 {
     CUevent* p;
@@ -1108,6 +1113,10 @@ static VALUE event_create(VALUE self, VALUE flags)
     return self;
 }
 
+/*  call-seq: event.destroy    ->    nil
+ *
+ *  Destroy the event _self_.
+ */
 static VALUE event_destroy(VALUE self)
 {
     CUevent* p;
@@ -1119,6 +1128,10 @@ static VALUE event_destroy(VALUE self)
     return Qnil;
 }
 
+/*  call-seq: event.query    ->    true or false
+ *
+ *  Return true if _self_ has been recorded. Otherwise, return false.
+ */
 static VALUE event_query(VALUE self)
 {
     CUevent* p;
@@ -1135,6 +1148,11 @@ static VALUE event_query(VALUE self)
     }
 }
 
+/*  call-seq: event.record(stream)    ->    self
+ *
+ *  Record event _self_ asynchronously in _stream_.
+ *  Setting _stream_ to anything other than an instance of CUStream will record on the default stream 0.
+ */
 static VALUE event_record(VALUE self, VALUE rb_stream)
 {
     CUevent* pevent = NULL;
@@ -1155,6 +1173,10 @@ static VALUE event_record(VALUE self, VALUE rb_stream)
     return self;
 }
 
+/*  call-seq: event.synchronize    ->    self
+ *
+ *  Block until _self_ has been recorded.
+ */
 static VALUE event_synchronize(VALUE self)
 {
     CUevent* p;
@@ -1167,6 +1189,10 @@ static VALUE event_synchronize(VALUE self)
     return self;
 }
 
+/*  call-seq: event.elapsed_time(event_start, event_end)    ->    Numeric
+ *
+ *  Return the elapsed time (ms) from _event_start_ to _event_end_.
+ */
 static VALUE event_elapsed_time(VALUE klass, VALUE event_start, VALUE event_end)
 {
     CUevent* pevent_start;
@@ -1182,6 +1208,7 @@ static VALUE event_elapsed_time(VALUE klass, VALUE event_start, VALUE event_end)
     }
     return DBL2NUM(etime);
 }
+
 // }}}
 
 
