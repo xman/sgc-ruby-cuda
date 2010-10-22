@@ -391,6 +391,42 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_event_create_destroy
+        assert_nothing_raised do
+            e = CUEvent.new.create(CUEventFlags::DEFAULT)
+            assert_instance_of(CUEvent, e)
+            e = e.destroy
+            assert_nil(e)
+        end
+    end
+
+    def test_event_record_synchronize_query
+        assert_nothing_raised do
+            e = CUEvent.new.create(CUEventFlags::DEFAULT)
+            e = e.record(0)
+            assert_instance_of(CUEvent, e)
+            e = e.synchronize
+            assert_instance_of(CUEvent, e)
+            b = e.query
+            assert(b)
+            e.destroy
+        end
+    end
+
+    def test_event_elapsed_time
+        assert_nothing_raised do
+            e1 = CUEvent.new.create(CUEventFlags::DEFAULT)
+            e2 = CUEvent.new.create(CUEventFlags::DEFAULT)
+            e1.record(0)
+            e2.record(0)
+            e2.synchronize
+            elapsed = CUEvent.elapsed_time(e1, e2)
+            assert_instance_of(Float, elapsed)
+            e1.destroy
+            e2.destroy
+        end
+    end
+
 private
 
     def assert_device(dev)
