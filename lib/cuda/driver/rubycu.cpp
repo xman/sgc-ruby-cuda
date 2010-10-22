@@ -1708,12 +1708,18 @@ static VALUE mem_get_info(VALUE self)
 
 
 // {{{ Driver
+
+/*  call-seq: driver_get_version    ->    Fixnum
+ *
+ *  Return the version number of the installed CUDA driver.
+ */
 static VALUE driver_get_version()
 {
     int v;
     cuDriverGetVersion(&v);
     return INT2FIX(v);
 }
+
 // }}}
 
 
