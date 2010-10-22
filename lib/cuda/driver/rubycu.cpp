@@ -1572,7 +1572,7 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUFilterMode, "LINEAR", INT2FIX(CU_TR_FILTER_MODE_LINEAR));
 
     rb_cCUTexRefFlags = rb_define_class_under(rb_mCU, "CUTexRefFlags", rb_cObject);
-    rb_define_const(rb_cCUTexRefFlags, "READ_AS_INTEGER"       , INT2FIX(CU_TRSF_READ_AS_INTEGER));
+    rb_define_const(rb_cCUTexRefFlags, "READ_AS_INTEGER", INT2FIX(CU_TRSF_READ_AS_INTEGER));
     rb_define_const(rb_cCUTexRefFlags, "NORMALIZED_COORDINATES", INT2FIX(CU_TRSF_NORMALIZED_COORDINATES));
 
     rb_cCUTexRef = rb_define_class_under(rb_mCU, "CUTexRef", rb_cObject);
