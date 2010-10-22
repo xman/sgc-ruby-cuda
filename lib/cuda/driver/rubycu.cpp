@@ -1628,62 +1628,62 @@ extern "C" void Init_rubycu()
 
     rb_eCUStandardError = rb_define_class_under(rb_mCU, "CUStandardError", rb_eStandardError);
 
-    rb_eCUDeviceError               = rb_define_class_under(rb_mCU, "CUDeviceError"              , rb_eCUStandardError);
+    rb_eCUDeviceError               = rb_define_class_under(rb_mCU, "CUDeviceError", rb_eCUStandardError);
     rb_eCUDeviceNotInitializedError = rb_define_class_under(rb_mCU, "CUDeviceNotInitializedError", rb_eCUDeviceError);
-    rb_eCUDeviceDeinitializedError  = rb_define_class_under(rb_mCU, "CUDeviceDeinitializedError" , rb_eCUDeviceError);
-    rb_eCUNoDeviceError             = rb_define_class_under(rb_mCU, "CUNoDeviceError"            , rb_eCUDeviceError);
-    rb_eCUInvalidDeviceError        = rb_define_class_under(rb_mCU, "CUInvalidDeviceError"       , rb_eCUDeviceError);
+    rb_eCUDeviceDeinitializedError  = rb_define_class_under(rb_mCU, "CUDeviceDeinitializedError", rb_eCUDeviceError);
+    rb_eCUNoDeviceError             = rb_define_class_under(rb_mCU, "CUNoDeviceError", rb_eCUDeviceError);
+    rb_eCUInvalidDeviceError        = rb_define_class_under(rb_mCU, "CUInvalidDeviceError", rb_eCUDeviceError);
 
-    rb_eCUMapError                = rb_define_class_under(rb_mCU, "CUMapError"               , rb_eCUStandardError);
-    rb_eCUMapFailedError          = rb_define_class_under(rb_mCU, "CUMapFailedError"         , rb_eCUMapError);
-    rb_eCUUnMapFailedError        = rb_define_class_under(rb_mCU, "CUUnMapFailedError"       , rb_eCUMapError);
-    rb_eCUArrayIsMappedError      = rb_define_class_under(rb_mCU, "CUArrayIsMappedError"     , rb_eCUMapError);
-    rb_eCUAlreadyMappedError      = rb_define_class_under(rb_mCU, "CUAlreadyMappedError"     , rb_eCUMapError);
-    rb_eCUNotMappedError          = rb_define_class_under(rb_mCU, "CUNotMappedError"         , rb_eCUMapError);
-    rb_eCUNotMappedAsArrayError   = rb_define_class_under(rb_mCU, "CUNotMappedAsArrayError"  , rb_eCUMapError);
+    rb_eCUMapError                = rb_define_class_under(rb_mCU, "CUMapError", rb_eCUStandardError);
+    rb_eCUMapFailedError          = rb_define_class_under(rb_mCU, "CUMapFailedError", rb_eCUMapError);
+    rb_eCUUnMapFailedError        = rb_define_class_under(rb_mCU, "CUUnMapFailedError", rb_eCUMapError);
+    rb_eCUArrayIsMappedError      = rb_define_class_under(rb_mCU, "CUArrayIsMappedError", rb_eCUMapError);
+    rb_eCUAlreadyMappedError      = rb_define_class_under(rb_mCU, "CUAlreadyMappedError", rb_eCUMapError);
+    rb_eCUNotMappedError          = rb_define_class_under(rb_mCU, "CUNotMappedError", rb_eCUMapError);
+    rb_eCUNotMappedAsArrayError   = rb_define_class_under(rb_mCU, "CUNotMappedAsArrayError", rb_eCUMapError);
     rb_eCUNotMappedAsPointerError = rb_define_class_under(rb_mCU, "CUNotMappedAsPointerError", rb_eCUMapError);
 
-    rb_eCUContextError               = rb_define_class_under(rb_mCU, "CUContextError"              , rb_eCUStandardError);
-    rb_eCUInvalidContextError        = rb_define_class_under(rb_mCU, "CUInvalidContextError"       , rb_eCUContextError);
+    rb_eCUContextError               = rb_define_class_under(rb_mCU, "CUContextError", rb_eCUStandardError);
+    rb_eCUInvalidContextError        = rb_define_class_under(rb_mCU, "CUInvalidContextError", rb_eCUContextError);
     rb_eCUContextAlreadyCurrentError = rb_define_class_under(rb_mCU, "CUContextAlreadyCurrentError", rb_eCUContextError);
-    rb_eCUUnsupportedLimitError      = rb_define_class_under(rb_mCU, "CUUnsupportedLimitError"     , rb_eCUContextError);
+    rb_eCUUnsupportedLimitError      = rb_define_class_under(rb_mCU, "CUUnsupportedLimitError", rb_eCUContextError);
 
-    rb_eCULaunchError                      = rb_define_class_under(rb_mCU, "CULaunchError"                     , rb_eCUStandardError);
-    rb_eCULaunchFailedError                = rb_define_class_under(rb_mCU, "CULaunchFailedError"               , rb_eCULaunchError);
-    rb_eCULaunchOutOfResourcesError        = rb_define_class_under(rb_mCU, "CULaunchOutOfResourcesError"       , rb_eCULaunchError);
-    rb_eCULaunchTimeoutError               = rb_define_class_under(rb_mCU, "CULaunchTimeoutError"              , rb_eCULaunchError);
+    rb_eCULaunchError                      = rb_define_class_under(rb_mCU, "CULaunchError", rb_eCUStandardError);
+    rb_eCULaunchFailedError                = rb_define_class_under(rb_mCU, "CULaunchFailedError", rb_eCULaunchError);
+    rb_eCULaunchOutOfResourcesError        = rb_define_class_under(rb_mCU, "CULaunchOutOfResourcesError", rb_eCULaunchError);
+    rb_eCULaunchTimeoutError               = rb_define_class_under(rb_mCU, "CULaunchTimeoutError", rb_eCULaunchError);
     rb_eCULaunchIncompatibleTexturingError = rb_define_class_under(rb_mCU, "CULaunchIncompatibleTexturingError", rb_eCULaunchError);
 
-    rb_eCUBitWidthError       = rb_define_class_under(rb_mCU, "CUBitWidthError"      , rb_eCUStandardError);
+    rb_eCUBitWidthError       = rb_define_class_under(rb_mCU, "CUBitWidthError", rb_eCUStandardError);
     rb_eCUPointerIs64BitError = rb_define_class_under(rb_mCU, "CUPointerIs64BitError", rb_eCUBitWidthError);
-    rb_eCUSizeIs64BitError    = rb_define_class_under(rb_mCU, "CUSizeIs64BitError"   , rb_eCUBitWidthError);
+    rb_eCUSizeIs64BitError    = rb_define_class_under(rb_mCU, "CUSizeIs64BitError", rb_eCUBitWidthError);
 
-    rb_eCUParameterError     = rb_define_class_under(rb_mCU, "CUParameterError"    , rb_eCUStandardError);
-    rb_eCUInvalidValueError  = rb_define_class_under(rb_mCU, "CUInvalidValueError" , rb_eCUParameterError);
+    rb_eCUParameterError     = rb_define_class_under(rb_mCU, "CUParameterError", rb_eCUStandardError);
+    rb_eCUInvalidValueError  = rb_define_class_under(rb_mCU, "CUInvalidValueError", rb_eCUParameterError);
     rb_eCUInvalidHandleError = rb_define_class_under(rb_mCU, "CUInvalidHandleError", rb_eCUParameterError);
 
-    rb_eCUMemoryError      = rb_define_class_under(rb_mCU, "CUMemoryError"     , rb_eCUStandardError);
+    rb_eCUMemoryError      = rb_define_class_under(rb_mCU, "CUMemoryError", rb_eCUStandardError);
     rb_eCUOutOfMemoryError = rb_define_class_under(rb_mCU, "CUOutOfMemoryError", rb_eCUMemoryError);
 
-    rb_eCULibraryError                    = rb_define_class_under(rb_mCU, "CULibraryError"                   , rb_eCUStandardError);
+    rb_eCULibraryError                    = rb_define_class_under(rb_mCU, "CULibraryError", rb_eCUStandardError);
     rb_eCUSharedObjectSymbolNotFoundError = rb_define_class_under(rb_mCU, "CUSharedObjectSymbolNotFoundError", rb_eCULibraryError);
-    rb_eCUSharedObjectInitFailedError     = rb_define_class_under(rb_mCU, "CUSharedObjectInitFailedError"    , rb_eCULibraryError);
+    rb_eCUSharedObjectInitFailedError     = rb_define_class_under(rb_mCU, "CUSharedObjectInitFailedError", rb_eCULibraryError);
 
-    rb_eCUHardwareError         = rb_define_class_under(rb_mCU, "CUHardwareError"        , rb_eCUStandardError);
+    rb_eCUHardwareError         = rb_define_class_under(rb_mCU, "CUHardwareError", rb_eCUStandardError);
     rb_eCUECCUncorrectableError = rb_define_class_under(rb_mCU, "CUECCUncorrectableError", rb_eCUHardwareError);
 
-    rb_eCUFileError           = rb_define_class_under(rb_mCU, "CUFileError"          , rb_eCUStandardError);
+    rb_eCUFileError           = rb_define_class_under(rb_mCU, "CUFileError", rb_eCUStandardError);
     rb_eCUNoBinaryForGPUError = rb_define_class_under(rb_mCU, "CUNoBinaryForGPUError", rb_eCUFileError);
-    rb_eCUFileNotFoundError   = rb_define_class_under(rb_mCU, "CUFileNotFoundError"  , rb_eCUFileError);
-    rb_eCUInvalidSourceError  = rb_define_class_under(rb_mCU, "CUInvalidSourceError" , rb_eCUFileError);
-    rb_eCUInvalidImageError   = rb_define_class_under(rb_mCU, "CUInvalidImageError"  , rb_eCUFileError);
+    rb_eCUFileNotFoundError   = rb_define_class_under(rb_mCU, "CUFileNotFoundError", rb_eCUFileError);
+    rb_eCUInvalidSourceError  = rb_define_class_under(rb_mCU, "CUInvalidSourceError", rb_eCUFileError);
+    rb_eCUInvalidImageError   = rb_define_class_under(rb_mCU, "CUInvalidImageError", rb_eCUFileError);
 
-    rb_eCUReferenceError         = rb_define_class_under(rb_mCU, "CUReferenceError"        , rb_eCUStandardError);
+    rb_eCUReferenceError         = rb_define_class_under(rb_mCU, "CUReferenceError", rb_eCUStandardError);
     rb_eCUReferenceNotFoundError = rb_define_class_under(rb_mCU, "CUReferenceNotFoundError", rb_eCUReferenceError);
 
-    rb_eCUOtherError           = rb_define_class_under(rb_mCU, "CUOtherError"          , rb_eCUStandardError);
+    rb_eCUOtherError           = rb_define_class_under(rb_mCU, "CUOtherError", rb_eCUStandardError);
     rb_eCUAlreadyAcquiredError = rb_define_class_under(rb_mCU, "CUAlreadyAcquiredError", rb_eCUOtherError);
-    rb_eCUNotReadyError        = rb_define_class_under(rb_mCU, "CUNotReadyError"       , rb_eCUOtherError);
+    rb_eCUNotReadyError        = rb_define_class_under(rb_mCU, "CUNotReadyError", rb_eCUOtherError);
 
     rb_eCUUnknownError = rb_define_class_under(rb_mCU, "CUUnknownError", rb_eCUStandardError);
 
