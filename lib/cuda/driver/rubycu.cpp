@@ -1741,40 +1741,40 @@ extern "C" void Init_rubycu()
 
     rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cMemoryPointer);
     rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
-    rb_define_method(rb_cMemoryBuffer, "initialize", (VALUE(*)(ANYARGS))memory_buffer_initialize, -1);
-    rb_define_method(rb_cMemoryBuffer, "size"      , (VALUE(*)(ANYARGS))memory_buffer_size      , 0);
+    rb_define_method(rb_cMemoryBuffer, "initialize", RUBY_METHOD_FUNC(memory_buffer_initialize), -1);
+    rb_define_method(rb_cMemoryBuffer, "size", RUBY_METHOD_FUNC(memory_buffer_size), 0);
 
     rb_cInt32Buffer = rb_define_class_under(rb_mCU, "Int32Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cInt32Buffer, buffer_alloc<int>);
     rb_define_const(rb_cInt32Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(int)));
-    rb_define_method(rb_cInt32Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<int>) , -1);
-    rb_define_method(rb_cInt32Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<int>), 1);
-    rb_define_method(rb_cInt32Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<int>), 1);
-    rb_define_method(rb_cInt32Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<int>), 2);
+    rb_define_method(rb_cInt32Buffer, "initialize", RUBY_METHOD_FUNC(static_cast<BufferInitializeFunctionType>(&buffer_initialize<int>)) , -1);
+    rb_define_method(rb_cInt32Buffer, "offset", RUBY_METHOD_FUNC(static_cast<BufferOffsetFunctionType>(&buffer_offset<int>)), 1);
+    rb_define_method(rb_cInt32Buffer, "[]", RUBY_METHOD_FUNC(static_cast<BufferElementGetFunctionType>(&buffer_element_get<int>)), 1);
+    rb_define_method(rb_cInt32Buffer, "[]=", RUBY_METHOD_FUNC(static_cast<BufferElementSetFunctionType>(&buffer_element_set<int>)), 2);
 
     rb_cInt64Buffer = rb_define_class_under(rb_mCU, "Int64Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cInt64Buffer, buffer_alloc<long>);
     rb_define_const(rb_cInt64Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(long)));
-    rb_define_method(rb_cInt64Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<long>) , -1);
-    rb_define_method(rb_cInt64Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<long>), 1);
-    rb_define_method(rb_cInt64Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<long>), 1);
-    rb_define_method(rb_cInt64Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<long>), 2);
+    rb_define_method(rb_cInt64Buffer, "initialize", RUBY_METHOD_FUNC(static_cast<BufferInitializeFunctionType>(&buffer_initialize<long>)) , -1);
+    rb_define_method(rb_cInt64Buffer, "offset", RUBY_METHOD_FUNC(static_cast<BufferOffsetFunctionType>(&buffer_offset<long>)), 1);
+    rb_define_method(rb_cInt64Buffer, "[]", RUBY_METHOD_FUNC(static_cast<BufferElementGetFunctionType>(&buffer_element_get<long>)), 1);
+    rb_define_method(rb_cInt64Buffer, "[]=", RUBY_METHOD_FUNC(static_cast<BufferElementSetFunctionType>(&buffer_element_set<long>)), 2);
 
     rb_cFloat32Buffer = rb_define_class_under(rb_mCU, "Float32Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cFloat32Buffer, buffer_alloc<float>);
     rb_define_const(rb_cFloat32Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(float)));
-    rb_define_method(rb_cFloat32Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<float>) , -1);
-    rb_define_method(rb_cFloat32Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<float>), 1);
-    rb_define_method(rb_cFloat32Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<float>), 1);
-    rb_define_method(rb_cFloat32Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<float>), 2);
+    rb_define_method(rb_cFloat32Buffer, "initialize", RUBY_METHOD_FUNC(static_cast<BufferInitializeFunctionType>(&buffer_initialize<float>)) , -1);
+    rb_define_method(rb_cFloat32Buffer, "offset", RUBY_METHOD_FUNC(static_cast<BufferOffsetFunctionType>(&buffer_offset<float>)), 1);
+    rb_define_method(rb_cFloat32Buffer, "[]", RUBY_METHOD_FUNC(static_cast<BufferElementGetFunctionType>(&buffer_element_get<float>)), 1);
+    rb_define_method(rb_cFloat32Buffer, "[]=", RUBY_METHOD_FUNC(static_cast<BufferElementSetFunctionType>(&buffer_element_set<float>)), 2);
 
     rb_cFloat64Buffer = rb_define_class_under(rb_mCU, "Float64Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cFloat64Buffer, buffer_alloc<double>);
     rb_define_const(rb_cFloat64Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(double)));
-    rb_define_method(rb_cFloat64Buffer, "initialize", (VALUE(*)(ANYARGS))static_cast<BufferInitializeFunctionType>(&buffer_initialize<double>) , -1);
-    rb_define_method(rb_cFloat64Buffer, "offset"    , (VALUE(*)(ANYARGS))static_cast<BufferOffsetFunctionType>(&buffer_offset<double>), 1);
-    rb_define_method(rb_cFloat64Buffer, "[]"        , (VALUE(*)(ANYARGS))static_cast<BufferElementGetFunctionType>(&buffer_element_get<double>), 1);
-    rb_define_method(rb_cFloat64Buffer, "[]="       , (VALUE(*)(ANYARGS))static_cast<BufferElementSetFunctionType>(&buffer_element_set<double>), 2);
+    rb_define_method(rb_cFloat64Buffer, "initialize", RUBY_METHOD_FUNC(static_cast<BufferInitializeFunctionType>(&buffer_initialize<double>)) , -1);
+    rb_define_method(rb_cFloat64Buffer, "offset", RUBY_METHOD_FUNC(static_cast<BufferOffsetFunctionType>(&buffer_offset<double>)), 1);
+    rb_define_method(rb_cFloat64Buffer, "[]", RUBY_METHOD_FUNC(static_cast<BufferElementGetFunctionType>(&buffer_element_get<double>)), 1);
+    rb_define_method(rb_cFloat64Buffer, "[]=", RUBY_METHOD_FUNC(static_cast<BufferElementSetFunctionType>(&buffer_element_set<double>)), 2);
 
     rb_define_module_function(rb_mCU, "memcpy_htod", (VALUE(*)(ANYARGS))memcpy_htod, 3);
     rb_define_module_function(rb_mCU, "memcpy_dtoh", (VALUE(*)(ANYARGS))memcpy_dtoh, 3);
