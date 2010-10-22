@@ -1519,16 +1519,16 @@ extern "C" void Init_rubycu()
 
     rb_cCUFunction = rb_define_class_under(rb_mCU, "CUFunction", rb_cObject);
     rb_define_alloc_func(rb_cCUFunction, function_alloc);
-    rb_define_method(rb_cCUFunction, "initialize"     , (VALUE(*)(ANYARGS))function_initialize     , -1);
-    rb_define_method(rb_cCUFunction, "set_param"      , (VALUE(*)(ANYARGS))function_set_param      , -1);
-    rb_define_method(rb_cCUFunction, "set_texref"     , (VALUE(*)(ANYARGS))function_set_texref     ,  1);
-    rb_define_method(rb_cCUFunction, "set_block_shape", (VALUE(*)(ANYARGS))function_set_block_shape, -1);
-    rb_define_method(rb_cCUFunction, "set_shared_size", (VALUE(*)(ANYARGS))function_set_shared_size,  1);
-    rb_define_method(rb_cCUFunction, "launch"         , (VALUE(*)(ANYARGS))function_launch         ,  0);
-    rb_define_method(rb_cCUFunction, "launch_grid"    , (VALUE(*)(ANYARGS))function_launch_grid    , -1);
-    rb_define_method(rb_cCUFunction, "launch_grid_async", (VALUE(*)(ANYARGS))function_launch_grid_async, -1);
-    rb_define_method(rb_cCUFunction, "get_attribute"  , (VALUE(*)(ANYARGS))function_get_attribute  ,  1);
-    rb_define_method(rb_cCUFunction, "set_cache_config", (VALUE(*)(ANYARGS))function_set_cache_config, 1);
+    rb_define_method(rb_cCUFunction, "initialize", RUBY_METHOD_FUNC(function_initialize), -1);
+    rb_define_method(rb_cCUFunction, "set_param", RUBY_METHOD_FUNC(function_set_param), -1);
+    rb_define_method(rb_cCUFunction, "set_texref", RUBY_METHOD_FUNC(function_set_texref), 1);
+    rb_define_method(rb_cCUFunction, "set_block_shape", RUBY_METHOD_FUNC(function_set_block_shape), -1);
+    rb_define_method(rb_cCUFunction, "set_shared_size", RUBY_METHOD_FUNC(function_set_shared_size), 1);
+    rb_define_method(rb_cCUFunction, "launch", RUBY_METHOD_FUNC(function_launch), 0);
+    rb_define_method(rb_cCUFunction, "launch_grid", RUBY_METHOD_FUNC(function_launch_grid), -1);
+    rb_define_method(rb_cCUFunction, "launch_grid_async", RUBY_METHOD_FUNC(function_launch_grid_async), -1);
+    rb_define_method(rb_cCUFunction, "get_attribute", RUBY_METHOD_FUNC(function_get_attribute), 1);
+    rb_define_method(rb_cCUFunction, "set_cache_config", RUBY_METHOD_FUNC(function_set_cache_config), 1);
 
     rb_cCUFunctionAttribute = rb_define_class_under(rb_mCU, "CUFunctionAttribute", rb_cObject);
     rb_define_const(rb_cCUFunctionAttribute, "MAX_THREADS_PER_BLOCK", INT2FIX(CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK));
