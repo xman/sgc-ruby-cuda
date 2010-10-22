@@ -1577,17 +1577,17 @@ extern "C" void Init_rubycu()
 
     rb_cCUTexRef = rb_define_class_under(rb_mCU, "CUTexRef", rb_cObject);
     rb_define_alloc_func(rb_cCUTexRef, texref_alloc);
-    rb_define_method(rb_cCUTexRef, "initialize"      , (VALUE(*)(ANYARGS))texref_initialize      , 0);
-    rb_define_method(rb_cCUTexRef, "create"          , (VALUE(*)(ANYARGS))texref_create          , 0);
-    rb_define_method(rb_cCUTexRef, "destroy"         , (VALUE(*)(ANYARGS))texref_destroy         , 0);
-    rb_define_method(rb_cCUTexRef, "get_address"     , (VALUE(*)(ANYARGS))texref_get_address     , 0);
-    rb_define_method(rb_cCUTexRef, "get_address_mode", (VALUE(*)(ANYARGS))texref_get_address_mode, 1);
-    rb_define_method(rb_cCUTexRef, "get_filter_mode" , (VALUE(*)(ANYARGS))texref_get_filter_mode , 0);
-    rb_define_method(rb_cCUTexRef, "get_flags"       , (VALUE(*)(ANYARGS))texref_get_flags       , 0);
-    rb_define_method(rb_cCUTexRef, "set_address"     , (VALUE(*)(ANYARGS))texref_set_address     , 2);
-    rb_define_method(rb_cCUTexRef, "set_address_mode", (VALUE(*)(ANYARGS))texref_set_address_mode, 2);
-    rb_define_method(rb_cCUTexRef, "set_filter_mode" , (VALUE(*)(ANYARGS))texref_set_filter_mode , 1);
-    rb_define_method(rb_cCUTexRef, "set_flags"       , (VALUE(*)(ANYARGS))texref_set_flags       , 1);
+    rb_define_method(rb_cCUTexRef, "initialize", RUBY_METHOD_FUNC(texref_initialize), 0);
+    rb_define_method(rb_cCUTexRef, "create", RUBY_METHOD_FUNC(texref_create), 0);
+    rb_define_method(rb_cCUTexRef, "destroy", RUBY_METHOD_FUNC(texref_destroy), 0);
+    rb_define_method(rb_cCUTexRef, "get_address", RUBY_METHOD_FUNC(texref_get_address), 0);
+    rb_define_method(rb_cCUTexRef, "get_address_mode", RUBY_METHOD_FUNC(texref_get_address_mode), 1);
+    rb_define_method(rb_cCUTexRef, "get_filter_mode", RUBY_METHOD_FUNC(texref_get_filter_mode), 0);
+    rb_define_method(rb_cCUTexRef, "get_flags", RUBY_METHOD_FUNC(texref_get_flags), 0);
+    rb_define_method(rb_cCUTexRef, "set_address", RUBY_METHOD_FUNC(texref_set_address), 2);
+    rb_define_method(rb_cCUTexRef, "set_address_mode", RUBY_METHOD_FUNC(texref_set_address_mode), 2);
+    rb_define_method(rb_cCUTexRef, "set_filter_mode", RUBY_METHOD_FUNC(texref_set_filter_mode), 1);
+    rb_define_method(rb_cCUTexRef, "set_flags", RUBY_METHOD_FUNC(texref_set_flags), 1);
 
     rb_cCUResult = rb_define_class_under(rb_mCU, "CUResult", rb_cObject);
     rb_define_const(rb_cCUResult, "SUCCESS"                             , INT2FIX(CUDA_SUCCESS));
