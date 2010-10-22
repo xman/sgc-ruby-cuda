@@ -1554,13 +1554,13 @@ extern "C" void Init_rubycu()
 
     rb_cCUEvent = rb_define_class_under(rb_mCU, "CUEvent", rb_cObject);
     rb_define_alloc_func(rb_cCUEvent, event_alloc);
-    rb_define_method(rb_cCUEvent, "initialize" , (VALUE(*)(ANYARGS))event_initialize , 0);
-    rb_define_method(rb_cCUEvent, "create"     , (VALUE(*)(ANYARGS))event_create     , 1);
-    rb_define_method(rb_cCUEvent, "destroy"    , (VALUE(*)(ANYARGS))event_destroy    , 0);
-    rb_define_method(rb_cCUEvent, "query"      , (VALUE(*)(ANYARGS))event_query      , 0);
-    rb_define_method(rb_cCUEvent, "record"     , (VALUE(*)(ANYARGS))event_record     , 1);
-    rb_define_method(rb_cCUEvent, "synchronize", (VALUE(*)(ANYARGS))event_synchronize, 0);
-    rb_define_singleton_method(rb_cCUEvent, "elapsed_time", (VALUE(*)(ANYARGS))event_elapsed_time, 2);
+    rb_define_method(rb_cCUEvent, "initialize", RUBY_METHOD_FUNC(event_initialize), 0);
+    rb_define_method(rb_cCUEvent, "create", RUBY_METHOD_FUNC(event_create), 1);
+    rb_define_method(rb_cCUEvent, "destroy", RUBY_METHOD_FUNC(event_destroy), 0);
+    rb_define_method(rb_cCUEvent, "query", RUBY_METHOD_FUNC(event_query), 0);
+    rb_define_method(rb_cCUEvent, "record", RUBY_METHOD_FUNC(event_record), 1);
+    rb_define_method(rb_cCUEvent, "synchronize", RUBY_METHOD_FUNC(event_synchronize), 0);
+    rb_define_singleton_method(rb_cCUEvent, "elapsed_time", RUBY_METHOD_FUNC(event_elapsed_time), 2);
 
     rb_cCUAddressMode = rb_define_class_under(rb_mCU, "CUAddressMode", rb_cObject);
     rb_define_const(rb_cCUAddressMode, "WRAP"  , INT2FIX(CU_TR_ADDRESS_MODE_WRAP));
