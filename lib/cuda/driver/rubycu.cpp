@@ -1532,12 +1532,12 @@ extern "C" void Init_rubycu()
 
     rb_cCUFunctionAttribute = rb_define_class_under(rb_mCU, "CUFunctionAttribute", rb_cObject);
     rb_define_const(rb_cCUFunctionAttribute, "MAX_THREADS_PER_BLOCK", INT2FIX(CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK));
-    rb_define_const(rb_cCUFunctionAttribute, "SHARED_SIZE_BYTES"    , INT2FIX(CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES));
-    rb_define_const(rb_cCUFunctionAttribute, "CONST_SIZE_BYTES"     , INT2FIX(CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES));
-    rb_define_const(rb_cCUFunctionAttribute, "LOCAL_SIZE_BYTES"     , INT2FIX(CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES));
-    rb_define_const(rb_cCUFunctionAttribute, "NUM_REGS"             , INT2FIX(CU_FUNC_ATTRIBUTE_NUM_REGS));
-    rb_define_const(rb_cCUFunctionAttribute, "PTX_VERSION"          , INT2FIX(CU_FUNC_ATTRIBUTE_PTX_VERSION));
-    rb_define_const(rb_cCUFunctionAttribute, "BINARY_VERSION"       , INT2FIX(CU_FUNC_ATTRIBUTE_BINARY_VERSION));
+    rb_define_const(rb_cCUFunctionAttribute, "SHARED_SIZE_BYTES", INT2FIX(CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES));
+    rb_define_const(rb_cCUFunctionAttribute, "CONST_SIZE_BYTES", INT2FIX(CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES));
+    rb_define_const(rb_cCUFunctionAttribute, "LOCAL_SIZE_BYTES", INT2FIX(CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES));
+    rb_define_const(rb_cCUFunctionAttribute, "NUM_REGS", INT2FIX(CU_FUNC_ATTRIBUTE_NUM_REGS));
+    rb_define_const(rb_cCUFunctionAttribute, "PTX_VERSION", INT2FIX(CU_FUNC_ATTRIBUTE_PTX_VERSION));
+    rb_define_const(rb_cCUFunctionAttribute, "BINARY_VERSION", INT2FIX(CU_FUNC_ATTRIBUTE_BINARY_VERSION));
 
     rb_cCUFunctionCache = rb_define_class_under(rb_mCU, "CUFunctionCache", rb_cObject);
     rb_define_const(rb_cCUFunctionCache, "PREFER_NONE"  , INT2FIX(CU_FUNC_CACHE_PREFER_NONE));
