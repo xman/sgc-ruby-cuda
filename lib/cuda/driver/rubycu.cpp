@@ -1007,6 +1007,7 @@ static VALUE function_set_cache_config(VALUE self, VALUE config)
 
 
 // {{{ CUstream
+
 static VALUE stream_alloc(VALUE klass)
 {
     CUstream* p = new CUstream;
@@ -1018,6 +1019,10 @@ static VALUE stream_initialize(VALUE self)
     return self;
 }
 
+/*  call-seq: stream.create(flags)    ->    self
+ *
+ *  Create a stream and set _self_ to this stream. Currently, _flags_ must be set to 0.
+ */
 static VALUE stream_create(VALUE self, VALUE flags)
 {
     CUstream* p;
@@ -1029,6 +1034,10 @@ static VALUE stream_create(VALUE self, VALUE flags)
     return self;
 }
 
+/*  call-seq: stream.destroy    ->    nil
+ *
+ *  Destroy the stream _self_.
+ */
 static VALUE stream_destroy(VALUE self)
 {
     CUstream* p;
@@ -1040,6 +1049,10 @@ static VALUE stream_destroy(VALUE self)
     return Qnil;
 }
 
+/*  call-seq: stream.query    ->    true or false
+ *
+ *  Return true if all operations in _self_ have completed. Otherwise, return false.
+ */
 static VALUE stream_query(VALUE self)
 {
     CUstream* p;
@@ -1054,6 +1067,10 @@ static VALUE stream_query(VALUE self)
     }
 }
 
+/*  call-seq: stream.synchronize    ->    self
+ *
+ *  Block until all operations in _self_ complete.
+ */
 static VALUE stream_synchronize(VALUE self)
 {
     CUstream* p;
@@ -1064,6 +1081,7 @@ static VALUE stream_synchronize(VALUE self)
     }
     return self;
 }
+
 // }}}
 
 
