@@ -1568,7 +1568,7 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUAddressMode, "MIRROR", INT2FIX(CU_TR_ADDRESS_MODE_MIRROR));
 
     rb_cCUFilterMode = rb_define_class_under(rb_mCU, "CUFilterMode", rb_cObject);
-    rb_define_const(rb_cCUFilterMode, "POINT" , INT2FIX(CU_TR_FILTER_MODE_POINT));
+    rb_define_const(rb_cCUFilterMode, "POINT", INT2FIX(CU_TR_FILTER_MODE_POINT));
     rb_define_const(rb_cCUFilterMode, "LINEAR", INT2FIX(CU_TR_FILTER_MODE_LINEAR));
 
     rb_cCUTexRefFlags = rb_define_class_under(rb_mCU, "CUTexRefFlags", rb_cObject);
