@@ -1213,6 +1213,7 @@ static VALUE event_elapsed_time(VALUE klass, VALUE event_start, VALUE event_end)
 
 
 // {{{ CUtexref
+
 static VALUE texref_alloc(VALUE klass)
 {
     CUtexref* p = new CUtexref;
@@ -1224,6 +1225,10 @@ static VALUE texref_initialize(VALUE self)
     return self;
 }
 
+/*  call-seq: texref.create    ->    self
+ *
+ *  Create a texture reference and set _self_ to this texture reference.
+ */
 static VALUE texref_create(VALUE self)
 {
     CUtexref* p;
@@ -1235,6 +1240,10 @@ static VALUE texref_create(VALUE self)
     return self;
 }
 
+/*  call-seq: texref.destroy    ->    nil
+ *
+ *  Destroy the texture reference _self_.
+ */
 static VALUE texref_destroy(VALUE self)
 {
     CUtexref* p;
@@ -1246,6 +1255,10 @@ static VALUE texref_destroy(VALUE self)
     return Qnil;
 }
 
+/*  call-seq: texref.get_address    ->    CUDevicePtr
+ *
+ *  Return a CUDevicePtr instance bound to the texture reference.
+ */
 static VALUE texref_get_address(VALUE self)
 {
     CUtexref* ptexref;
@@ -1260,6 +1273,10 @@ static VALUE texref_get_address(VALUE self)
     return rb_devptr;
 }
 
+/*  call-seq: texref.get_address_mode(dim)    ->    Fixnum
+ *
+ *  Return the address mode of the dimension _dim_ of _self_.
+ */
 static VALUE texref_get_address_mode(VALUE self, VALUE dim)
 {
     CUtexref* p;
@@ -1272,6 +1289,10 @@ static VALUE texref_get_address_mode(VALUE self, VALUE dim)
     return INT2FIX(mode);
 }
 
+/*  call-seq: texref.get_filter_mode    ->    Fixnum
+ *
+ *  Return the filter mode of _self_.
+ */
 static VALUE texref_get_filter_mode(VALUE self)
 {
     CUtexref* p;
@@ -1284,6 +1305,10 @@ static VALUE texref_get_filter_mode(VALUE self)
     return INT2FIX(mode);
 }
 
+/*  call-seq: texref.get_flags    ->    Numeric
+ *
+ *  Return the flags of _self_.
+ */
 static VALUE texref_get_flags(VALUE self)
 {
     CUtexref* p;
@@ -1296,6 +1321,10 @@ static VALUE texref_get_flags(VALUE self)
     return UINT2NUM(flags);
 }
 
+/*  call-seq: texref.set_address(devptr, nbytes)    ->    Numeric
+ *
+ *  Bind _devptr_ with _nbytes_ to _self_.
+ */
 static VALUE texref_set_address(VALUE self, VALUE rb_device_ptr, VALUE nbytes)
 {
     CUtexref* ptexref;
@@ -1310,6 +1339,10 @@ static VALUE texref_set_address(VALUE self, VALUE rb_device_ptr, VALUE nbytes)
     return UINT2NUM(offset);
 }
 
+/*  call-seq: texref.set_address_mode(dim, mode)    ->    self
+ *
+ *  Set the address mode of _self_ with _dim_ and _mode_ (CUAddressMode).
+ */
 static VALUE texref_set_address_mode(VALUE self, VALUE dim, VALUE mode)
 {
     CUtexref* p;
@@ -1321,6 +1354,10 @@ static VALUE texref_set_address_mode(VALUE self, VALUE dim, VALUE mode)
     return self;
 }
 
+/*  call-seq: texref.set_filter_mode(mode)    ->    self
+ *
+ *  Set the filter mode of _self_ with _mode_ (CUFilterMode).
+ */
 static VALUE texref_set_filter_mode(VALUE self, VALUE mode)
 {
     CUtexref* p;
@@ -1332,6 +1369,10 @@ static VALUE texref_set_filter_mode(VALUE self, VALUE mode)
     return self;
 }
 
+/*  call-seq: texref.set_flags(flags)    ->    self
+ *
+ *  Set the _flags_ (CUTexRefFlags) of _self_.
+ */
 static VALUE texref_set_flags(VALUE self, VALUE flags)
 {
     CUtexref* p;
@@ -1342,6 +1383,7 @@ static VALUE texref_set_flags(VALUE self, VALUE flags)
     }
     return self;
 }
+
 // }}}
 
 
