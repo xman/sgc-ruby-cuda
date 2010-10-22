@@ -1562,6 +1562,11 @@ typedef VALUE (*BufferElementSetFunctionType)(VALUE, VALUE, VALUE);
 
 
 // {{{ Memory
+
+/*  call-seq: memcpy_htod(dst_devptr, src_mem, nbytes)    ->    nil
+ *
+ *  Copy _nbytes_ from host memory at _src_mem_ to device memory at _dst_devptr_.
+ */
 static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE nbytes)
 {
     CUdeviceptr* pdevice_ptr;
@@ -1575,6 +1580,10 @@ static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE
     return Qnil;
 }
 
+/*  call-seq: memcpy_htod_async(dst_devptr, src_mem, nbytes, stream)    ->    nil
+ *
+ *  Copy _nbytes_ from host memory at _src_mem_ to device memory at _dst_devptr_ in _stream_ asynchronously.
+ */
 static VALUE memcpy_htod_async(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE nbytes, VALUE rb_stream)
 {
     CUdeviceptr* pdevice_ptr;
@@ -1595,6 +1604,10 @@ static VALUE memcpy_htod_async(VALUE self, VALUE rb_device_ptr, VALUE rb_memory,
     return Qnil;
 }
 
+/*  call-seq: memcpy_dtoh(dst_mem, src_devptr, nbytes)    ->    nil
+ *
+ *  Copy _nbytes_ from device memory at _src_devptr_ to host memory at _dst_mem_.
+ */
 static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE nbytes)
 {
     MemoryPointer* pmem;
@@ -1608,6 +1621,10 @@ static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE
     return Qnil;
 }
 
+/*  call-seq: memcpy_dtoh_async(dst_mem, src_devptr, nbytes, stream)    ->    nil
+ *
+ *  Copy _nbytes_ from device memory at _src_devptr_ to host memory at _dst_mem_ in _stream_ asynchronously.
+ */
 static VALUE memcpy_dtoh_async(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE nbytes, VALUE rb_stream)
 {
     MemoryPointer* pmem;
@@ -1628,6 +1645,10 @@ static VALUE memcpy_dtoh_async(VALUE self, VALUE rb_memory, VALUE rb_device_ptr,
     return Qnil;
 }
 
+/*  call-seq: memcpy_dtod(dst_devptr, src_devptr, nbytes)    ->    nil
+ *
+ *  Copy _nbytes_ from device memory at _src_devptr_ to device memory at _dst_devptr_ asynchronously.
+ */
 static VALUE memcpy_dtod(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_ptr_src, VALUE nbytes)
 {
     CUdeviceptr* dst;
@@ -1641,6 +1662,10 @@ static VALUE memcpy_dtod(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_pt
     return Qnil;
 }
 
+/*  call-seq: memcpy_dtod_async(dst_devptr, src_devptr, nbytes, stream)    ->    nil
+ *
+ *  Copy _nbytes_ from device memory at _src_devptr_ to device memory at _dst_devptr_ in _stream_ asynchronously.
+ */
 static VALUE memcpy_dtod_async(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_device_ptr_src, VALUE nbytes, VALUE rb_stream)
 {
     CUdeviceptr* dst;
@@ -1661,6 +1686,10 @@ static VALUE memcpy_dtod_async(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_dev
     return Qnil;
 }
 
+/*  call-seq: mem_get_info    ->    Hash { free:, total: }
+ *
+ *  Return a hash { free:, total: } with the amount of free and total device memory in bytes.
+ */
 static VALUE mem_get_info(VALUE self)
 {
     unsigned int free_memory;
@@ -1674,6 +1703,7 @@ static VALUE mem_get_info(VALUE self)
     rb_hash_aset(h, ID2SYM(rb_intern("total")), UINT2NUM(total_memory));
     return h;
 }
+
 // }}}
 
 
