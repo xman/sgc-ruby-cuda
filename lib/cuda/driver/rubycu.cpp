@@ -1105,7 +1105,10 @@ static VALUE event_initialize(VALUE self)
 
 /*  call-seq: event.create(flags)    ->    self
  *
- *  Create an event and set _self_ to this event.
+ *  Create an event with _flags_ (CUEventFlags) and set _self_ to this event.
+ *
+ *      event.create(CUEventFlags::DEFAULT)              #=> self
+ *      event.create(CUEventFlags::BLOCKING_SYNC)        #=> self
  */
 static VALUE event_create(VALUE self, VALUE flags)
 {
