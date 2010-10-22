@@ -752,6 +752,7 @@ static VALUE device_ptr_mem_free(VALUE self)
 
 
 // {{{ CUfunction
+
 static VALUE function_alloc(VALUE klass)
 {
     CUfunction* p = new CUfunction;
@@ -763,6 +764,10 @@ static VALUE function_initialize(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+/*  call-seq: func.set_param(arg1, arg2, *other_args)    ->    self
+ *
+ *  Set the argument list of _self_ to _arg1_, _arg2_, *other_args.
+ */
 static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
 {
     #define ALIGN_UP(offset, alignment) (offset) = ((offset) + (alignment) - 1) & ~((alignment) - 1)
@@ -809,6 +814,10 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+/*  call-seq: func.set_texref(texref)    ->    self
+ *
+ *  Add the _texref_ to the argument list of _self_.
+ */
 static VALUE function_set_texref(VALUE self, VALUE texref)
 {
     CUfunction* pfunc;
@@ -822,6 +831,10 @@ static VALUE function_set_texref(VALUE self, VALUE texref)
     return self;
 }
 
+/*  call-seq: func.set_block_shape(xdim [, ydim [, zdim]])    ->    self
+ *
+ *  Set the block dimensions to use for next launch. _ydim_ and _zdim_ which may be omitted are default to 1.
+ */
 static VALUE function_set_block_shape(int argc, VALUE* argv, VALUE self)
 {
     if (argc <= 0 || argc > 3) {
@@ -849,6 +862,10 @@ static VALUE function_set_block_shape(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+/*  call-seq: func.set_shared_size(nbytes)    ->    self
+ *
+ *  Set the dynamic shared-memory size to use for next launch.
+ */
 static VALUE function_set_shared_size(VALUE self, VALUE nbytes)
 {
     CUfunction* p;
@@ -860,6 +877,10 @@ static VALUE function_set_shared_size(VALUE self, VALUE nbytes)
     return self;
 }
 
+/*  call-seq: func.launch    ->    self
+ *
+ *  Launch _self_ to execute on a CUDA device.
+ */
 static VALUE function_launch(VALUE self)
 {
     CUfunction* p;
@@ -871,6 +892,11 @@ static VALUE function_launch(VALUE self)
     return self;
 }
 
+/*  call-seq: func.launch_grid(xdim [, ydim])    ->    self
+ *
+ *  Launch _self_ with grid dimensions (xdim, ydim) to execute on a CUDA device.
+ *  _ydim_ which may be omitted is default to 1.
+ */
 static VALUE function_launch_grid(int argc, VALUE* argv, VALUE self)
 {
     if (argc <= 0 || argc > 2) {
@@ -894,6 +920,12 @@ static VALUE function_launch_grid(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+/*  call-seq: func.launch_grid_async(xdim [, ydim], stream)    ->    self
+ *
+ *  Launch _self_ with grid dimensions (xdim, ydim) on _stream_ asynchronously to execute on a CUDA device.
+ *  _ydim_ which may be omitted is default to 1. Setting _stream_ to anything other than an instance of CUStream
+ *  will execute on the default stream 0.
+ */
 static VALUE function_launch_grid_async(int argc, VALUE* argv, VALUE self)
 {
     if (argc < 2 || argc > 3) {
@@ -930,6 +962,14 @@ static VALUE function_launch_grid_async(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+/*  call-seq: func.get_attribute(attribute)    ->    Fixnum
+ *
+ *  Return _attribute_ (CUFunctionAttribute) of _self_.
+ *
+ *      func.get_attribute(CUFunctionAttribute::MAX_THREADS_PER_BLOCK)    #=> 512
+ *      func.get_attribute(CUFunctionAttribute::SHARED_SIZE_BYTES)        #=> 44
+ *      func.get_attribute(CUFunctionAttribute::NUM_REGS)                 #=> 3
+ */
 static VALUE function_get_attribute(VALUE self, VALUE attribute)
 {
     CUfunction* p;
@@ -945,6 +985,10 @@ static VALUE function_get_attribute(VALUE self, VALUE attribute)
     return INT2FIX(v);
 }
 
+/*  call-seq: func.set_cache_config(config)    ->    self
+ *
+ *  Set the preferred cache configuration (CUFunctionCache) to use for next launch.
+ */
 static VALUE function_set_cache_config(VALUE self, VALUE config)
 {
     CUfunction* p;
@@ -958,6 +1002,7 @@ static VALUE function_set_cache_config(VALUE self, VALUE config)
     }
     return self;
 }
+
 // }}}
 
 
