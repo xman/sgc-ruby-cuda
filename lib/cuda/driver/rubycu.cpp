@@ -1546,11 +1546,11 @@ extern "C" void Init_rubycu()
 
     rb_cCUStream = rb_define_class_under(rb_mCU, "CUStream", rb_cObject);
     rb_define_alloc_func(rb_cCUStream, stream_alloc);
-    rb_define_method(rb_cCUStream, "initialize" , (VALUE(*)(ANYARGS))stream_initialize , 0);
-    rb_define_method(rb_cCUStream, "create"     , (VALUE(*)(ANYARGS))stream_create     , 1);
-    rb_define_method(rb_cCUStream, "destroy"    , (VALUE(*)(ANYARGS))stream_destroy    , 0);
-    rb_define_method(rb_cCUStream, "query"      , (VALUE(*)(ANYARGS))stream_query      , 0);
-    rb_define_method(rb_cCUStream, "synchronize", (VALUE(*)(ANYARGS))stream_synchronize, 0);
+    rb_define_method(rb_cCUStream, "initialize", RUBY_METHOD_FUNC(stream_initialize), 0);
+    rb_define_method(rb_cCUStream, "create", RUBY_METHOD_FUNC(stream_create), 1);
+    rb_define_method(rb_cCUStream, "destroy", RUBY_METHOD_FUNC(stream_destroy), 0);
+    rb_define_method(rb_cCUStream, "query", RUBY_METHOD_FUNC(stream_query), 0);
+    rb_define_method(rb_cCUStream, "synchronize", RUBY_METHOD_FUNC(stream_synchronize), 0);
 
     rb_cCUEvent = rb_define_class_under(rb_mCU, "CUEvent", rb_cObject);
     rb_define_alloc_func(rb_cCUEvent, event_alloc);
