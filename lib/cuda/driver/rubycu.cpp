@@ -1563,8 +1563,8 @@ extern "C" void Init_rubycu()
     rb_define_singleton_method(rb_cCUEvent, "elapsed_time", RUBY_METHOD_FUNC(event_elapsed_time), 2);
 
     rb_cCUAddressMode = rb_define_class_under(rb_mCU, "CUAddressMode", rb_cObject);
-    rb_define_const(rb_cCUAddressMode, "WRAP"  , INT2FIX(CU_TR_ADDRESS_MODE_WRAP));
-    rb_define_const(rb_cCUAddressMode, "CLAMP" , INT2FIX(CU_TR_ADDRESS_MODE_CLAMP));
+    rb_define_const(rb_cCUAddressMode, "WRAP", INT2FIX(CU_TR_ADDRESS_MODE_WRAP));
+    rb_define_const(rb_cCUAddressMode, "CLAMP", INT2FIX(CU_TR_ADDRESS_MODE_CLAMP));
     rb_define_const(rb_cCUAddressMode, "MIRROR", INT2FIX(CU_TR_ADDRESS_MODE_MIRROR));
 
     rb_cCUFilterMode = rb_define_class_under(rb_mCU, "CUFilterMode", rb_cObject);
