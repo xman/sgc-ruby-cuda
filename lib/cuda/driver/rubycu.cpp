@@ -1776,13 +1776,13 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cFloat64Buffer, "[]", RUBY_METHOD_FUNC(static_cast<BufferElementGetFunctionType>(&buffer_element_get<double>)), 1);
     rb_define_method(rb_cFloat64Buffer, "[]=", RUBY_METHOD_FUNC(static_cast<BufferElementSetFunctionType>(&buffer_element_set<double>)), 2);
 
-    rb_define_module_function(rb_mCU, "memcpy_htod", (VALUE(*)(ANYARGS))memcpy_htod, 3);
-    rb_define_module_function(rb_mCU, "memcpy_dtoh", (VALUE(*)(ANYARGS))memcpy_dtoh, 3);
-    rb_define_module_function(rb_mCU, "memcpy_dtod", (VALUE(*)(ANYARGS))memcpy_dtod, 3);
-    rb_define_module_function(rb_mCU, "memcpy_htod_async", (VALUE(*)(ANYARGS))memcpy_htod_async, 4);
-    rb_define_module_function(rb_mCU, "memcpy_dtoh_async", (VALUE(*)(ANYARGS))memcpy_dtoh_async, 4);
-    rb_define_module_function(rb_mCU, "memcpy_dtod_async", (VALUE(*)(ANYARGS))memcpy_dtod_async, 4);
-    rb_define_module_function(rb_mCU, "mem_get_info", (VALUE(*)(ANYARGS))mem_get_info, 0);
+    rb_define_module_function(rb_mCU, "memcpy_htod", RUBY_METHOD_FUNC(memcpy_htod), 3);
+    rb_define_module_function(rb_mCU, "memcpy_dtoh", RUBY_METHOD_FUNC(memcpy_dtoh), 3);
+    rb_define_module_function(rb_mCU, "memcpy_dtod", RUBY_METHOD_FUNC(memcpy_dtod), 3);
+    rb_define_module_function(rb_mCU, "memcpy_htod_async", RUBY_METHOD_FUNC(memcpy_htod_async), 4);
+    rb_define_module_function(rb_mCU, "memcpy_dtoh_async", RUBY_METHOD_FUNC(memcpy_dtoh_async), 4);
+    rb_define_module_function(rb_mCU, "memcpy_dtod_async", RUBY_METHOD_FUNC(memcpy_dtod_async), 4);
+    rb_define_module_function(rb_mCU, "mem_get_info", RUBY_METHOD_FUNC(mem_get_info), 0);
 
     rb_define_module_function(rb_mCU, "driver_get_version", (VALUE(*)(ANYARGS))driver_get_version, 0);
 
