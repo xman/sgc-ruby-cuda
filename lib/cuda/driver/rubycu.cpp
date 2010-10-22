@@ -1737,7 +1737,7 @@ extern "C" void Init_rubycu()
 
     rb_cMemoryPointer = rb_define_class_under(rb_mCU, "MemoryPointer", rb_cObject);
     rb_define_alloc_func(rb_cMemoryPointer, memory_pointer_alloc);
-    rb_define_method(rb_cMemoryPointer, "initialize", (VALUE(*)(ANYARGS))memory_pointer_initialize, 0);
+    rb_define_method(rb_cMemoryPointer, "initialize", RUBY_METHOD_FUNC(memory_pointer_initialize), 0);
 
     rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cMemoryPointer);
     rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
