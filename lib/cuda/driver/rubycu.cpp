@@ -803,7 +803,7 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
             rb_raise(rb_eArgError, "Invalid type of argument %d.", i+1);
         }
     }
-    if (status != CUDA_SUCCESS) {
+    if (argc > 0 && status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to set function parameters.");
     }
 
