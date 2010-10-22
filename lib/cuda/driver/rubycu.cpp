@@ -564,6 +564,7 @@ static VALUE context_synchronize(VALUE klass)
 
 
 // {{{ CUmodule
+
 static VALUE module_alloc(VALUE klass)
 {
     CUmodule* p = new CUmodule;
@@ -575,6 +576,14 @@ static VALUE module_initialize(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+/*  call-seq: mod.load(path)    ->    self
+ *
+ *  Load a compute module from the file at _path_ into the current CUDA context.
+ *  The file should be a cubin file or a PTX file.
+ *
+ *  A PTX file may be obtained by compiling the .cu file using nvcc with -ptx option.
+ *      $ nvcc -ptx vadd.cu
+ */
 static VALUE module_load(VALUE self, VALUE str)
 {
     CUmodule* p;
@@ -586,6 +595,13 @@ static VALUE module_load(VALUE self, VALUE str)
     return self;
 }
 
+/*  call-seq: mod.load_data(image_str)    ->    self
+ *
+ *  Load a compute module from the String _image_str_ which contains a cubin or a PTX data
+ *  into the current CUDA context.
+ *
+ *  <br /> See also CUModule#load.
+ */
 static VALUE module_load_data(VALUE self, VALUE image)
 {
     CUmodule* p;
@@ -597,6 +613,10 @@ static VALUE module_load_data(VALUE self, VALUE image)
     return self;
 }
 
+/*  call-seq: mod.unload    ->    self
+ *
+ *  Unload _self_ from the current CUDA context.
+ */
 static VALUE module_unload(VALUE self)
 {
     CUmodule* p;
@@ -608,6 +628,11 @@ static VALUE module_unload(VALUE self)
     return self;
 }
 
+/*  call-seq: mod.get_function(name_str)    ->    CUFunction
+ *
+ *  Return a CUFunction instance corresponding to the function name _name_str_ in the loaded compute module.
+ *  A compute module was loaded with CUModule#load and alike methods.
+ */
 static VALUE module_get_function(VALUE self, VALUE str)
 {
     CUmodule* p;
@@ -621,6 +646,10 @@ static VALUE module_get_function(VALUE self, VALUE str)
     return Data_Wrap_Struct(rb_cCUFunction, 0, generic_free<CUfunction>, pfunc);
 }
 
+/*  call-seq: mod.get_global(name_str)    ->    [CUDevicePtr, Numeric]
+ *
+ *  Return the CUDevicePtr corresponding to the global variable in the loaded compute module and its size in bytes.
+ */
 static VALUE module_get_global(VALUE self, VALUE str)
 {
     CUmodule* p;
@@ -637,6 +666,10 @@ static VALUE module_get_global(VALUE self, VALUE str)
     return rb_ary_new3(2, rb_devptr, UINT2NUM(nbytes));
 }
 
+/*  call-seq: mod.get_texref(name_str)    ->    CUTexRef
+ *
+ *  Return a CUTexRef instance corresponding to the texture name _name_str_ in the loaded compute module.
+ */
 static VALUE module_get_texref(VALUE self, VALUE str)
 {
     CUmodule* pmodule;
@@ -650,6 +683,7 @@ static VALUE module_get_texref(VALUE self, VALUE str)
     }
     return rb_texref;
 }
+
 // }}}
 
 
