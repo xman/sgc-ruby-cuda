@@ -248,6 +248,11 @@ static VALUE rb_error_class_by_enum;
 
 
 // {{{ CUdevice
+
+/*  call-seq: CUDevice.get_count    ->    Fixnum
+ *
+ *  Return the number of CUDA devices.
+ */
 static VALUE device_get_count(VALUE klass)
 {
     int count;
@@ -258,6 +263,10 @@ static VALUE device_get_count(VALUE klass)
     return INT2FIX(count);
 }
 
+/*  call-seq: CUDevice.get(index)    ->    CUDevice
+ *
+ *  Return a CUDevice instance corresponding to CUDA device _index_ (0..CUDevice.get_count-1).
+ */
 static VALUE device_get(VALUE klass, VALUE num)
 {
     CUdevice* pdev;
@@ -282,6 +291,10 @@ static VALUE device_initialize(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+/*  call-seq: dev.get_name    ->    String
+ *
+ *  Return the name of _self_ with a maximum of 255 characters.
+ */
 static VALUE device_get_name(VALUE self)
 {
     CUdevice* p;
@@ -294,6 +307,13 @@ static VALUE device_get_name(VALUE self)
     return rb_str_new2(name);
 }
 
+/*  call-seq: dev.compute_capability    ->    Hash { major:, minor: }
+ *
+ *  Return the compute capability of _self_.
+ *
+ *      # For a device with compute capability 1.3:
+ *      dev.compute_capability        #=> { major: 1, minor: 3 }
+ */
 static VALUE device_compute_capability(VALUE self)
 {
     CUdevice* p;
@@ -310,6 +330,14 @@ static VALUE device_compute_capability(VALUE self)
     return h;
 }
 
+/*  call-seq: dev.get_attribute(attribute)    ->    Fixnum
+ *
+ *  Return _attribute_ (CUDeviceAttribute) of _self_.
+ *
+ *      dev.get_attribute(CUDeviceAttribute::MAX_THREADS_PER_BLOCK)        #=> 512
+ *      dev.get_attribute(CUDeviceAttribute::MULTIPROCESSOR_COUNT)         #=> 30
+ *      dev.get_attribute(CUDeviceAttribute::MAX_SHARED_MEMORY_PER_BLOCK)  #=> 16384
+ */
 static VALUE device_get_attribute(VALUE self, VALUE attribute)
 {
     CUdevice* p;
@@ -325,6 +353,10 @@ static VALUE device_get_attribute(VALUE self, VALUE attribute)
     return INT2FIX(v);
 }
 
+/*  call-seq: dev.total_mem    ->    Numeric
+ *
+ *  Return the total amount of device memory in bytes.
+ */
 static VALUE device_total_mem(VALUE self)
 {
     CUdevice* p;
@@ -336,6 +368,7 @@ static VALUE device_total_mem(VALUE self)
     }
     return UINT2NUM(nbytes);
 }
+
 // }}}
 
 
