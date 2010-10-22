@@ -1502,13 +1502,13 @@ extern "C" void Init_rubycu()
 
     rb_cCUModule = rb_define_class_under(rb_mCU, "CUModule", rb_cObject);
     rb_define_alloc_func(rb_cCUModule, module_alloc);
-    rb_define_method(rb_cCUModule, "initialize"  , (VALUE(*)(ANYARGS))module_initialize  , -1);
-    rb_define_method(rb_cCUModule, "load"        , (VALUE(*)(ANYARGS))module_load        ,  1);
-    rb_define_method(rb_cCUModule, "load_data"   , (VALUE(*)(ANYARGS))module_load_data   ,  1);
-    rb_define_method(rb_cCUModule, "unload"      , (VALUE(*)(ANYARGS))module_unload      ,  0);
-    rb_define_method(rb_cCUModule, "get_function", (VALUE(*)(ANYARGS))module_get_function,  1);
-    rb_define_method(rb_cCUModule, "get_global"  , (VALUE(*)(ANYARGS))module_get_global  ,  1);
-    rb_define_method(rb_cCUModule, "get_texref"  , (VALUE(*)(ANYARGS))module_get_texref  ,  1);
+    rb_define_method(rb_cCUModule, "initialize", RUBY_METHOD_FUNC(module_initialize), -1);
+    rb_define_method(rb_cCUModule, "load", RUBY_METHOD_FUNC(module_load), 1);
+    rb_define_method(rb_cCUModule, "load_data", RUBY_METHOD_FUNC(module_load_data), 1);
+    rb_define_method(rb_cCUModule, "unload", RUBY_METHOD_FUNC(module_unload), 0);
+    rb_define_method(rb_cCUModule, "get_function", RUBY_METHOD_FUNC(module_get_function), 1);
+    rb_define_method(rb_cCUModule, "get_global", RUBY_METHOD_FUNC(module_get_global), 1);
+    rb_define_method(rb_cCUModule, "get_texref", RUBY_METHOD_FUNC(module_get_texref), 1);
 
     rb_cCUDevicePtr = rb_define_class_under(rb_mCU, "CUDevicePtr", rb_cObject);
     rb_define_alloc_func(rb_cCUDevicePtr, device_ptr_alloc);
