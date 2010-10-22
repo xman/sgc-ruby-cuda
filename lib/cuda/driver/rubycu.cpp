@@ -1784,7 +1784,7 @@ extern "C" void Init_rubycu()
     rb_define_module_function(rb_mCU, "memcpy_dtod_async", RUBY_METHOD_FUNC(memcpy_dtod_async), 4);
     rb_define_module_function(rb_mCU, "mem_get_info", RUBY_METHOD_FUNC(mem_get_info), 0);
 
-    rb_define_module_function(rb_mCU, "driver_get_version", (VALUE(*)(ANYARGS))driver_get_version, 0);
+    rb_define_module_function(rb_mCU, "driver_get_version", RUBY_METHOD_FUNC(driver_get_version), 0);
 
     CUresult status = cuInit(0);
     if (status != CUDA_SUCCESS) {
