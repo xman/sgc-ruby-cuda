@@ -688,6 +688,7 @@ static VALUE module_get_texref(VALUE self, VALUE str)
 
 
 // {{{ CUdeviceptr
+
 static VALUE device_ptr_alloc(VALUE klass)
 {
     CUdeviceptr* p = new CUdeviceptr;
@@ -702,6 +703,10 @@ static VALUE device_ptr_initialize(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
+/*  call-seq: devptr.offset(offset)    ->    CUDevicePtr
+ *
+ *  Return a CUDevicePtr instance pointing to the memory location _offset_ (bytes) from _self_.
+ */
 static VALUE device_ptr_offset(VALUE self, VALUE offset)
 {
     CUdeviceptr* pdevptr;
@@ -713,6 +718,10 @@ static VALUE device_ptr_offset(VALUE self, VALUE offset)
     return rb_pdevptr_offset;
 }
 
+/*  call-seq: devptr.mem_alloc(nbytes)    ->    self
+ *
+ *  Allocate _nbytes_ device memory and let _self_ points to this allocated memory.
+ */
 static VALUE device_ptr_mem_alloc(VALUE self, VALUE nbytes)
 {
     CUdeviceptr* p;
@@ -724,6 +733,10 @@ static VALUE device_ptr_mem_alloc(VALUE self, VALUE nbytes)
     return self;
 }
 
+/*  call-seq: devptr.mem_free    ->    self
+ *
+ *  Free the allocated device memory _self_ pointing to.
+ */
 static VALUE device_ptr_mem_free(VALUE self)
 {
     CUdeviceptr* p;
@@ -734,6 +747,7 @@ static VALUE device_ptr_mem_free(VALUE self)
     }
     return self;
 }
+
 // }}}
 
 
