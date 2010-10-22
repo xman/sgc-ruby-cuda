@@ -427,6 +427,56 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_texref_create_destroy
+        assert_nothing_raised do
+            t = CUTexRef.new.create
+            assert_instance_of(CUTexRef, t)
+            t = t.destroy
+            assert_nil(t)
+        end
+    end
+
+    def test_texref_get_set_address
+        assert_nothing_raised do
+            t = @mod.get_texref("tex")
+            p = CUDevicePtr.new.mem_alloc(16)
+            t.set_address(p, 16)
+            r = t.get_address
+            assert_instance_of(CUDevicePtr, r)
+            p.mem_free
+        end
+    end
+
+    def test_texref_get_set_address_mode
+        assert_nothing_raised do
+            t = @mod.get_texref("tex")
+            r = t.get_address_mode(0)
+            assert_const_in_class(CUAddressMode, r)
+            t = t.set_address_mode(0, r)
+            assert_instance_of(CUTexRef, t)
+        end
+    end
+
+    def test_texref_get_set_filter_mode
+        assert_nothing_raised do
+            t = @mod.get_texref("tex")
+            r = t.get_filter_mode
+            assert_const_in_class(CUFilterMode, r)
+            t = t.set_filter_mode(r)
+            assert_instance_of(CUTexRef, t)
+        end
+    end
+
+    def test_texref_get_set_flags
+        assert_nothing_raised do
+            t = @mod.get_texref("tex")
+            f = t.get_flags
+            assert_kind_of(Numeric, f)
+            t = t.set_flags(f)
+            assert_instance_of(CUTexRef, t)
+        end
+    end
+
 private
 
     def assert_device(dev)
