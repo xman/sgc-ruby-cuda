@@ -831,7 +831,9 @@ static VALUE function_set_texref(VALUE self, VALUE texref)
     return self;
 }
 
-/*  call-seq: func.set_block_shape(xdim [, ydim [, zdim]])    ->    self
+/*  call-seq: func.set_block_shape(xdim)                ->    self
+ *            func.set_block_shape(xdim, ydim)          ->    self
+ *            func.set_block_shape(xdim, ydim, zdim)    ->    self
  *
  *  Set the block dimensions to use for next launch. _ydim_ and _zdim_ which may be omitted are default to 1.
  */
@@ -892,7 +894,8 @@ static VALUE function_launch(VALUE self)
     return self;
 }
 
-/*  call-seq: func.launch_grid(xdim [, ydim])    ->    self
+/*  call-seq: func.launch_grid(xdim)          ->    self
+ *            func.launch_grid(xdim, ydim)    ->    self
  *
  *  Launch _self_ with grid dimensions (xdim, ydim) to execute on a CUDA device.
  *  _ydim_ which may be omitted is default to 1.
@@ -920,7 +923,8 @@ static VALUE function_launch_grid(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
-/*  call-seq: func.launch_grid_async(xdim [, ydim], stream)    ->    self
+/*  call-seq: func.launch_grid_async(xdim, stream)          ->    self
+ *            func.launch_grid_async(xdim, ydim, stream)    ->    self
  *
  *  Launch _self_ with grid dimensions (xdim, ydim) on _stream_ asynchronously to execute on a CUDA device.
  *  _ydim_ which may be omitted is default to 1. Setting _stream_ to anything other than an instance of CUStream
