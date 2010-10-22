@@ -363,6 +363,34 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_stream_create_destroy
+        assert_nothing_raised do
+            s = CUStream.new
+            s = s.create(0)
+            assert_instance_of(CUStream, s)
+            s = s.destroy
+            assert_nil(s)
+        end
+    end
+
+    def test_stream_query
+        assert_nothing_raised do
+            s = CUStream.new.create(0)
+            b = s.query
+            assert(b)
+            s.destroy
+        end
+    end
+
+    def test_stream_synchronize
+        assert_nothing_raised do
+            s = CUStream.new.create(0)
+            s = s.synchronize
+            assert_instance_of(CUStream, s)
+            s.destroy
+        end
+    end
+
 private
 
     def assert_device(dev)
