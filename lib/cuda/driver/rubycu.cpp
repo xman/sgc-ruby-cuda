@@ -1497,7 +1497,7 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUContextFlags, "LMEM_RESIZE_TO_MAX", INT2FIX(CU_CTX_LMEM_RESIZE_TO_MAX));
 
     rb_cCULimit = rb_define_class_under(rb_mCU, "CULimit", rb_cObject);
-    rb_define_const(rb_cCULimit, "STACK_SIZE"      , INT2FIX(CU_LIMIT_STACK_SIZE));
+    rb_define_const(rb_cCULimit, "STACK_SIZE", INT2FIX(CU_LIMIT_STACK_SIZE));
     rb_define_const(rb_cCULimit, "PRINTF_FIFO_SIZE", INT2FIX(CU_LIMIT_PRINTF_FIFO_SIZE));
 
     rb_cCUModule = rb_define_class_under(rb_mCU, "CUModule", rb_cObject);
