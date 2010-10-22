@@ -1424,14 +1424,14 @@ extern "C" void Init_rubycu()
     rb_mCU  = rb_define_module_under(rb_mSGC, "CU");
 
     rb_cCUDevice = rb_define_class_under(rb_mCU, "CUDevice", rb_cObject);
-    rb_define_singleton_method(rb_cCUDevice, "get_count", (VALUE(*)(ANYARGS))device_get_count, 0);
-    rb_define_singleton_method(rb_cCUDevice, "get"      , (VALUE(*)(ANYARGS))device_get      , 1);
+    rb_define_singleton_method(rb_cCUDevice, "get_count", RUBY_METHOD_FUNC(device_get_count), 0);
+    rb_define_singleton_method(rb_cCUDevice, "get", RUBY_METHOD_FUNC(device_get), 1);
     rb_define_alloc_func(rb_cCUDevice, device_alloc);
-    rb_define_method(rb_cCUDevice, "initialize", (VALUE(*)(ANYARGS))device_initialize, -1);
-    rb_define_method(rb_cCUDevice, "get_name"  , (VALUE(*)(ANYARGS))device_get_name  ,  0);
-    rb_define_method(rb_cCUDevice, "compute_capability", (VALUE(*)(ANYARGS))device_compute_capability, 0);
-    rb_define_method(rb_cCUDevice, "get_attribute"     , (VALUE(*)(ANYARGS))device_get_attribute     , 1);
-    rb_define_method(rb_cCUDevice, "total_mem"         , (VALUE(*)(ANYARGS))device_total_mem         , 0);
+    rb_define_method(rb_cCUDevice, "initialize", RUBY_METHOD_FUNC(device_initialize), -1);
+    rb_define_method(rb_cCUDevice, "get_name", RUBY_METHOD_FUNC(device_get_name), 0);
+    rb_define_method(rb_cCUDevice, "compute_capability", RUBY_METHOD_FUNC(device_compute_capability), 0);
+    rb_define_method(rb_cCUDevice, "get_attribute", RUBY_METHOD_FUNC(device_get_attribute), 1);
+    rb_define_method(rb_cCUDevice, "total_mem", RUBY_METHOD_FUNC(device_total_mem), 0);
 
     rb_cCUComputeMode = rb_define_class_under(rb_mCU, "CUComputeMode", rb_cObject);
     rb_define_const(rb_cCUComputeMode, "DEFAULT"   , INT2FIX(CU_COMPUTEMODE_DEFAULT));
