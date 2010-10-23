@@ -1909,22 +1909,32 @@ static VALUE driver_get_version()
 
 /*  Document-class: SGC::CU::MemoryBuffer
  *  See IBuffer and IBuffer::ClassMethods.
+ *
+ *  Note: ELEMENT_SIZE is *deprecated*. Use MemoryBuffer.element_size.
  */
 
 /*  Document-class: SGC::CU::Int32Buffer
  *  See IBuffer and IBuffer::ClassMethods.
+ *
+ *  Note: ELEMENT_SIZE is *deprecated*. Use Int32Buffer.element_size.
  */
 
 /*  Document-class: SGC::CU::Int64Buffer
  *  See IBuffer and IBuffer::ClassMethods.
+ *
+ *  Note: ELEMENT_SIZE is *deprecated*. Use Int64Buffer.element_size.
  */
 
 /*  Document-class: SGC::CU::Float32Buffer
  *  See IBuffer and IBuffer::ClassMethods.
+ *
+ *  Note: ELEMENT_SIZE is *deprecated*. Use Float32Buffer.element_size.
  */
 
 /*  Document-class: SGC::CU::Float64Buffer
  *  See IBuffer and IBuffer::ClassMethods.
+ *
+ *  Note: ELEMENT_SIZE is *deprecated*. Use Float64Buffer.element_size.
  */
 
  // }}}
