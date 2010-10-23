@@ -160,6 +160,14 @@ static void generic_free(void* p)
 template <typename T>
 static VALUE to_rb(T v);
 
+VALUE to_rb(bool b)
+{
+    if (b) {
+        return Qtrue;
+    }
+    return Qfalse;
+}
+
 template <>
 VALUE to_rb(int v)
 {
@@ -186,6 +194,15 @@ VALUE to_rb(double v)
 
 template <typename T>
 static T to_ctype(VALUE v);
+
+template <>
+bool to_ctype<bool>(VALUE b)
+{
+    if (b == Qfalse || b == Qnil) {
+        return false;
+    }
+    return true;
+}
 
 template <>
 int to_ctype<int>(VALUE v)
