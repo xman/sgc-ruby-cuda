@@ -1905,6 +1905,31 @@ static VALUE driver_get_version()
 // }}}
 
 
+// {{{ Doc
+
+/*  Document-class: SGC::CU::MemoryBuffer
+ *  See IBuffer and IBuffer::ClassMethods.
+ */
+
+/*  Document-class: SGC::CU::Int32Buffer
+ *  See IBuffer and IBuffer::ClassMethods.
+ */
+
+/*  Document-class: SGC::CU::Int64Buffer
+ *  See IBuffer and IBuffer::ClassMethods.
+ */
+
+/*  Document-class: SGC::CU::Float32Buffer
+ *  See IBuffer and IBuffer::ClassMethods.
+ */
+
+/*  Document-class: SGC::CU::Float64Buffer
+ *  See IBuffer and IBuffer::ClassMethods.
+ */
+
+ // }}}
+
+
 extern "C" void Init_rubycu()
 {
     rb_mSGC = rb_define_module("SGC");
