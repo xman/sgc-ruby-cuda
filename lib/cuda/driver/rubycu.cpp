@@ -256,6 +256,14 @@ static VALUE class_const_match(VALUE current_label, VALUE* ary)
     return Qfalse;
 }
 
+// Extend _klass_ with the module _mod::ClassMethods_.
+static VALUE module_included_classmethods_hook(VALUE mod, VALUE klass)
+{
+    VALUE m = rb_cvar_get(mod, rb_intern("ClassMethods"));
+    rb_extend_object(klass, m);
+    return Qnil;
+}
+
 #define RAISE_CU_STD_ERROR_FORMATTED(status, format, ...) rb_raise(rb_hash_aref(rb_error_class_by_enum, INT2FIX(status)), "%s:%d " format, __FILE__, __LINE__, __VA_ARGS__)
 #define RAISE_CU_STD_ERROR(status, message) RAISE_CU_STD_ERROR_FORMATTED(status, "%s", message)
 // }}}
