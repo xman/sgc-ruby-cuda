@@ -32,6 +32,8 @@ namespace CU {
 // {{{ SGC Ruby modules.
 static VALUE rb_mSGC;
 static VALUE rb_mCU;
+static VALUE rb_mIBuffer;
+static VALUE rb_mIBufferClassMethods;
 // }}}
 
 // {{{ CUDA Ruby classes.
@@ -1436,6 +1438,86 @@ static VALUE memory_pointer_initialize(VALUE self)
 
 
 // {{{ Buffer
+
+/*  call-seq: Buffer.new(size, options = {})    ->    Buffer
+ *
+ *  Create a buffer with _size_ elements.
+ *
+ *  Options:
+ *  * _page_locked_ - Allocate page-locked memory if _:page_locked_ is true. Otherwise, allocate pageable memory.
+ *
+ *      Buffer.new(10)                       # Allocate 10 elements with pageable memory.
+ *      Buffer.new(20, page_locked: true)    # Allocate 20 elements with page-locked memory.
+ */
+static VALUE ibuffer_initialize(int argc, VALUE* argv, VALUE self)
+{
+    // This function exists for documentation only.
+    rb_notimplement();
+    return Qnil;
+}
+
+/*  call-seq: Buffer.element_size
+ *
+ *  Return the size of an element of this Buffer in bytes.
+ */
+static VALUE ibuffer_element_size(VALUE klass)
+{
+    rb_notimplement();
+    return Qnil;
+}
+
+/*  call-seq: buffer.size    ->    Numeric
+ *
+ *  Return the number of elements in this buffer.
+ */
+static VALUE ibuffer_size(VALUE self)
+{
+    rb_notimplement();
+    return Qnil;
+}
+
+/*  call-seq: buffer.page_locked?    ->    true or false
+ *
+ *  Return true if this buffer is page-locked allocated.
+ *  Otherwise, return false.
+ */
+static VALUE ibuffer_is_page_locked(VALUE self)
+{
+    rb_notimplement();
+    return Qnil;
+}
+
+/*  call-seq: buffer.offset(index)    ->    MemoryPointer
+ *
+ *  Return the memory pointer of the element at _index_ (0...size) in this buffer.
+ */
+static VALUE ibuffer_offset(VALUE self, VALUE offset)
+{
+    rb_notimplement();
+    return Qnil;
+}
+
+/*  call-seq: buffer[index]    ->    Object
+ *
+ *  Return the element at _index_ (0...size) in this buffer.
+ */
+static VALUE ibuffer_element_get(VALUE self, VALUE index)
+{
+    rb_notimplement();
+    return Qnil;
+}
+
+/*  call-seq: buffer[index] = value    ->    Object
+ *
+ *  Set the element at _index_ (0...size) in this buffer to _value_.
+ *  Return _value_.
+ */
+static VALUE ibuffer_element_set(VALUE self, VALUE index, VALUE value)
+{
+    rb_notimplement();
+    return Qnil;
+}
+
 static void memory_buffer_free(void* p)
 {
     MemoryBuffer* pbuffer = static_cast<MemoryBuffer*>(p);
@@ -1609,6 +1691,7 @@ static VALUE buffer_element_set(VALUE self, VALUE index, VALUE value)
     return value;
 }
 typedef VALUE (*BufferElementSetFunctionType)(VALUE, VALUE, VALUE);
+
 // }}}
 
 
@@ -2098,6 +2181,18 @@ extern "C" void Init_rubycu()
     rb_cMemoryPointer = rb_define_class_under(rb_mCU, "MemoryPointer", rb_cObject);
     rb_define_alloc_func(rb_cMemoryPointer, memory_pointer_alloc);
     rb_define_method(rb_cMemoryPointer, "initialize", RUBY_METHOD_FUNC(memory_pointer_initialize), 0);
+
+    rb_mIBuffer = rb_define_module_under(rb_mCU, "IBuffer");
+    rb_define_singleton_method(rb_mIBuffer, "included", RUBY_METHOD_FUNC(module_included_classmethods_hook), 1);
+    rb_define_method(rb_mIBuffer, "initialize", RUBY_METHOD_FUNC(ibuffer_initialize), -1);
+    rb_define_method(rb_mIBuffer, "size", RUBY_METHOD_FUNC(ibuffer_size), 0);
+    rb_define_method(rb_mIBuffer, "page_locked?", RUBY_METHOD_FUNC(ibuffer_is_page_locked), 0);
+    rb_define_method(rb_mIBuffer, "offset", RUBY_METHOD_FUNC(ibuffer_offset), 1);
+    rb_define_method(rb_mIBuffer, "[]", RUBY_METHOD_FUNC(ibuffer_element_get), 1);
+    rb_define_method(rb_mIBuffer, "[]=", RUBY_METHOD_FUNC(ibuffer_element_set), 2);
+
+    rb_mIBufferClassMethods = rb_define_module_under(rb_mIBuffer, "ClassMethods");
+    rb_define_method(rb_mIBufferClassMethods, "element_size", RUBY_METHOD_FUNC(ibuffer_element_size), 0);
 
     rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cMemoryPointer);
     rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
