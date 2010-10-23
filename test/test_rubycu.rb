@@ -500,9 +500,9 @@ private
 
     def assert_function_launch(size)
         assert_nothing_raised do
-            da = CUDevicePtr.new.mem_alloc(size*Int32Buffer::ELEMENT_SIZE)
-            db = CUDevicePtr.new.mem_alloc(size*Int32Buffer::ELEMENT_SIZE)
-            dc = CUDevicePtr.new.mem_alloc(size*Int32Buffer::ELEMENT_SIZE)
+            da = CUDevicePtr.new.mem_alloc(size*Int32Buffer.element_size)
+            db = CUDevicePtr.new.mem_alloc(size*Int32Buffer.element_size)
+            dc = CUDevicePtr.new.mem_alloc(size*Int32Buffer.element_size)
             ha = Int32Buffer.new(size)
             hb = Int32Buffer.new(size)
             hc = Array.new(size)
@@ -513,13 +513,13 @@ private
                 hc[i] = ha[i] + hb[i]
                 hd[i] = 0
             }
-            memcpy_htod(da, ha, size*Int32Buffer::ELEMENT_SIZE)
-            memcpy_htod(db, hb, size*Int32Buffer::ELEMENT_SIZE)
+            memcpy_htod(da, ha, size*Int32Buffer.element_size)
+            memcpy_htod(db, hb, size*Int32Buffer.element_size)
             @func.set_param(da, db, dc, size)
 
             yield @func
 
-            memcpy_dtoh(hd, dc, size*Int32Buffer::ELEMENT_SIZE)
+            memcpy_dtoh(hd, dc, size*Int32Buffer.element_size)
             (0...size).each { |i|
                 assert_equal(hc[i], hd[i])
             }
