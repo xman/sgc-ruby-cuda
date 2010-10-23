@@ -1641,6 +1641,13 @@ static VALUE buffer_alloc(VALUE klass)
 }
 
 template <typename TElement>
+static VALUE buffer_element_size(VALUE klass)
+{
+    return INT2FIX(sizeof(TElement));
+}
+typedef VALUE (*BufferElementSizeFunctionType)(VALUE);
+
+template <typename TElement>
 static VALUE buffer_initialize(int argc, VALUE* argv, VALUE self)
 {
     if (argc <= 0 || argc >= 3) {
@@ -2250,6 +2257,7 @@ extern "C" void Init_rubycu()
     rb_cInt32Buffer = rb_define_class_under(rb_mCU, "Int32Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cInt32Buffer, buffer_alloc<int>);
     rb_define_const(rb_cInt32Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(int)));
+    rb_define_singleton_method(rb_cInt32Buffer, "element_size", RUBY_METHOD_FUNC(static_cast<BufferElementSizeFunctionType>(&buffer_element_size<int>)), 0);
     rb_define_method(rb_cInt32Buffer, "initialize", RUBY_METHOD_FUNC(static_cast<BufferInitializeFunctionType>(&buffer_initialize<int>)) , -1);
     rb_define_method(rb_cInt32Buffer, "size", RUBY_METHOD_FUNC(static_cast<BufferSizeFunctionType>(&buffer_size<int>)), 0);
     rb_define_method(rb_cInt32Buffer, "page_locked?", RUBY_METHOD_FUNC(static_cast<BufferIsPageLocked>(&buffer_is_page_locked<int>)), 0);
@@ -2260,6 +2268,7 @@ extern "C" void Init_rubycu()
     rb_cInt64Buffer = rb_define_class_under(rb_mCU, "Int64Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cInt64Buffer, buffer_alloc<long>);
     rb_define_const(rb_cInt64Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(long)));
+    rb_define_singleton_method(rb_cInt64Buffer, "element_size", RUBY_METHOD_FUNC(static_cast<BufferElementSizeFunctionType>(&buffer_element_size<long>)), 0);
     rb_define_method(rb_cInt64Buffer, "initialize", RUBY_METHOD_FUNC(static_cast<BufferInitializeFunctionType>(&buffer_initialize<long>)) , -1);
     rb_define_method(rb_cInt64Buffer, "size", RUBY_METHOD_FUNC(static_cast<BufferSizeFunctionType>(&buffer_size<long>)), 0);
     rb_define_method(rb_cInt64Buffer, "page_locked?", RUBY_METHOD_FUNC(static_cast<BufferIsPageLocked>(&buffer_is_page_locked<long>)), 0);
@@ -2270,6 +2279,7 @@ extern "C" void Init_rubycu()
     rb_cFloat32Buffer = rb_define_class_under(rb_mCU, "Float32Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cFloat32Buffer, buffer_alloc<float>);
     rb_define_const(rb_cFloat32Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(float)));
+    rb_define_singleton_method(rb_cFloat32Buffer, "element_size", RUBY_METHOD_FUNC(static_cast<BufferElementSizeFunctionType>(&buffer_element_size<float>)), 0);
     rb_define_method(rb_cFloat32Buffer, "initialize", RUBY_METHOD_FUNC(static_cast<BufferInitializeFunctionType>(&buffer_initialize<float>)) , -1);
     rb_define_method(rb_cFloat32Buffer, "size", RUBY_METHOD_FUNC(static_cast<BufferSizeFunctionType>(&buffer_size<float>)), 0);
     rb_define_method(rb_cFloat32Buffer, "page_locked?", RUBY_METHOD_FUNC(static_cast<BufferIsPageLocked>(&buffer_is_page_locked<float>)), 0);
@@ -2281,6 +2291,7 @@ extern "C" void Init_rubycu()
     rb_define_alloc_func(rb_cFloat64Buffer, buffer_alloc<double>);
     rb_define_const(rb_cFloat64Buffer, "ELEMENT_SIZE", INT2FIX(sizeof(double)));
     rb_define_method(rb_cFloat64Buffer, "initialize", RUBY_METHOD_FUNC(static_cast<BufferInitializeFunctionType>(&buffer_initialize<double>)) , -1);
+    rb_define_singleton_method(rb_cFloat64Buffer, "element_size", RUBY_METHOD_FUNC(static_cast<BufferElementSizeFunctionType>(&buffer_element_size<double>)), 0);
     rb_define_method(rb_cFloat64Buffer, "size", RUBY_METHOD_FUNC(static_cast<BufferSizeFunctionType>(&buffer_size<double>)), 0);
     rb_define_method(rb_cFloat64Buffer, "page_locked?", RUBY_METHOD_FUNC(static_cast<BufferIsPageLocked>(&buffer_is_page_locked<double>)), 0);
     rb_define_method(rb_cFloat64Buffer, "offset", RUBY_METHOD_FUNC(static_cast<BufferOffsetFunctionType>(&buffer_offset<double>)), 1);
