@@ -1538,6 +1538,11 @@ static VALUE memory_buffer_alloc(VALUE klass)
     return Data_Wrap_Struct(klass, 0, memory_buffer_free, pbuffer);
 }
 
+static VALUE memory_buffer_element_size(VALUE klass)
+{
+    return INT2FIX(1);
+}
+
 static VALUE memory_buffer_initialize(int argc, VALUE* argv, VALUE self)
 {
     if (argc < 1 || argc > 2) {
@@ -1574,6 +1579,42 @@ static VALUE memory_buffer_size(VALUE self)
     MemoryBuffer* pbuffer;
     Data_Get_Struct(self, MemoryBuffer, pbuffer);
     return SIZET2NUM(pbuffer->size);
+}
+
+static VALUE memory_buffer_is_page_locked(VALUE self)
+{
+    MemoryBuffer* pbuffer;
+    Data_Get_Struct(self, MemoryBuffer, pbuffer);
+    return to_rb(pbuffer->is_page_locked);
+}
+
+static VALUE memory_buffer_offset(VALUE self, VALUE offset)
+{
+    MemoryBuffer* pbuffer;
+    MemoryPointer* ppointer_offset;
+    Data_Get_Struct(self, MemoryBuffer, pbuffer);
+    VALUE rb_ppointer_offset = rb_class_new_instance(0, NULL, rb_cMemoryPointer);
+    Data_Get_Struct(rb_ppointer_offset, MemoryPointer, ppointer_offset);
+    ppointer_offset->p = pbuffer->p + NUM2SIZET(offset);
+    return rb_ppointer_offset;
+}
+
+static VALUE memory_buffer_element_get(VALUE self, VALUE index)
+{
+    size_t i = NUM2SIZET(index);
+    MemoryBuffer* pbuffer;
+    Data_Get_Struct(self, MemoryBuffer, pbuffer);
+    int element = static_cast<int>(pbuffer->p[i]);
+    return to_rb(element);
+}
+
+static VALUE memory_buffer_element_set(VALUE self, VALUE index, VALUE value)
+{
+    size_t i = NUM2SIZET(index);
+    MemoryBuffer* pbuffer;
+    Data_Get_Struct(self, MemoryBuffer, pbuffer);
+    pbuffer->p[i] = static_cast<char>(FIX2INT(value));
+    return value;
 }
 
 template <typename TElement>
@@ -2195,9 +2236,16 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_mIBufferClassMethods, "element_size", RUBY_METHOD_FUNC(ibuffer_element_size), 0);
 
     rb_cMemoryBuffer = rb_define_class_under(rb_mCU, "MemoryBuffer", rb_cMemoryPointer);
+    rb_include_module(rb_cMemoryBuffer, rb_mIBuffer);
+    module_included_classmethods_hook(rb_mIBuffer, rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cMemoryBuffer, memory_buffer_alloc);
+    rb_define_singleton_method(rb_cMemoryBuffer, "element_size", RUBY_METHOD_FUNC(memory_buffer_element_size), 0);
     rb_define_method(rb_cMemoryBuffer, "initialize", RUBY_METHOD_FUNC(memory_buffer_initialize), -1);
     rb_define_method(rb_cMemoryBuffer, "size", RUBY_METHOD_FUNC(memory_buffer_size), 0);
+    rb_define_method(rb_cMemoryBuffer, "page_locked?", RUBY_METHOD_FUNC(memory_buffer_is_page_locked), 0);
+    rb_define_method(rb_cMemoryBuffer, "offset", RUBY_METHOD_FUNC(memory_buffer_offset), 1);
+    rb_define_method(rb_cMemoryBuffer, "[]", RUBY_METHOD_FUNC(memory_buffer_element_get), 1);
+    rb_define_method(rb_cMemoryBuffer, "[]=", RUBY_METHOD_FUNC(memory_buffer_element_set), 2);
 
     rb_cInt32Buffer = rb_define_class_under(rb_mCU, "Int32Buffer", rb_cMemoryBuffer);
     rb_define_alloc_func(rb_cInt32Buffer, buffer_alloc<int>);
