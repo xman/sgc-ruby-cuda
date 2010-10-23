@@ -1765,6 +1765,8 @@ static VALUE memcpy_htod(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE
 /*  call-seq: memcpy_htod_async(dst_devptr, src_mem, nbytes, stream)    ->    nil
  *
  *  Copy _nbytes_ from host memory at _src_mem_ to device memory at _dst_devptr_ in _stream_ asynchronously.
+ *
+ *  Note: The _src_mem_ should be *page-locked* memory.
  */
 static VALUE memcpy_htod_async(VALUE self, VALUE rb_device_ptr, VALUE rb_memory, VALUE nbytes, VALUE rb_stream)
 {
@@ -1806,6 +1808,8 @@ static VALUE memcpy_dtoh(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE
 /*  call-seq: memcpy_dtoh_async(dst_mem, src_devptr, nbytes, stream)    ->    nil
  *
  *  Copy _nbytes_ from device memory at _src_devptr_ to host memory at _dst_mem_ in _stream_ asynchronously.
+ *
+ *  Note: The _dst_mem_ should be *page-locked* memory.
  */
 static VALUE memcpy_dtoh_async(VALUE self, VALUE rb_memory, VALUE rb_device_ptr, VALUE nbytes, VALUE rb_stream)
 {
