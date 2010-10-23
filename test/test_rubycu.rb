@@ -477,6 +477,132 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_buffer_initialize
+        assert_nothing_raised do
+            b = MemoryBuffer.new(16)
+            assert_instance_of(MemoryBuffer, b)
+            assert_equal(false, b.page_locked?)
+            assert_equal(16, b.size)
+
+            b = Int32Buffer.new(10)
+            assert_instance_of(Int32Buffer, b)
+            assert_equal(false, b.page_locked?)
+            assert_equal(10, b.size)
+
+            b = Int64Buffer.new(20)
+            assert_instance_of(Int64Buffer, b)
+            assert_equal(false, b.page_locked?)
+            assert_equal(20, b.size)
+
+            b = Float32Buffer.new(30)
+            assert_instance_of(Float32Buffer, b)
+            assert_equal(false, b.page_locked?)
+            assert_equal(30, b.size)
+
+            b = Float64Buffer.new(40)
+            assert_instance_of(Float64Buffer, b)
+            assert_equal(false, b.page_locked?)
+            assert_equal(40, b.size)
+        end
+    end
+
+    def test_buffer_initialize_page_locked
+        assert_nothing_raised do
+            b = MemoryBuffer.new(16, page_locked: true)
+            assert_instance_of(MemoryBuffer, b)
+            assert_equal(true, b.page_locked?)
+            assert_equal(16, b.size)
+
+            b = Int32Buffer.new(10, page_locked: true)
+            assert_instance_of(Int32Buffer, b)
+            assert_equal(true, b.page_locked?)
+            assert_equal(10, b.size)
+
+            b = Int64Buffer.new(20, page_locked: true)
+            assert_instance_of(Int64Buffer, b)
+            assert_equal(true, b.page_locked?)
+            assert_equal(20, b.size)
+
+            b = Float32Buffer.new(30, page_locked: true)
+            assert_instance_of(Float32Buffer, b)
+            assert_equal(true, b.page_locked?)
+            assert_equal(30, b.size)
+
+            b = Float64Buffer.new(40, page_locked: true)
+            assert_instance_of(Float64Buffer, b)
+            assert_equal(true, b.page_locked?)
+            assert_equal(40, b.size)
+        end
+    end
+
+    def test_buffer_element_size
+        assert_nothing_raised do
+            assert_equal(1, MemoryBuffer.element_size)
+            assert_equal(4, Int32Buffer.element_size)
+            assert_equal(8, Int64Buffer.element_size)
+            assert_equal(4, Float32Buffer.element_size)
+            assert_equal(8, Float64Buffer.element_size)
+        end
+    end
+
+    def test_buffer_offset
+        assert_nothing_raised do
+            b = MemoryBuffer.new(16)
+            c = b.offset(4)
+            assert_kind_of(MemoryPointer, c)
+
+            b = Int32Buffer.new(10)
+            c = b.offset(2)
+            assert_kind_of(MemoryPointer, c)
+
+            b = Int64Buffer.new(10)
+            c = b.offset(3)
+            assert_kind_of(MemoryPointer, c)
+
+            b = Float32Buffer.new(10)
+            c = b.offset(4)
+            assert_kind_of(MemoryPointer, c)
+
+            b = Float64Buffer.new(10)
+            c = b.offset(5)
+            assert_kind_of(MemoryPointer, c)
+        end
+    end
+
+    def test_buffer_access
+        assert_nothing_raised do
+            b = MemoryBuffer.new(16)
+            b[0] = 127
+            assert_equal(127, b[0])
+            b[15] = 128
+            assert_not_equal(128, b[15])
+
+            b = Int32Buffer.new(10)
+            b[0] = 10
+            assert_equal(10, b[0])
+            b[9] = 20
+            assert_equal(20, b[9])
+
+            b = Int64Buffer.new(10)
+            b[3] = 2**40
+            assert_equal(2**40, b[3])
+            b[7] = 2**50
+            assert_equal(2**50, b[7])
+
+            b = Float32Buffer.new(10)
+            b[2] = 3.14
+            assert_in_delta(3.14, b[2])
+            b[8] = 9.33
+            assert_in_delta(9.33, b[8])
+
+            b = Float64Buffer.new(10)
+            b[1] = 3.14
+            assert_in_delta(3.14, b[1])
+            b[6] = 9.33
+            assert_in_delta(9.33, b[6])
+        end
+    end
+
 private
 
     def assert_device(dev)
