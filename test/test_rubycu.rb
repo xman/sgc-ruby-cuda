@@ -603,6 +603,67 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_memory_copy
+        assert_nothing_raised do
+            cBuffer = Int32Buffer
+            size = 16
+            b = cBuffer.new(size, page_locked: true)
+            c = cBuffer.new(size, page_locked: true)
+            d = cBuffer.new(size)
+            e = cBuffer.new(size)
+            p = CUDevicePtr.new.mem_alloc(size*cBuffer.element_size)
+            q = CUDevicePtr.new.mem_alloc(size*cBuffer.element_size)
+            r = CUDevicePtr.new.mem_alloc(size*cBuffer.element_size)
+
+            (0...size).each do |i|
+                b[i] = i
+                c[i] = 0
+                d[i] = 0
+                e[i] = 0
+            end
+            memcpy_htod(p, b, size*cBuffer.element_size)
+            memcpy_dtoh(c, p, size*cBuffer.element_size)
+            (0...size).each do |i|
+                assert_equal(b[i], c[i])
+            end
+
+            (0...size).each do |i|
+                b[i] = 2*i
+                c[i] = 0
+            end
+            memcpy_htod_async(p, b, size*cBuffer.element_size, 0)
+            memcpy_dtoh_async(c, p, size*cBuffer.element_size, 0)
+            CUContext.synchronize
+            (0...size).each do |i|
+                assert_equal(b[i], c[i])
+            end
+
+            memcpy_dtod(q, p, size*cBuffer.element_size)
+            CUContext.synchronize
+            memcpy_dtoh(d, q, size*cBuffer.element_size)
+            (0...size).each do |i|
+                assert_equal(b[i], d[i])
+            end
+
+            memcpy_dtod_async(r, p, size*cBuffer.element_size, 0)
+            CUContext.synchronize
+            memcpy_dtoh(e, r, size*cBuffer.element_size)
+            (0...size).each do |i|
+                assert_equal(b[i], e[i])
+            end
+
+            p.mem_free
+            q.mem_free
+            r.mem_free
+        end
+    end
+
+    def test_memory_get_info
+        info = mem_get_info
+        assert(info[:free] >= 0)
+        assert(info[:total] >= 0)
+    end
+
 private
 
     def assert_device(dev)
