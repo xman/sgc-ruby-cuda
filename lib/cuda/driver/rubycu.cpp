@@ -250,7 +250,7 @@ static VALUE class_const_match(VALUE current_label, VALUE* ary)
     const VALUE& rb_class_const = ary[0];
     const VALUE& constant_value = ary[1];
     VALUE& label = ary[2];
-    VALUE v = rb_funcall(rb_class_const, rb_intern("const_get"), 1, current_label);
+    VALUE v = rb_const_get(rb_class_const, SYM2ID(current_label));
     if (FIX2INT(v) == FIX2INT(constant_value)) {
         label = current_label;
         return Qtrue;
