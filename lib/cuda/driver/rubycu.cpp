@@ -375,7 +375,7 @@ static VALUE device_get_attribute(VALUE self, VALUE attribute)
     if (status != CUDA_SUCCESS) {
         VALUE attributes = rb_funcall(rb_cCUDeviceAttribute, rb_intern("constants"), 0);
         VALUE ary[3] = { rb_cCUDeviceAttribute, attribute, Qnil };
-        rb_block_call(attributes, rb_intern("find"), 0, NULL, (VALUE(*)(ANYARGS))class_const_match, (VALUE)ary);
+        rb_block_call(attributes, rb_intern("find"), 0, NULL, RUBY_METHOD_FUNC(class_const_match), (VALUE)ary);
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to query device attribute: %s.", rb_id2name(SYM2ID(ary[2])));
     }
     return INT2FIX(v);
@@ -534,7 +534,7 @@ static VALUE context_get_limit(VALUE klass, VALUE limit)
     if (status != CUDA_SUCCESS) {
         VALUE limits = rb_funcall(rb_cCULimit, rb_intern("constants"), 0);
         VALUE ary[3] = { rb_cCULimit, limit, Qnil };
-        rb_block_call(limits, rb_intern("find"), 0, NULL, (VALUE(*)(ANYARGS))class_const_match, (VALUE)ary);
+        rb_block_call(limits, rb_intern("find"), 0, NULL, RUBY_METHOD_FUNC(class_const_match), (VALUE)ary);
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get context limit: %s.", rb_id2name(SYM2ID(ary[2])));
     }
     return SIZET2NUM(v);
@@ -553,7 +553,7 @@ static VALUE context_set_limit(VALUE klass, VALUE limit, VALUE value)
     if (status != CUDA_SUCCESS) {
         VALUE limits = rb_funcall(rb_cCULimit, rb_intern("constants"), 0);
         VALUE ary[3] = { rb_cCULimit, limit, Qnil };
-        rb_block_call(limits, rb_intern("find"), 0, NULL, (VALUE(*)(ANYARGS))class_const_match, (VALUE)ary);
+        rb_block_call(limits, rb_intern("find"), 0, NULL, RUBY_METHOD_FUNC(class_const_match), (VALUE)ary);
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set context limit: %s to %lu.", rb_id2name(SYM2ID(ary[2])), NUM2SIZET(value));
     }
     return Qnil;
@@ -1011,7 +1011,7 @@ static VALUE function_get_attribute(VALUE self, VALUE attribute)
     if (status != CUDA_SUCCESS) {
         VALUE attributes = rb_funcall(rb_cCUFunctionAttribute, rb_intern("constants"), 0);
         VALUE ary[3] = { rb_cCUFunctionAttribute, attribute, Qnil };
-        rb_block_call(attributes, rb_intern("find"), 0, NULL, (VALUE(*)(ANYARGS))class_const_match, (VALUE)ary);
+        rb_block_call(attributes, rb_intern("find"), 0, NULL, RUBY_METHOD_FUNC(class_const_match), (VALUE)ary);
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to query function attribute: %s.", rb_id2name(SYM2ID(ary[2])));
     }
     return INT2FIX(v);
@@ -1029,7 +1029,7 @@ static VALUE function_set_cache_config(VALUE self, VALUE config)
     if (status != CUDA_SUCCESS) {
         VALUE configs = rb_funcall(rb_cCUFunctionCache, rb_intern("constants"), 0);
         VALUE ary[3] = { rb_cCUFunctionCache, config, Qnil };
-        rb_block_call(configs, rb_intern("find"), 0, NULL, (VALUE(*)(ANYARGS))class_const_match, (VALUE)ary);
+        rb_block_call(configs, rb_intern("find"), 0, NULL, RUBY_METHOD_FUNC(class_const_match), (VALUE)ary);
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set function cache config: %s.", rb_id2name(SYM2ID(ary[2])));
     }
     return self;
