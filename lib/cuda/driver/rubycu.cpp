@@ -2173,6 +2173,7 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUAddressMode, "WRAP", INT2FIX(CU_TR_ADDRESS_MODE_WRAP));
     rb_define_const(rb_cCUAddressMode, "CLAMP", INT2FIX(CU_TR_ADDRESS_MODE_CLAMP));
     rb_define_const(rb_cCUAddressMode, "MIRROR", INT2FIX(CU_TR_ADDRESS_MODE_MIRROR));
+    rb_define_const(rb_cCUAddressMode, "BORDER", INT2FIX(CU_TR_ADDRESS_MODE_BORDER));
 
     rb_cCUFilterMode = rb_define_class_under(rb_mCU, "CUFilterMode", rb_cObject);
     rb_define_const(rb_cCUFilterMode, "POINT", INT2FIX(CU_TR_FILTER_MODE_POINT));
