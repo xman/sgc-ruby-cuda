@@ -542,6 +542,36 @@ static VALUE context_push_current(VALUE self)
     return self;
 }
 
+/*  call-seq: ctx.get_api_version    ->     Numeric
+ *
+ *  Return the API version used to create _self_.
+ */
+static VALUE context_get_api_version(VALUE self)
+{
+    CUcontext* p;
+    Data_Get_Struct(self, CUcontext, p);
+    unsigned int version;
+    CUresult status = cuCtxGetApiVersion(*p, &version);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get the API version of this context.");
+    }
+    return UINT2NUM(version);
+}
+
+/*  call-seq: CUContext.get_api_version    ->    Numeric
+ *
+ *  Return the API version used to create current context.
+ */
+static VALUE context_get_api_version_singleton(VALUE klass)
+{
+    unsigned int version;
+    CUresult status = cuCtxGetApiVersion(NULL, &version);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get the API version of current context.");
+    }
+    return UINT2NUM(version);
+}
+
 /*  call-seq: CUContext.get_device    ->    CUDevice
  *
  *  Return the device associated to the current CUDA context.
@@ -2083,11 +2113,13 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUContext, "attach", RUBY_METHOD_FUNC(context_attach), -1);
     rb_define_method(rb_cCUContext, "detach", RUBY_METHOD_FUNC(context_detach), 0);
     rb_define_method(rb_cCUContext, "push_current", RUBY_METHOD_FUNC(context_push_current), 0);
+    rb_define_method(rb_cCUContext, "get_api_version", RUBY_METHOD_FUNC(context_get_api_version), 0);
     rb_define_singleton_method(rb_cCUContext, "get_device", RUBY_METHOD_FUNC(context_get_device), 0);
     rb_define_singleton_method(rb_cCUContext, "get_limit", RUBY_METHOD_FUNC(context_get_limit), 1);
     rb_define_singleton_method(rb_cCUContext, "set_limit", RUBY_METHOD_FUNC(context_set_limit), 2);
     rb_define_singleton_method(rb_cCUContext, "get_cache_config", RUBY_METHOD_FUNC(context_get_cache_config), 0);
     rb_define_singleton_method(rb_cCUContext, "set_cache_config", RUBY_METHOD_FUNC(context_set_cache_config), 1);
+    rb_define_singleton_method(rb_cCUContext, "get_api_version", RUBY_METHOD_FUNC(context_get_api_version_singleton), 0);
     rb_define_singleton_method(rb_cCUContext, "pop_current", RUBY_METHOD_FUNC(context_pop_current), 0);
     rb_define_singleton_method(rb_cCUContext, "synchronize", RUBY_METHOD_FUNC(context_synchronize), 0);
 
