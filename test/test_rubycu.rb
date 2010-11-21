@@ -280,17 +280,6 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
-    def test_function_set_texref
-        assert_nothing_raised do
-            a = CUDevicePtr.new.mem_alloc(16)
-            t = @mod.get_texref("tex")
-            t.set_address(a, 16)
-            f = @func.set_texref(t)
-            a.mem_free
-            assert_instance_of(CUFunction, f)
-        end
-    end
-
     def test_function_set_block_shape
         assert_nothing_raised do
             f = @func.set_block_shape(2)
