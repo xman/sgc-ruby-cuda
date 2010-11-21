@@ -881,9 +881,12 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
 /*  call-seq: func.set_texref(texref)    ->    self
  *
  *  Add the _texref_ to the argument list of _self_.
+ *
+ *  Note: This method is *deprecated*. This is no longer necessary.
  */
 static VALUE function_set_texref(VALUE self, VALUE texref)
 {
+    rb_warn("CUFunction#set_texref is deprecated.");
     CUfunction* pfunc;
     CUtexref* ptexref;
     Data_Get_Struct(self, CUfunction, pfunc);
