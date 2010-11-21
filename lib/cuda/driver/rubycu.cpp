@@ -2073,6 +2073,7 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUDeviceAttribute, "ECC_ENABLED", INT2FIX(CU_DEVICE_ATTRIBUTE_ECC_ENABLED));
     rb_define_const(rb_cCUDeviceAttribute, "PCI_BUS_ID", INT2FIX(CU_DEVICE_ATTRIBUTE_PCI_BUS_ID));
     rb_define_const(rb_cCUDeviceAttribute, "PCI_DEVICE_ID", INT2FIX(CU_DEVICE_ATTRIBUTE_PCI_DEVICE_ID));
+    rb_define_const(rb_cCUDeviceAttribute, "TCC_DRIVER", INT2FIX(CU_DEVICE_ATTRIBUTE_TCC_DRIVER));
 
     rb_cCUContext = rb_define_class_under(rb_mCU, "CUContext", rb_cObject);
     rb_define_alloc_func(rb_cCUContext, context_alloc);
