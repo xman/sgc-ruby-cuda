@@ -87,10 +87,6 @@ static VALUE rb_eCULaunchOutOfResourcesError;
 static VALUE rb_eCULaunchTimeoutError;
 static VALUE rb_eCULaunchIncompatibleTexturingError;
 
-static VALUE rb_eCUBitWidthError;
-static VALUE rb_eCUPointerIs64BitError;
-static VALUE rb_eCUSizeIs64BitError;
-
 static VALUE rb_eCUParameterError;
 static VALUE rb_eCUInvalidValueError;
 static VALUE rb_eCUInvalidHandleError;
@@ -117,6 +113,7 @@ static VALUE rb_eCUReferenceNotFoundError;
 static VALUE rb_eCUOtherError;
 static VALUE rb_eCUAlreadyAcquiredError;
 static VALUE rb_eCUNotReadyError;
+static VALUE rb_eCUOperatingSystemError;
 
 static VALUE rb_eCUUnknownError;
 
@@ -2187,6 +2184,7 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUResult, "ERROR_FILE_NOT_FOUND", INT2FIX(CUDA_ERROR_FILE_NOT_FOUND));
     rb_define_const(rb_cCUResult, "ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND", INT2FIX(CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND));
     rb_define_const(rb_cCUResult, "ERROR_SHARED_OBJECT_INIT_FAILED", INT2FIX(CUDA_ERROR_SHARED_OBJECT_INIT_FAILED));
+    rb_define_const(rb_cCUResult, "ERROR_OPERATING_SYSTEM", INT2FIX(CUDA_ERROR_OPERATING_SYSTEM));
     rb_define_const(rb_cCUResult, "ERROR_INVALID_HANDLE", INT2FIX(CUDA_ERROR_INVALID_HANDLE));
     rb_define_const(rb_cCUResult, "ERROR_NOT_FOUND", INT2FIX(CUDA_ERROR_NOT_FOUND));
     rb_define_const(rb_cCUResult, "ERROR_NOT_READY", INT2FIX(CUDA_ERROR_NOT_READY));
@@ -2194,8 +2192,6 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUResult, "ERROR_LAUNCH_OUT_OF_RESOURCES", INT2FIX(CUDA_ERROR_LAUNCH_OUT_OF_RESOURCES));
     rb_define_const(rb_cCUResult, "ERROR_LAUNCH_TIMEOUT", INT2FIX(CUDA_ERROR_LAUNCH_TIMEOUT));
     rb_define_const(rb_cCUResult, "ERROR_LAUNCH_INCOMPATIBLE_TEXTURING" , INT2FIX(CUDA_ERROR_LAUNCH_INCOMPATIBLE_TEXTURING));
-    rb_define_const(rb_cCUResult, "ERROR_POINTER_IS_64BIT", INT2FIX(CUDA_ERROR_POINTER_IS_64BIT));
-    rb_define_const(rb_cCUResult, "ERROR_SIZE_IS_64BIT", INT2FIX(CUDA_ERROR_SIZE_IS_64BIT));
     rb_define_const(rb_cCUResult, "ERROR_UNKNOWN", INT2FIX(CUDA_ERROR_UNKNOWN));
 
     rb_eCUStandardError = rb_define_class_under(rb_mCU, "CUStandardError", rb_eStandardError);
@@ -2226,10 +2222,6 @@ extern "C" void Init_rubycu()
     rb_eCULaunchTimeoutError               = rb_define_class_under(rb_mCU, "CULaunchTimeoutError", rb_eCULaunchError);
     rb_eCULaunchIncompatibleTexturingError = rb_define_class_under(rb_mCU, "CULaunchIncompatibleTexturingError", rb_eCULaunchError);
 
-    rb_eCUBitWidthError       = rb_define_class_under(rb_mCU, "CUBitWidthError", rb_eCUStandardError);
-    rb_eCUPointerIs64BitError = rb_define_class_under(rb_mCU, "CUPointerIs64BitError", rb_eCUBitWidthError);
-    rb_eCUSizeIs64BitError    = rb_define_class_under(rb_mCU, "CUSizeIs64BitError", rb_eCUBitWidthError);
-
     rb_eCUParameterError     = rb_define_class_under(rb_mCU, "CUParameterError", rb_eCUStandardError);
     rb_eCUInvalidValueError  = rb_define_class_under(rb_mCU, "CUInvalidValueError", rb_eCUParameterError);
     rb_eCUInvalidHandleError = rb_define_class_under(rb_mCU, "CUInvalidHandleError", rb_eCUParameterError);
@@ -2256,6 +2248,7 @@ extern "C" void Init_rubycu()
     rb_eCUOtherError           = rb_define_class_under(rb_mCU, "CUOtherError", rb_eCUStandardError);
     rb_eCUAlreadyAcquiredError = rb_define_class_under(rb_mCU, "CUAlreadyAcquiredError", rb_eCUOtherError);
     rb_eCUNotReadyError        = rb_define_class_under(rb_mCU, "CUNotReadyError", rb_eCUOtherError);
+    rb_eCUOperatingSystemError = rb_define_class_under(rb_mCU, "CUOperatingSystemError", rb_eCUOtherError);
 
     rb_eCUUnknownError = rb_define_class_under(rb_mCU, "CUUnknownError", rb_eCUStandardError);
 
@@ -2282,9 +2275,6 @@ extern "C" void Init_rubycu()
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_LAUNCH_TIMEOUT)               , rb_eCULaunchTimeoutError);
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_LAUNCH_INCOMPATIBLE_TEXTURING), rb_eCULaunchIncompatibleTexturingError);
 
-    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_POINTER_IS_64BIT), rb_eCUPointerIs64BitError);
-    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_SIZE_IS_64BIT)   , rb_eCUSizeIs64BitError);
-
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_INVALID_VALUE)  , rb_eCUInvalidValueError);
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_INVALID_HANDLE) , rb_eCUInvalidHandleError);
 
@@ -2304,6 +2294,7 @@ extern "C" void Init_rubycu()
 
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_ALREADY_ACQUIRED), rb_eCUAlreadyAcquiredError);
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_NOT_READY)       , rb_eCUNotReadyError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_OPERATING_SYSTEM), rb_eCUOperatingSystemError);
 
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_UNKNOWN), rb_eCUUnknownError);
 
