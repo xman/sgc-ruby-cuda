@@ -2169,6 +2169,7 @@ extern "C" void Init_rubycu()
     rb_cCUEventFlags = rb_define_class_under(rb_mCU, "CUEventFlags", rb_cObject);
     rb_define_const(rb_cCUEventFlags, "DEFAULT", INT2FIX(CU_EVENT_DEFAULT));
     rb_define_const(rb_cCUEventFlags, "BLOCKING_SYNC", INT2FIX(CU_EVENT_BLOCKING_SYNC));
+    rb_define_const(rb_cCUEventFlags, "DISABLE_TIMING", INT2FIX(CU_EVENT_DISABLE_TIMING));
 
     rb_cCUAddressMode = rb_define_class_under(rb_mCU, "CUAddressMode", rb_cObject);
     rb_define_const(rb_cCUAddressMode, "WRAP", INT2FIX(CU_TR_ADDRESS_MODE_WRAP));
