@@ -2065,6 +2065,7 @@ extern "C" void Init_rubycu()
     rb_cCULimit = rb_define_class_under(rb_mCU, "CULimit", rb_cObject);
     rb_define_const(rb_cCULimit, "STACK_SIZE", INT2FIX(CU_LIMIT_STACK_SIZE));
     rb_define_const(rb_cCULimit, "PRINTF_FIFO_SIZE", INT2FIX(CU_LIMIT_PRINTF_FIFO_SIZE));
+    rb_define_const(rb_cCULimit, "MALLOC_HEAP_SIZE", INT2FIX(CU_LIMIT_MALLOC_HEAP_SIZE));
 
     rb_cCUModule = rb_define_class_under(rb_mCU, "CUModule", rb_cObject);
     rb_define_alloc_func(rb_cCUModule, module_alloc);
