@@ -143,6 +143,22 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_context_get_set_cache_config
+        assert_nothing_raised do
+            if @dev.compute_capability[:major] >= 2
+                config = CUContext.get_cache_config
+                assert_const_in_class(CUFunctionCache, config)
+                s = CUContext.set_cache_config(config)
+                assert_nil(s)
+            else
+                config = CUContext.get_cache_config
+                assert_equal(CUFunctionCache::PREFER_NONE, config)
+                s = CUContext.set_cache_config(config)
+                assert_nil(s)
+            end
+        end
+    end
+
     def test_context_synchronize
         assert_nothing_raised do
             s = CUContext.synchronize
