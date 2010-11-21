@@ -427,12 +427,12 @@ static VALUE device_total_mem(VALUE self)
 {
     CUdevice* p;
     Data_Get_Struct(self, CUdevice, p);
-    unsigned int nbytes;
+    size_t nbytes;
     CUresult status = cuDeviceTotalMem(&nbytes, *p);
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to get device total amount of memory available.");
     }
-    return UINT2NUM(nbytes);
+    return SIZET2NUM(nbytes);
 }
 
 // }}}
@@ -724,12 +724,12 @@ static VALUE module_get_global(VALUE self, VALUE str)
     device_ptr_initialize(0, NULL, rb_devptr);
     CUdeviceptr* pdevptr;
     Data_Get_Struct(rb_devptr, CUdeviceptr, pdevptr);
-    unsigned int nbytes;
+    size_t nbytes;
     CUresult status = cuModuleGetGlobal(pdevptr, &nbytes, *p, StringValuePtr(str));
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get module global: %s.", StringValuePtr(str));
     }
-    return rb_ary_new3(2, rb_devptr, UINT2NUM(nbytes));
+    return rb_ary_new3(2, rb_devptr, SIZET2NUM(nbytes));
 }
 
 /*  call-seq: mod.get_texref(name_str)    ->    CUTexRef
@@ -1402,14 +1402,14 @@ static VALUE texref_set_address(VALUE self, VALUE rb_device_ptr, VALUE nbytes)
 {
     CUtexref* ptexref;
     CUdeviceptr* pdevptr;
-    unsigned int offset;
+    size_t offset;
     Data_Get_Struct(self, CUtexref, ptexref);
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevptr);
     CUresult status = cuTexRefSetAddress(&offset, *ptexref, *pdevptr, NUM2UINT(nbytes));
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set texture address: nbytes = %u.", NUM2UINT(nbytes));
     }
-    return UINT2NUM(offset);
+    return SIZET2NUM(offset);
 }
 
 /*  call-seq: texref.set_address_mode(dim, mode)    ->    self
@@ -1916,8 +1916,8 @@ static VALUE memcpy_dtod_async(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_dev
  */
 static VALUE mem_get_info(VALUE self)
 {
-    unsigned int free_memory;
-    unsigned int total_memory;
+    size_t free_memory;
+    size_t total_memory;
     CUresult status = cuMemGetInfo(&free_memory, &total_memory);
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to get memory information.");
