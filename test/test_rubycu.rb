@@ -447,15 +447,6 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
-    def test_texref_create_destroy
-        assert_nothing_raised do
-            t = CUTexRef.new.create
-            assert_instance_of(CUTexRef, t)
-            t = t.destroy
-            assert_nil(t)
-        end
-    end
-
     def test_texref_get_set_address
         assert_nothing_raised do
             t = @mod.get_texref("tex")
