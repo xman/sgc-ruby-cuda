@@ -597,6 +597,40 @@ static VALUE context_set_limit(VALUE klass, VALUE limit, VALUE value)
     return Qnil;
 }
 
+/*  call-seq: CUContext.get_cache_config        ->    CUFunctionCache
+ *
+ *  Return the cache config of the current CUDA context.
+ *
+ *      CUContext.get_cache_config        #=> 1
+ */
+static VALUE context_get_cache_config(VALUE klass)
+{
+    CUfunc_cache config;
+    CUresult status = cuCtxGetCacheConfig(&config);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get context cache config.");
+    }
+    return UINT2NUM(static_cast<unsigned int>(config));
+}
+
+/*  call-seq: CUContext.set_cache_config(config)        ->    nil
+ *
+ *  Set the cache with _config_ (CUFunctionCache) for the current CUDA context.
+ *
+ *      CUContext.set_cache_config(CUFunctionCache::PREFER_SHARED)        #=> nil
+ */
+static VALUE context_set_cache_config(VALUE klass, VALUE config)
+{
+    CUresult status = cuCtxSetCacheConfig(static_cast<CUfunc_cache>(FIX2UINT(config)));
+    if (status != CUDA_SUCCESS) {
+        VALUE configs = rb_funcall(rb_cCUFunctionCache, rb_intern("constants"), 0);
+        VALUE ary[3] = { rb_cCUFunctionCache, config, Qnil };
+        rb_block_call(configs, rb_intern("find"), 0, NULL, RUBY_METHOD_FUNC(class_const_match), (VALUE)ary);
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set context cache config: %s.", rb_id2name(SYM2ID(ary[2])));
+    }
+    return Qnil;
+}
+
 /*  call-seq: CUContext.pop_current        ->    CUContext
  *
  *  Pop the current CUDA context from the context stack, which becomes inactive.
@@ -2051,6 +2085,8 @@ extern "C" void Init_rubycu()
     rb_define_singleton_method(rb_cCUContext, "get_device", RUBY_METHOD_FUNC(context_get_device), 0);
     rb_define_singleton_method(rb_cCUContext, "get_limit", RUBY_METHOD_FUNC(context_get_limit), 1);
     rb_define_singleton_method(rb_cCUContext, "set_limit", RUBY_METHOD_FUNC(context_set_limit), 2);
+    rb_define_singleton_method(rb_cCUContext, "get_cache_config", RUBY_METHOD_FUNC(context_get_cache_config), 0);
+    rb_define_singleton_method(rb_cCUContext, "set_cache_config", RUBY_METHOD_FUNC(context_set_cache_config), 1);
     rb_define_singleton_method(rb_cCUContext, "pop_current", RUBY_METHOD_FUNC(context_pop_current), 0);
     rb_define_singleton_method(rb_cCUContext, "synchronize", RUBY_METHOD_FUNC(context_synchronize), 0);
 
