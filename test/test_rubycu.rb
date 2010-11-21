@@ -159,6 +159,16 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_context_get_api_version
+        assert_nothing_raised do
+            v1 = @ctx.get_api_version
+            v2 = CUContext.get_api_version
+            assert_kind_of(Numeric, v1)
+            assert_kind_of(Numeric, v2)
+            assert(v1 == v2)
+        end
+    end
+
     def test_context_synchronize
         assert_nothing_raised do
             s = CUContext.synchronize
