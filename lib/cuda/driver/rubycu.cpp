@@ -846,13 +846,11 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
     for (int i = 0; i < argc; ++i) {
         if (CLASS_OF(argv[i]) == rb_cCUDevicePtr) {
             CUdeviceptr* p;
-            void* vp = NULL;
             Data_Get_Struct(argv[i], CUdeviceptr, p);
-            vp = (void*)(size_t)(*p);
-            ALIGN_UP(offset, __alignof(vp));
-            status = cuParamSetv(*pfunc, offset, &vp, sizeof(vp));
+            ALIGN_UP(offset, __alignof(*p));
+            status = cuParamSetv(*pfunc, offset, p, sizeof(*p));
             if (status != CUDA_SUCCESS) break;
-            offset += sizeof(vp);
+            offset += sizeof(*p);
         } else if (CLASS_OF(argv[i]) == rb_cFixnum) {
             int num = FIX2INT(argv[i]);
             ALIGN_UP(offset, __alignof(num));
