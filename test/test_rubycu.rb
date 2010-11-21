@@ -132,10 +132,14 @@ class TestRubyCU < Test::Unit::TestCase
             assert_kind_of(Numeric, stack_size)
             fifo_size = CUContext.get_limit(CULimit::PRINTF_FIFO_SIZE)
             assert_kind_of(Numeric, fifo_size)
+            heap_size = CUContext.get_limit(CULimit::MALLOC_HEAP_SIZE)
+            assert_kind_of(Numeric, heap_size)
             s1 = CUContext.set_limit(CULimit::STACK_SIZE, stack_size)
             assert_nil(s1)
             s2 = CUContext.set_limit(CULimit::PRINTF_FIFO_SIZE, fifo_size)
             assert_nil(s2)
+            s3 = CUContext.set_limit(CULimit::MALLOC_HEAP_SIZE, heap_size)
+            assert_nil(s3)
         end
     end
 
