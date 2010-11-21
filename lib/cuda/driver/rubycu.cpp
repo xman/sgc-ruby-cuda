@@ -1366,9 +1366,12 @@ static VALUE texref_initialize(VALUE self)
 /*  call-seq: texref.create    ->    self
  *
  *  Create a texture reference and set _self_ to this texture reference.
+ *
+ *  Note: This method is *deprecated*.
  */
 static VALUE texref_create(VALUE self)
 {
+    rb_warn("CUTexRef#create is deprecated.");
     CUtexref* p;
     Data_Get_Struct(self, CUtexref, p);
     CUresult status = cuTexRefCreate(p);
@@ -1381,9 +1384,12 @@ static VALUE texref_create(VALUE self)
 /*  call-seq: texref.destroy    ->    nil
  *
  *  Destroy the texture reference _self_.
+ *
+ *  Note: This method is *deprecated*.
  */
 static VALUE texref_destroy(VALUE self)
 {
+    rb_warn("CUTexRef#destroy is deprecated.");
     CUtexref* p;
     Data_Get_Struct(self, CUtexref, p);
     CUresult status = cuTexRefDestroy(*p);
