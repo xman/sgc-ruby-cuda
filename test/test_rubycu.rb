@@ -717,6 +717,10 @@ private
         end
     end
 
+    def assert_const_in_class(klass, v)
+        assert_not_nil(klass.constants.find { |k| klass.const_get(k) == v })
+    end
+
     def prepare_ptx
         if File.exists?('test/vadd.ptx') == false || File.mtime('test/vadd.cu') > File.mtime('test/vadd.ptx')
             system %{cd test; nvcc --ptx vadd.cu}
