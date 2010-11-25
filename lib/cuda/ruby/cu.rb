@@ -75,5 +75,25 @@ class CUContext
 end
 
 
+class CUModule
+
+    # See CUModule#get_function.
+    def function(name_str)
+        get_function(name_str)
+    end
+
+    # See CUModule#get_global.
+    def global(name_str)
+        get_global(name_str)
+    end
+
+    # See CUModule#get_texref.
+    def texref(name_str)
+        get_texref(name_str)
+    end
+
+end
+
+
 end # module
 end # module
