@@ -454,7 +454,7 @@ static VALUE context_initialize(int argc, VALUE* argv, VALUE self)
 /*  call-seq: ctx.create(device)           ->    self
  *            ctx.create(flags, device)    ->    self
  *
- *  Create a new CUDA context with _flags_ (CUContextFlags) and _device_,
+ *  Create a new CUDA context with _flags_ (CUContextFlags) and _device_ (CUDevice),
  *  then associate it with the calling thread, and return the context.
  *  Setting flags to 0 or ommitting flags uses SCHED_AUTO.
  *
@@ -1361,7 +1361,7 @@ static VALUE event_synchronize(VALUE self)
 
 /*  call-seq: event.elapsed_time(event_start, event_end)    ->    Numeric
  *
- *  Return the elapsed time (ms) from _event_start_ to _event_end_.
+ *  Return the elapsed time (ms) from _event_start_ (CUEvent) to _event_end_ (CUEvent).
  */
 static VALUE event_elapsed_time(VALUE klass, VALUE event_start, VALUE event_end)
 {
@@ -1499,7 +1499,7 @@ static VALUE texref_get_flags(VALUE self)
 
 /*  call-seq: texref.set_address(devptr, nbytes)    ->    Numeric
  *
- *  Bind _devptr_ with _nbytes_ to _self_.
+ *  Bind _devptr_ (CUDevicePtr) with _nbytes_ to _self_.
  */
 static VALUE texref_set_address(VALUE self, VALUE rb_device_ptr, VALUE nbytes)
 {
@@ -1517,7 +1517,7 @@ static VALUE texref_set_address(VALUE self, VALUE rb_device_ptr, VALUE nbytes)
 
 /*  call-seq: texref.set_address_mode(dim, mode)    ->    self
  *
- *  Set the address mode of _self_ with _dim_ and _mode_ (CUAddressMode).
+ *  Set the address mode of _self_ with _dim_ (0..2) and _mode_ (CUAddressMode).
  */
 static VALUE texref_set_address_mode(VALUE self, VALUE dim, VALUE mode)
 {
