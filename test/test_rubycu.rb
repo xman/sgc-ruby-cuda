@@ -390,6 +390,12 @@ class TestRubyCU < Test::Unit::TestCase
     def test_stream_create_destroy
         assert_nothing_raised do
             s = CUStream.new
+            s = s.create
+            assert_instance_of(CUStream, s)
+            s = s.destroy
+            assert_nil(s)
+
+            s = CUStream.new
             s = s.create(0)
             assert_instance_of(CUStream, s)
             s = s.destroy
