@@ -1419,7 +1419,7 @@ static VALUE texref_get_address(VALUE self)
 
 /*  call-seq: texref.get_address_mode(dim)    ->    Fixnum
  *
- *  Return the address mode of the dimension _dim_ of _self_.
+ *  Return the address mode of the dimension _dim_ (0..2) of _self_.
  */
 static VALUE texref_get_address_mode(VALUE self, VALUE dim)
 {
