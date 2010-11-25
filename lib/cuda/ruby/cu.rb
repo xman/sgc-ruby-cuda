@@ -25,5 +25,30 @@ module SGC
 module CU
 
 
+class CUDevice
+
+    # See CUDevice::get_count.
+    def self.count
+        self.get_count
+    end
+
+    # See CUDevice#get_name.
+    def name
+        get_name
+    end
+
+    # See CUDevice#get_attribute.
+    def attribute(attr)
+        get_attribute(attr)
+    end
+
+    # See CUDevice#get_properties.
+    def properties
+        get_properties
+    end
+
+end
+
+
 end # module
 end # module
