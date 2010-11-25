@@ -1,4 +1,4 @@
-== Development Plan
+= Development Plan
 SGC-Ruby-CUDA development plan provides an outline of features, issues, etc.
 that will be tackled in order. There is currently no strict timeline on when
 these features or issues will be covered. We hope at least we are progressing
@@ -8,23 +8,18 @@ consistently and catching up the development of Nvidia CUDA SDK.
 == Creating Ruby bindings for using CUDA Driver API on Linux Platform
 
 === On-going
-* Document the Ruby bindings.
-* Provide a matrix on features supported.
+* Include Ruby bindings for the use of CUDA compiler to compile a .cu file to
+  generate a .ptx file.
 
 === Todo
 * Port some CUDA samples to SGC-Ruby-CUDA with benchmark.
-* Include Ruby bindings for the use of CUDA compiler to compile a .cu file to
-  generate a .ptx file.
 
 
 == Towards robust development of Ruby CUDA Driver API
 
 === On-going
-* Develop test cases for each of the supported CUDA Driver API.
-* Document parameters of Ruby CUDA methods.
 
 === Todo
-* Allow flags must be 0 types of methods to accept flags optionally.
 * Document the API details.
 * Update the memory abstraction or parameter passing.
   * To allow one to specify a paramater as a float or double, int or long, etc.
