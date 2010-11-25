@@ -105,5 +105,30 @@ class CUFunction
 end
 
 
+class CUTexRef
+
+    # See CUTexRef#get_address.
+    def address
+        get_address
+    end
+
+    # See CUTexRef#get_address_mode.
+    def address_mode(dim)
+        get_address_mode(dim)
+    end
+
+    # See CUTexRef#get_filter_mode.
+    def filter_mode
+        get_filter_mode
+    end
+
+    # See CUTexRef#get_flags.
+    def flags
+        get_flags
+    end
+
+end
+
+
 end # module
 end # module
