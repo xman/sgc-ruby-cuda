@@ -50,5 +50,30 @@ class CUDevice
 end
 
 
+class CUContext
+
+    # See CUContext::get_device.
+    def self.device
+        self.get_device
+    end
+
+    # See CUContext::get_limit.
+    def self.limit(lim)
+        get_limit(lim)
+    end
+
+    # See CUContext::get_cache_config.
+    def self.cache_config
+        get_cache_config
+    end
+
+    # See CUContext#get_api_version.
+    def api_version
+        get_api_version
+    end
+
+end
+
+
 end # module
 end # module
