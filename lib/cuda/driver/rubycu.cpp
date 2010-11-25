@@ -1166,17 +1166,26 @@ static VALUE stream_initialize(VALUE self)
     return self;
 }
 
-/*  call-seq: stream.create(flags)    ->    self
+/*  call-seq: stream.create           ->    self
+ *            stream.create(flags)    ->    self
  *
  *  Create a stream and set _self_ to this stream. Currently, _flags_ must be set to 0.
  */
-static VALUE stream_create(VALUE self, VALUE flags)
+static VALUE stream_create(int argc, VALUE* argv, VALUE self)
 {
+    if (argc < 0 || argc > 1) {
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 0 or 1).", argc);
+    }
+
     CUstream* p;
+    unsigned int flags = 0;
     Data_Get_Struct(self, CUstream, p);
-    CUresult status = cuStreamCreate(p, FIX2UINT(flags));
+    if (argc == 1) {
+        flags = FIX2UINT(argv[0]);
+    }
+    CUresult status = cuStreamCreate(p, flags);
     if (status != CUDA_SUCCESS) {
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create stream: flags = 0x%x", FIX2UINT(flags));
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create stream: flags = 0x%x", flags);
     }
     return self;
 }
@@ -2201,7 +2210,7 @@ extern "C" void Init_rubycu()
     rb_cCUStream = rb_define_class_under(rb_mCU, "CUStream", rb_cObject);
     rb_define_alloc_func(rb_cCUStream, stream_alloc);
     rb_define_method(rb_cCUStream, "initialize", RUBY_METHOD_FUNC(stream_initialize), 0);
-    rb_define_method(rb_cCUStream, "create", RUBY_METHOD_FUNC(stream_create), 1);
+    rb_define_method(rb_cCUStream, "create", RUBY_METHOD_FUNC(stream_create), -1);
     rb_define_method(rb_cCUStream, "destroy", RUBY_METHOD_FUNC(stream_destroy), 0);
     rb_define_method(rb_cCUStream, "query", RUBY_METHOD_FUNC(stream_query), 0);
     rb_define_method(rb_cCUStream, "synchronize", RUBY_METHOD_FUNC(stream_synchronize), 0);
