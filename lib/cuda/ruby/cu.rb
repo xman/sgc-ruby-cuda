@@ -95,5 +95,15 @@ class CUModule
 end
 
 
+class CUFunction
+
+    # See CUFunction#get_attribute.
+    def attribute(attr)
+        get_attribute(attr)
+    end
+
+end
+
+
 end # module
 end # module
