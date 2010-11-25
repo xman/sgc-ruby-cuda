@@ -451,26 +451,38 @@ static VALUE context_initialize(int argc, VALUE* argv, VALUE self)
     return self;
 }
 
-/*  call-seq: ctx.create(flags, device)    ->    self
+/*  call-seq: ctx.create(device)           ->    self
+ *            ctx.create(flags, device)    ->    self
  *
  *  Create a new CUDA context with _flags_ (CUContextFlags) and _device_,
  *  then associate it with the calling thread, and return the context.
- *  Setting flags to 0 uses SCHED_AUTO.
+ *  Setting flags to 0 or ommitting flags uses SCHED_AUTO.
  *
  *      dev = CUDevice.get(0)
  *      ctx = CUContext.new
+ *      ctx.create(dev)           #=>    ctx
  *      ctx.create(0, dev)        #=>    ctx
  *      ctx.create(CUContextFlags::SCHED_SPIN | CUContextFlags::BLOCKING_SYNC, dev)        #=>    ctx
  */
-static VALUE context_create(VALUE self, VALUE flags, VALUE rb_device)
+static VALUE context_create(int argc, VALUE* argv, VALUE self)
 {
+    if (argc <= 0 || argc > 2) {
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 1 or 2).", argc);
+    }
+
     CUcontext* pcontext;
     CUdevice* pdevice;
+    unsigned int flags = 0;
     Data_Get_Struct(self, CUcontext, pcontext);
-    Data_Get_Struct(rb_device, CUdevice, pdevice);
-    CUresult status = cuCtxCreate(pcontext, FIX2UINT(flags), *pdevice);
+    if (argc == 2) {
+        flags = FIX2UINT(argv[0]);
+        Data_Get_Struct(argv[1], CUdevice, pdevice);
+    } else { // argc == 1
+        Data_Get_Struct(argv[0], CUdevice, pdevice);
+    }
+    CUresult status = cuCtxCreate(pcontext, flags, *pdevice);
     if (status != CUDA_SUCCESS) {
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create context: flags = 0x%x.", FIX2UINT(flags));
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create context: flags = 0x%x.", flags);
     }
     return self;
 }
@@ -2114,7 +2126,7 @@ extern "C" void Init_rubycu()
     rb_cCUContext = rb_define_class_under(rb_mCU, "CUContext", rb_cObject);
     rb_define_alloc_func(rb_cCUContext, context_alloc);
     rb_define_method(rb_cCUContext, "initialize", RUBY_METHOD_FUNC(context_initialize), -1);
-    rb_define_method(rb_cCUContext, "create", RUBY_METHOD_FUNC(context_create), 2);
+    rb_define_method(rb_cCUContext, "create", RUBY_METHOD_FUNC(context_create), -1);
     rb_define_method(rb_cCUContext, "destroy", RUBY_METHOD_FUNC(context_destroy), 0);
     rb_define_method(rb_cCUContext, "attach", RUBY_METHOD_FUNC(context_attach), -1);
     rb_define_method(rb_cCUContext, "detach", RUBY_METHOD_FUNC(context_detach), 0);
