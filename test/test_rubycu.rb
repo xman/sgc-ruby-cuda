@@ -73,6 +73,10 @@ class TestRubyCU < Test::Unit::TestCase
 
     def test_context_create_destroy
         assert_nothing_raised do
+            c = CUContext.new.create(@dev)
+            assert_not_nil(c)
+            c = c.destroy
+            assert_nil(c)
             c = CUContext.new.create(0, @dev)
             assert_not_nil(c)
             c = c.destroy
