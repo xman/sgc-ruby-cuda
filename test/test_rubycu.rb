@@ -423,6 +423,11 @@ class TestRubyCU < Test::Unit::TestCase
 
     def test_event_create_destroy
         assert_nothing_raised do
+            e = CUEvent.new.create
+            assert_instance_of(CUEvent, e)
+            e = e.destroy
+            assert_nil(e)
+
             e = CUEvent.new.create(CUEventFlags::DEFAULT)
             assert_instance_of(CUEvent, e)
             e = e.destroy
