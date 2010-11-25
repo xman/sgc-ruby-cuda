@@ -7,9 +7,11 @@ SGC-Ruby-CUDA is incomplete in many ways. Currently, it supports only some
 crucial CUDA Driver API functions. We aim to include the supports for most CUDA
 Driver API and CUDA Runtime API functions.
 
-SGC-Ruby-CUDA is tested on 64bit Fedora 13. We have not tested it against
+SGC-Ruby-CUDA is tested on 64bit Fedora 14. We have not tested it against
 32bit Linux OS and Windows. We certainly wish to improve the code base to
 support multiple platforms in the future.
+
+Current development will focus on supporting CUDA Toolkit 3.2.
 
 See devel.rdoc for the latest development plan.
 
@@ -39,7 +41,7 @@ Ruby way would be built on top of the Ruby CUDA API.
 == Prerequisites
 
 * Ruby         (Tested with Ruby 1.9.2)
-* CUDA Toolkit (Tested with CUDA Toolkit 3.1)
+* CUDA Toolkit (Tested with CUDA Toolkit 3.1 and 3.2)
 * C++ compiler (Tested with GCC 4.5.1)
 
 
