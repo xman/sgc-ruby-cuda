@@ -130,5 +130,12 @@ class CUTexRef
 end
 
 
+# See ::driver_get_version.
+def driver_version
+    driver_get_version
+end
+module_function :driver_version
+
+
 end # module
 end # module
