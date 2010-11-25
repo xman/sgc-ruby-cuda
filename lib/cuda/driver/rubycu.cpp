@@ -1254,20 +1254,31 @@ static VALUE event_initialize(VALUE self)
     return self;
 }
 
-/*  call-seq: event.create(flags)    ->    self
+/*  call-seq: event.create           ->    self
+ *            event.create(flags)    ->    self
  *
  *  Create an event with _flags_ (CUEventFlags) and set _self_ to this event.
+ *  The _flags_ is default to CUEventFlags::DEFAULT.
  *
+ *      event.create                                     #=> self
  *      event.create(CUEventFlags::DEFAULT)              #=> self
  *      event.create(CUEventFlags::BLOCKING_SYNC)        #=> self
  */
-static VALUE event_create(VALUE self, VALUE flags)
+static VALUE event_create(int argc, VALUE* argv, VALUE self)
 {
+    if (argc < 0 || argc > 1) {
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 0 or 1).", argc);
+    }
+
     CUevent* p;
+    unsigned int flags = CU_EVENT_DEFAULT;
     Data_Get_Struct(self, CUevent, p);
-    CUresult status = cuEventCreate(p, FIX2UINT(flags));
+    if (argc == 1) {
+        flags = FIX2UINT(argv[0]);
+    }
+    CUresult status = cuEventCreate(p, flags);
     if (status != CUDA_SUCCESS) {
-        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create event: flags = 0x%x.", FIX2UINT(flags));
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to create event: flags = 0x%x.", flags);
     }
     return self;
 }
@@ -2218,7 +2229,7 @@ extern "C" void Init_rubycu()
     rb_cCUEvent = rb_define_class_under(rb_mCU, "CUEvent", rb_cObject);
     rb_define_alloc_func(rb_cCUEvent, event_alloc);
     rb_define_method(rb_cCUEvent, "initialize", RUBY_METHOD_FUNC(event_initialize), 0);
-    rb_define_method(rb_cCUEvent, "create", RUBY_METHOD_FUNC(event_create), 1);
+    rb_define_method(rb_cCUEvent, "create", RUBY_METHOD_FUNC(event_create), -1);
     rb_define_method(rb_cCUEvent, "destroy", RUBY_METHOD_FUNC(event_destroy), 0);
     rb_define_method(rb_cCUEvent, "query", RUBY_METHOD_FUNC(event_query), 0);
     rb_define_method(rb_cCUEvent, "record", RUBY_METHOD_FUNC(event_record), 1);
