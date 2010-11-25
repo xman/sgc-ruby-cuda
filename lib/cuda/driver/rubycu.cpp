@@ -971,7 +971,7 @@ static VALUE function_set_texref(VALUE self, VALUE texref)
 static VALUE function_set_block_shape(int argc, VALUE* argv, VALUE self)
 {
     if (argc <= 0 || argc > 3) {
-        rb_raise(rb_eArgError, "wrong number of arguments (%d for 2 or 3 integers).", argc);
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 1 to 3 integers).", argc);
     }
 
     CUfunction* pfunc;
