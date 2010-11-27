@@ -1238,6 +1238,58 @@ static VALUE stream_synchronize(VALUE self)
     return self;
 }
 
+/*  call-seq: stream.wait_event(event)           ->    self
+ *            stream.wait_event(event, flags)    ->    self
+ *
+ *  Let all future operations submitted to _self_ wait until _event_ (CUEvent) complete before beginning execution.
+ *  Currently, _flags_ must be 0.
+ */
+static VALUE stream_wait_event(int argc, VALUE* argv, VALUE self)
+{
+    if (argc <= 0 || argc > 2) {
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 1 or 2).", argc);
+    }
+
+    CUstream* pstream;
+    CUevent* pevent;
+    unsigned int flags = 0;
+    Data_Get_Struct(self, CUstream, pstream);
+    Data_Get_Struct(argv[0], CUevent, pevent);
+    if (argc == 2) {
+        flags = FIX2UINT(argv[1]);
+    }
+    CUresult status = cuStreamWaitEvent(*pstream, *pevent, flags);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to make stream's future operations to wait event: flags = 0x%x", flags);
+    }
+    return self;
+}
+
+/*  call-seq: CUStream.wait_event(event)           ->    nil
+ *            CUStream.wait_event(event, flags)    ->    nil
+ *
+ *  Let all future operations submitted to stream 0 (NULL stream) wait until _event_ (CUEvent) complete before beginning execution.
+ *  Currently, _flags_ must be 0.
+ */
+static VALUE stream_wait_event_singleton(int argc, VALUE* argv, VALUE klass)
+{
+    if (argc <= 0 || argc > 2) {
+        rb_raise(rb_eArgError, "wrong number of arguments (%d for 1 or 2).", argc);
+    }
+
+    CUevent* pevent;
+    unsigned int flags = 0;
+    Data_Get_Struct(argv[0], CUevent, pevent);
+    if (argc == 2) {
+        flags = FIX2UINT(argv[1]);
+    }
+    CUresult status = cuStreamWaitEvent(0, *pevent, flags);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to make current stream's future operations to wait event: flags = 0x%x", flags);
+    }
+    return Qnil;
+}
+
 // }}}
 
 
@@ -2225,6 +2277,8 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUStream, "destroy", RUBY_METHOD_FUNC(stream_destroy), 0);
     rb_define_method(rb_cCUStream, "query", RUBY_METHOD_FUNC(stream_query), 0);
     rb_define_method(rb_cCUStream, "synchronize", RUBY_METHOD_FUNC(stream_synchronize), 0);
+    rb_define_method(rb_cCUStream, "wait_event", RUBY_METHOD_FUNC(stream_wait_event), -1);
+    rb_define_singleton_method(rb_cCUStream, "wait_event", RUBY_METHOD_FUNC(stream_wait_event_singleton), -1);
 
     rb_cCUEvent = rb_define_class_under(rb_mCU, "CUEvent", rb_cObject);
     rb_define_alloc_func(rb_cCUEvent, event_alloc);
