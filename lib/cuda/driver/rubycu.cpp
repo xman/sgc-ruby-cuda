@@ -87,10 +87,6 @@ static VALUE rb_eCULaunchOutOfResourcesError;
 static VALUE rb_eCULaunchTimeoutError;
 static VALUE rb_eCULaunchIncompatibleTexturingError;
 
-static VALUE rb_eCUBitWidthError;
-static VALUE rb_eCUPointerIs64BitError;
-static VALUE rb_eCUSizeIs64BitError;
-
 static VALUE rb_eCUParameterError;
 static VALUE rb_eCUInvalidValueError;
 static VALUE rb_eCUInvalidHandleError;
@@ -117,6 +113,7 @@ static VALUE rb_eCUReferenceNotFoundError;
 static VALUE rb_eCUOtherError;
 static VALUE rb_eCUAlreadyAcquiredError;
 static VALUE rb_eCUNotReadyError;
+static VALUE rb_eCUOperatingSystemError;
 
 static VALUE rb_eCUUnknownError;
 
@@ -430,12 +427,12 @@ static VALUE device_total_mem(VALUE self)
 {
     CUdevice* p;
     Data_Get_Struct(self, CUdevice, p);
-    unsigned int nbytes;
+    size_t nbytes;
     CUresult status = cuDeviceTotalMem(&nbytes, *p);
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to get device total amount of memory available.");
     }
-    return UINT2NUM(nbytes);
+    return SIZET2NUM(nbytes);
 }
 
 // }}}
@@ -545,6 +542,36 @@ static VALUE context_push_current(VALUE self)
     return self;
 }
 
+/*  call-seq: ctx.get_api_version    ->     Numeric
+ *
+ *  Return the API version used to create _self_.
+ */
+static VALUE context_get_api_version(VALUE self)
+{
+    CUcontext* p;
+    Data_Get_Struct(self, CUcontext, p);
+    unsigned int version;
+    CUresult status = cuCtxGetApiVersion(*p, &version);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get the API version of this context.");
+    }
+    return UINT2NUM(version);
+}
+
+/*  call-seq: CUContext.get_api_version    ->    Numeric
+ *
+ *  Return the API version used to create current context.
+ */
+static VALUE context_get_api_version_singleton(VALUE klass)
+{
+    unsigned int version;
+    CUresult status = cuCtxGetApiVersion(NULL, &version);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get the API version of current context.");
+    }
+    return UINT2NUM(version);
+}
+
 /*  call-seq: CUContext.get_device    ->    CUDevice
  *
  *  Return the device associated to the current CUDA context.
@@ -596,6 +623,40 @@ static VALUE context_set_limit(VALUE klass, VALUE limit, VALUE value)
         VALUE ary[3] = { rb_cCULimit, limit, Qnil };
         rb_block_call(limits, rb_intern("find"), 0, NULL, RUBY_METHOD_FUNC(class_const_match), (VALUE)ary);
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set context limit: %s to %lu.", rb_id2name(SYM2ID(ary[2])), NUM2SIZET(value));
+    }
+    return Qnil;
+}
+
+/*  call-seq: CUContext.get_cache_config        ->    CUFunctionCache
+ *
+ *  Return the cache config of the current CUDA context.
+ *
+ *      CUContext.get_cache_config        #=> 1
+ */
+static VALUE context_get_cache_config(VALUE klass)
+{
+    CUfunc_cache config;
+    CUresult status = cuCtxGetCacheConfig(&config);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get context cache config.");
+    }
+    return UINT2NUM(static_cast<unsigned int>(config));
+}
+
+/*  call-seq: CUContext.set_cache_config(config)        ->    nil
+ *
+ *  Set the cache with _config_ (CUFunctionCache) for the current CUDA context.
+ *
+ *      CUContext.set_cache_config(CUFunctionCache::PREFER_SHARED)        #=> nil
+ */
+static VALUE context_set_cache_config(VALUE klass, VALUE config)
+{
+    CUresult status = cuCtxSetCacheConfig(static_cast<CUfunc_cache>(FIX2UINT(config)));
+    if (status != CUDA_SUCCESS) {
+        VALUE configs = rb_funcall(rb_cCUFunctionCache, rb_intern("constants"), 0);
+        VALUE ary[3] = { rb_cCUFunctionCache, config, Qnil };
+        rb_block_call(configs, rb_intern("find"), 0, NULL, RUBY_METHOD_FUNC(class_const_match), (VALUE)ary);
+        RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set context cache config: %s.", rb_id2name(SYM2ID(ary[2])));
     }
     return Qnil;
 }
@@ -727,12 +788,12 @@ static VALUE module_get_global(VALUE self, VALUE str)
     device_ptr_initialize(0, NULL, rb_devptr);
     CUdeviceptr* pdevptr;
     Data_Get_Struct(rb_devptr, CUdeviceptr, pdevptr);
-    unsigned int nbytes;
+    size_t nbytes;
     CUresult status = cuModuleGetGlobal(pdevptr, &nbytes, *p, StringValuePtr(str));
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to get module global: %s.", StringValuePtr(str));
     }
-    return rb_ary_new3(2, rb_devptr, UINT2NUM(nbytes));
+    return rb_ary_new3(2, rb_devptr, SIZET2NUM(nbytes));
 }
 
 /*  call-seq: mod.get_texref(name_str)    ->    CUTexRef
@@ -849,13 +910,11 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
     for (int i = 0; i < argc; ++i) {
         if (CLASS_OF(argv[i]) == rb_cCUDevicePtr) {
             CUdeviceptr* p;
-            void* vp = NULL;
             Data_Get_Struct(argv[i], CUdeviceptr, p);
-            vp = (void*)(size_t)(*p);
-            ALIGN_UP(offset, __alignof(vp));
-            status = cuParamSetv(*pfunc, offset, &vp, sizeof(vp));
+            ALIGN_UP(offset, __alignof(*p));
+            status = cuParamSetv(*pfunc, offset, p, sizeof(*p));
             if (status != CUDA_SUCCESS) break;
-            offset += sizeof(vp);
+            offset += sizeof(*p);
         } else if (CLASS_OF(argv[i]) == rb_cFixnum) {
             int num = FIX2INT(argv[i]);
             ALIGN_UP(offset, __alignof(num));
@@ -886,9 +945,12 @@ static VALUE function_set_param(int argc, VALUE* argv, VALUE self)
 /*  call-seq: func.set_texref(texref)    ->    self
  *
  *  Add the _texref_ to the argument list of _self_.
+ *
+ *  Note: This method is *deprecated*. This is no longer necessary.
  */
 static VALUE function_set_texref(VALUE self, VALUE texref)
 {
+    rb_warn("CUFunction#set_texref is deprecated.");
     CUfunction* pfunc;
     CUtexref* ptexref;
     Data_Get_Struct(self, CUfunction, pfunc);
@@ -1304,9 +1366,12 @@ static VALUE texref_initialize(VALUE self)
 /*  call-seq: texref.create    ->    self
  *
  *  Create a texture reference and set _self_ to this texture reference.
+ *
+ *  Note: This method is *deprecated*.
  */
 static VALUE texref_create(VALUE self)
 {
+    rb_warn("CUTexRef#create is deprecated.");
     CUtexref* p;
     Data_Get_Struct(self, CUtexref, p);
     CUresult status = cuTexRefCreate(p);
@@ -1319,9 +1384,12 @@ static VALUE texref_create(VALUE self)
 /*  call-seq: texref.destroy    ->    nil
  *
  *  Destroy the texture reference _self_.
+ *
+ *  Note: This method is *deprecated*.
  */
 static VALUE texref_destroy(VALUE self)
 {
+    rb_warn("CUTexRef#destroy is deprecated.");
     CUtexref* p;
     Data_Get_Struct(self, CUtexref, p);
     CUresult status = cuTexRefDestroy(*p);
@@ -1405,14 +1473,14 @@ static VALUE texref_set_address(VALUE self, VALUE rb_device_ptr, VALUE nbytes)
 {
     CUtexref* ptexref;
     CUdeviceptr* pdevptr;
-    unsigned int offset;
+    size_t offset;
     Data_Get_Struct(self, CUtexref, ptexref);
     Data_Get_Struct(rb_device_ptr, CUdeviceptr, pdevptr);
     CUresult status = cuTexRefSetAddress(&offset, *ptexref, *pdevptr, NUM2UINT(nbytes));
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR_FORMATTED(status, "Failed to set texture address: nbytes = %u.", NUM2UINT(nbytes));
     }
-    return UINT2NUM(offset);
+    return SIZET2NUM(offset);
 }
 
 /*  call-seq: texref.set_address_mode(dim, mode)    ->    self
@@ -1919,8 +1987,8 @@ static VALUE memcpy_dtod_async(VALUE self, VALUE rb_device_ptr_dst, VALUE rb_dev
  */
 static VALUE mem_get_info(VALUE self)
 {
-    unsigned int free_memory;
-    unsigned int total_memory;
+    size_t free_memory;
+    size_t total_memory;
     CUresult status = cuMemGetInfo(&free_memory, &total_memory);
     if (status != CUDA_SUCCESS) {
         RAISE_CU_STD_ERROR(status, "Failed to get memory information.");
@@ -2041,6 +2109,7 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUDeviceAttribute, "ECC_ENABLED", INT2FIX(CU_DEVICE_ATTRIBUTE_ECC_ENABLED));
     rb_define_const(rb_cCUDeviceAttribute, "PCI_BUS_ID", INT2FIX(CU_DEVICE_ATTRIBUTE_PCI_BUS_ID));
     rb_define_const(rb_cCUDeviceAttribute, "PCI_DEVICE_ID", INT2FIX(CU_DEVICE_ATTRIBUTE_PCI_DEVICE_ID));
+    rb_define_const(rb_cCUDeviceAttribute, "TCC_DRIVER", INT2FIX(CU_DEVICE_ATTRIBUTE_TCC_DRIVER));
 
     rb_cCUContext = rb_define_class_under(rb_mCU, "CUContext", rb_cObject);
     rb_define_alloc_func(rb_cCUContext, context_alloc);
@@ -2050,9 +2119,13 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUContext, "attach", RUBY_METHOD_FUNC(context_attach), -1);
     rb_define_method(rb_cCUContext, "detach", RUBY_METHOD_FUNC(context_detach), 0);
     rb_define_method(rb_cCUContext, "push_current", RUBY_METHOD_FUNC(context_push_current), 0);
+    rb_define_method(rb_cCUContext, "get_api_version", RUBY_METHOD_FUNC(context_get_api_version), 0);
     rb_define_singleton_method(rb_cCUContext, "get_device", RUBY_METHOD_FUNC(context_get_device), 0);
     rb_define_singleton_method(rb_cCUContext, "get_limit", RUBY_METHOD_FUNC(context_get_limit), 1);
     rb_define_singleton_method(rb_cCUContext, "set_limit", RUBY_METHOD_FUNC(context_set_limit), 2);
+    rb_define_singleton_method(rb_cCUContext, "get_cache_config", RUBY_METHOD_FUNC(context_get_cache_config), 0);
+    rb_define_singleton_method(rb_cCUContext, "set_cache_config", RUBY_METHOD_FUNC(context_set_cache_config), 1);
+    rb_define_singleton_method(rb_cCUContext, "get_api_version", RUBY_METHOD_FUNC(context_get_api_version_singleton), 0);
     rb_define_singleton_method(rb_cCUContext, "pop_current", RUBY_METHOD_FUNC(context_pop_current), 0);
     rb_define_singleton_method(rb_cCUContext, "synchronize", RUBY_METHOD_FUNC(context_synchronize), 0);
 
@@ -2067,6 +2140,7 @@ extern "C" void Init_rubycu()
     rb_cCULimit = rb_define_class_under(rb_mCU, "CULimit", rb_cObject);
     rb_define_const(rb_cCULimit, "STACK_SIZE", INT2FIX(CU_LIMIT_STACK_SIZE));
     rb_define_const(rb_cCULimit, "PRINTF_FIFO_SIZE", INT2FIX(CU_LIMIT_PRINTF_FIFO_SIZE));
+    rb_define_const(rb_cCULimit, "MALLOC_HEAP_SIZE", INT2FIX(CU_LIMIT_MALLOC_HEAP_SIZE));
 
     rb_cCUModule = rb_define_class_under(rb_mCU, "CUModule", rb_cObject);
     rb_define_alloc_func(rb_cCUModule, module_alloc);
@@ -2133,11 +2207,13 @@ extern "C" void Init_rubycu()
     rb_cCUEventFlags = rb_define_class_under(rb_mCU, "CUEventFlags", rb_cObject);
     rb_define_const(rb_cCUEventFlags, "DEFAULT", INT2FIX(CU_EVENT_DEFAULT));
     rb_define_const(rb_cCUEventFlags, "BLOCKING_SYNC", INT2FIX(CU_EVENT_BLOCKING_SYNC));
+    rb_define_const(rb_cCUEventFlags, "DISABLE_TIMING", INT2FIX(CU_EVENT_DISABLE_TIMING));
 
     rb_cCUAddressMode = rb_define_class_under(rb_mCU, "CUAddressMode", rb_cObject);
     rb_define_const(rb_cCUAddressMode, "WRAP", INT2FIX(CU_TR_ADDRESS_MODE_WRAP));
     rb_define_const(rb_cCUAddressMode, "CLAMP", INT2FIX(CU_TR_ADDRESS_MODE_CLAMP));
     rb_define_const(rb_cCUAddressMode, "MIRROR", INT2FIX(CU_TR_ADDRESS_MODE_MIRROR));
+    rb_define_const(rb_cCUAddressMode, "BORDER", INT2FIX(CU_TR_ADDRESS_MODE_BORDER));
 
     rb_cCUFilterMode = rb_define_class_under(rb_mCU, "CUFilterMode", rb_cObject);
     rb_define_const(rb_cCUFilterMode, "POINT", INT2FIX(CU_TR_FILTER_MODE_POINT));
@@ -2187,6 +2263,7 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUResult, "ERROR_FILE_NOT_FOUND", INT2FIX(CUDA_ERROR_FILE_NOT_FOUND));
     rb_define_const(rb_cCUResult, "ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND", INT2FIX(CUDA_ERROR_SHARED_OBJECT_SYMBOL_NOT_FOUND));
     rb_define_const(rb_cCUResult, "ERROR_SHARED_OBJECT_INIT_FAILED", INT2FIX(CUDA_ERROR_SHARED_OBJECT_INIT_FAILED));
+    rb_define_const(rb_cCUResult, "ERROR_OPERATING_SYSTEM", INT2FIX(CUDA_ERROR_OPERATING_SYSTEM));
     rb_define_const(rb_cCUResult, "ERROR_INVALID_HANDLE", INT2FIX(CUDA_ERROR_INVALID_HANDLE));
     rb_define_const(rb_cCUResult, "ERROR_NOT_FOUND", INT2FIX(CUDA_ERROR_NOT_FOUND));
     rb_define_const(rb_cCUResult, "ERROR_NOT_READY", INT2FIX(CUDA_ERROR_NOT_READY));
@@ -2194,8 +2271,6 @@ extern "C" void Init_rubycu()
     rb_define_const(rb_cCUResult, "ERROR_LAUNCH_OUT_OF_RESOURCES", INT2FIX(CUDA_ERROR_LAUNCH_OUT_OF_RESOURCES));
     rb_define_const(rb_cCUResult, "ERROR_LAUNCH_TIMEOUT", INT2FIX(CUDA_ERROR_LAUNCH_TIMEOUT));
     rb_define_const(rb_cCUResult, "ERROR_LAUNCH_INCOMPATIBLE_TEXTURING" , INT2FIX(CUDA_ERROR_LAUNCH_INCOMPATIBLE_TEXTURING));
-    rb_define_const(rb_cCUResult, "ERROR_POINTER_IS_64BIT", INT2FIX(CUDA_ERROR_POINTER_IS_64BIT));
-    rb_define_const(rb_cCUResult, "ERROR_SIZE_IS_64BIT", INT2FIX(CUDA_ERROR_SIZE_IS_64BIT));
     rb_define_const(rb_cCUResult, "ERROR_UNKNOWN", INT2FIX(CUDA_ERROR_UNKNOWN));
 
     rb_eCUStandardError = rb_define_class_under(rb_mCU, "CUStandardError", rb_eStandardError);
@@ -2226,10 +2301,6 @@ extern "C" void Init_rubycu()
     rb_eCULaunchTimeoutError               = rb_define_class_under(rb_mCU, "CULaunchTimeoutError", rb_eCULaunchError);
     rb_eCULaunchIncompatibleTexturingError = rb_define_class_under(rb_mCU, "CULaunchIncompatibleTexturingError", rb_eCULaunchError);
 
-    rb_eCUBitWidthError       = rb_define_class_under(rb_mCU, "CUBitWidthError", rb_eCUStandardError);
-    rb_eCUPointerIs64BitError = rb_define_class_under(rb_mCU, "CUPointerIs64BitError", rb_eCUBitWidthError);
-    rb_eCUSizeIs64BitError    = rb_define_class_under(rb_mCU, "CUSizeIs64BitError", rb_eCUBitWidthError);
-
     rb_eCUParameterError     = rb_define_class_under(rb_mCU, "CUParameterError", rb_eCUStandardError);
     rb_eCUInvalidValueError  = rb_define_class_under(rb_mCU, "CUInvalidValueError", rb_eCUParameterError);
     rb_eCUInvalidHandleError = rb_define_class_under(rb_mCU, "CUInvalidHandleError", rb_eCUParameterError);
@@ -2256,6 +2327,7 @@ extern "C" void Init_rubycu()
     rb_eCUOtherError           = rb_define_class_under(rb_mCU, "CUOtherError", rb_eCUStandardError);
     rb_eCUAlreadyAcquiredError = rb_define_class_under(rb_mCU, "CUAlreadyAcquiredError", rb_eCUOtherError);
     rb_eCUNotReadyError        = rb_define_class_under(rb_mCU, "CUNotReadyError", rb_eCUOtherError);
+    rb_eCUOperatingSystemError = rb_define_class_under(rb_mCU, "CUOperatingSystemError", rb_eCUOtherError);
 
     rb_eCUUnknownError = rb_define_class_under(rb_mCU, "CUUnknownError", rb_eCUStandardError);
 
@@ -2282,9 +2354,6 @@ extern "C" void Init_rubycu()
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_LAUNCH_TIMEOUT)               , rb_eCULaunchTimeoutError);
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_LAUNCH_INCOMPATIBLE_TEXTURING), rb_eCULaunchIncompatibleTexturingError);
 
-    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_POINTER_IS_64BIT), rb_eCUPointerIs64BitError);
-    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_SIZE_IS_64BIT)   , rb_eCUSizeIs64BitError);
-
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_INVALID_VALUE)  , rb_eCUInvalidValueError);
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_INVALID_HANDLE) , rb_eCUInvalidHandleError);
 
@@ -2304,6 +2373,7 @@ extern "C" void Init_rubycu()
 
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_ALREADY_ACQUIRED), rb_eCUAlreadyAcquiredError);
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_NOT_READY)       , rb_eCUNotReadyError);
+    rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_OPERATING_SYSTEM), rb_eCUOperatingSystemError);
 
     rb_hash_aset(rb_error_class_by_enum, INT2FIX(CUDA_ERROR_UNKNOWN), rb_eCUUnknownError);
 

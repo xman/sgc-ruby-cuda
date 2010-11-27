@@ -132,10 +132,40 @@ class TestRubyCU < Test::Unit::TestCase
             assert_kind_of(Numeric, stack_size)
             fifo_size = CUContext.get_limit(CULimit::PRINTF_FIFO_SIZE)
             assert_kind_of(Numeric, fifo_size)
+            heap_size = CUContext.get_limit(CULimit::MALLOC_HEAP_SIZE)
+            assert_kind_of(Numeric, heap_size)
             s1 = CUContext.set_limit(CULimit::STACK_SIZE, stack_size)
             assert_nil(s1)
             s2 = CUContext.set_limit(CULimit::PRINTF_FIFO_SIZE, fifo_size)
             assert_nil(s2)
+            s3 = CUContext.set_limit(CULimit::MALLOC_HEAP_SIZE, heap_size)
+            assert_nil(s3)
+        end
+    end
+
+    def test_context_get_set_cache_config
+        assert_nothing_raised do
+            if @dev.compute_capability[:major] >= 2
+                config = CUContext.get_cache_config
+                assert_const_in_class(CUFunctionCache, config)
+                s = CUContext.set_cache_config(config)
+                assert_nil(s)
+            else
+                config = CUContext.get_cache_config
+                assert_equal(CUFunctionCache::PREFER_NONE, config)
+                s = CUContext.set_cache_config(config)
+                assert_nil(s)
+            end
+        end
+    end
+
+    def test_context_get_api_version
+        assert_nothing_raised do
+            v1 = @ctx.get_api_version
+            v2 = CUContext.get_api_version
+            assert_kind_of(Numeric, v1)
+            assert_kind_of(Numeric, v2)
+            assert(v1 == v2)
         end
     end
 
@@ -280,17 +310,6 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
-    def test_function_set_texref
-        assert_nothing_raised do
-            a = CUDevicePtr.new.mem_alloc(16)
-            t = @mod.get_texref("tex")
-            t.set_address(a, 16)
-            f = @func.set_texref(t)
-            a.mem_free
-            assert_instance_of(CUFunction, f)
-        end
-    end
-
     def test_function_set_block_shape
         assert_nothing_raised do
             f = @func.set_block_shape(2)
@@ -425,15 +444,6 @@ class TestRubyCU < Test::Unit::TestCase
             assert_instance_of(Float, elapsed)
             e1.destroy
             e2.destroy
-        end
-    end
-
-    def test_texref_create_destroy
-        assert_nothing_raised do
-            t = CUTexRef.new.create
-            assert_instance_of(CUTexRef, t)
-            t = t.destroy
-            assert_nil(t)
         end
     end
 
