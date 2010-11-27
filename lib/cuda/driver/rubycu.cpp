@@ -381,6 +381,47 @@ static VALUE device_get_attribute(VALUE self, VALUE attribute)
     return INT2FIX(v);
 }
 
+/*  call-seq: dev.get_properties    ->    Hash
+ *
+ *  Return the properties of _self_ in a hash with the following keys:
+ *  * :clock_rate
+ *  * :max_grid_size
+ *  * :max_threads_dim
+ *  * :max_threads_per_block
+ *  * :mem_pitch
+ *  * :regs_per_block
+ *  * :shared_mem_per_block
+ *  * :simd_width
+ *  * :texture_align
+ *  * :total_constant_memory
+ */
+static VALUE device_get_properties(VALUE self)
+{
+    CUdevice* pdevice;
+    Data_Get_Struct(self, CUdevice, pdevice);
+    CUdevprop prop;
+    CUresult status = cuDeviceGetProperties(&prop, *pdevice);
+    if (status != CUDA_SUCCESS) {
+        RAISE_CU_STD_ERROR(status, "Failed to get device properties.");
+    }
+
+    VALUE max_grid_size = rb_ary_new3(3, INT2FIX(prop.maxGridSize[0]), INT2FIX(prop.maxGridSize[1]), INT2FIX(prop.maxGridSize[2]));
+    VALUE max_threads_dim = rb_ary_new3(3, INT2FIX(prop.maxThreadsDim[0]), INT2FIX(prop.maxThreadsDim[1]), INT2FIX(prop.maxThreadsDim[2]));
+
+    VALUE h = rb_hash_new();
+    rb_hash_aset(h, ID2SYM(rb_intern("clock_rate")), INT2FIX(prop.clockRate));
+    rb_hash_aset(h, ID2SYM(rb_intern("max_grid_size")), max_grid_size);
+    rb_hash_aset(h, ID2SYM(rb_intern("max_threads_dim")), max_threads_dim);
+    rb_hash_aset(h, ID2SYM(rb_intern("max_threads_per_block")), INT2FIX(prop.maxThreadsPerBlock));
+    rb_hash_aset(h, ID2SYM(rb_intern("mem_pitch")), INT2FIX(prop.memPitch));
+    rb_hash_aset(h, ID2SYM(rb_intern("regs_per_block")), INT2FIX(prop.regsPerBlock));
+    rb_hash_aset(h, ID2SYM(rb_intern("shared_mem_per_block")), INT2FIX(prop.sharedMemPerBlock));
+    rb_hash_aset(h, ID2SYM(rb_intern("simd_width")), INT2FIX(prop.SIMDWidth));
+    rb_hash_aset(h, ID2SYM(rb_intern("texture_align")), INT2FIX(prop.textureAlign));
+    rb_hash_aset(h, ID2SYM(rb_intern("total_constant_memory")), INT2FIX(prop.totalConstantMemory));
+    return h;
+}
+
 /*  call-seq: dev.total_mem    ->    Numeric
  *
  *  Return the total amount of device memory in bytes.
@@ -1957,6 +1998,7 @@ extern "C" void Init_rubycu()
     rb_define_method(rb_cCUDevice, "get_name", RUBY_METHOD_FUNC(device_get_name), 0);
     rb_define_method(rb_cCUDevice, "compute_capability", RUBY_METHOD_FUNC(device_compute_capability), 0);
     rb_define_method(rb_cCUDevice, "get_attribute", RUBY_METHOD_FUNC(device_get_attribute), 1);
+    rb_define_method(rb_cCUDevice, "get_properties", RUBY_METHOD_FUNC(device_get_properties), 0);
     rb_define_method(rb_cCUDevice, "total_mem", RUBY_METHOD_FUNC(device_total_mem), 0);
 
     rb_cCUComputeMode = rb_define_class_under(rb_mCU, "CUComputeMode", rb_cObject);
