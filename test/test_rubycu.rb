@@ -421,6 +421,22 @@ class TestRubyCU < Test::Unit::TestCase
         end
     end
 
+    def test_stream_wait_event
+        assert_nothing_raised do
+            s = CUStream.new.create
+            e = CUEvent.new.create
+            s = s.wait_event(e)
+            assert_instance_of(CUStream, s)
+            s = s.wait_event(e, 0)
+            assert_instance_of(CUStream, s)
+            s.destroy
+            s = CUStream.wait_event(e)
+            assert_nil(s)
+            s = CUStream.wait_event(e, 0)
+            assert_nil(s)
+        end
+    end
+
     def test_event_create_destroy
         assert_nothing_raised do
             e = CUEvent.new.create
