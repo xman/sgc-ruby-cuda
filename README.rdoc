@@ -13,8 +13,8 @@ support multiple platforms in the future.
 
 Current development will focus on supporting CUDA Toolkit 3.2.
 
-Check out features.rdoc for the supported CUDA features.
-Also see devel.rdoc for the latest development plan.
+Check out doc/features.rdoc for the supported CUDA features.
+Also see doc/devel.rdoc for the latest development plan.
 
 
 Fedora and the Infinity design logo are trademarks of Red Hat, Inc.

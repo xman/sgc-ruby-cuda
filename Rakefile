@@ -11,6 +11,7 @@ CUDA_DRIVER_PATH  = "#{CUDA_PATH}/driver"
 CUDA_RUNTIME_PATH = "#{CUDA_PATH}/runtime"
 RUBYCU_LIB        = "#{CUDA_DRIVER_PATH}/rubycu.so"
 RUBYCU_LIB_DEP    = ["#{CUDA_DRIVER_PATH}/extconf.rb", "#{CUDA_DRIVER_PATH}/rubycu.cpp"]
+DOC_PATH          = "doc"
 
 
 task :default => [:build]
@@ -53,7 +54,7 @@ spec = Gem::Specification.new do |s|
     s.test_files = FileList['test/{**/test_*.rb,vadd.cu,bad.ptx}'].to_a
 
     s.has_rdoc         = true
-    s.extra_rdoc_files = ['README.rdoc', 'devel.rdoc', 'features.rdoc']
+    s.extra_rdoc_files = FileList['README.rdoc', "#{DOC_PATH}/**/*.rdoc"].to_a
 
     s.requirements << 'CUDA Toolkit 3.1'
     s.requirements << 'C++ compiler'
@@ -69,7 +70,7 @@ desc 'Generate SGC Ruby CUDA documentation.'
 Rake::RDocTask.new do |r|
     r.main       = 'README.rdoc'
 
-    r.rdoc_files.include 'README.rdoc', 'devel.rdoc', 'features.rdoc'
+    r.rdoc_files.include 'README.rdoc', "#{DOC_PATH}/**/*.rdoc"
     r.rdoc_files.include 'lib/**/*.rb', 'lib/**/*.cpp'
 
     r.options << '--inline-source'
