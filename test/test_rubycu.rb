@@ -62,6 +62,7 @@ class TestRubyCU < Test::Unit::TestCase
             assert_device_name(d)
             assert_device_memory_size(d)
             assert_device_capability(d)
+            assert_device_properties(d)
             CUDeviceAttribute.constants.each do |symbol|
                 k = CUDeviceAttribute.const_get(symbol)
                 v = d.get_attribute(k)
@@ -670,6 +671,7 @@ private
         assert_device_name(dev)
         assert_device_memory_size(dev)
         assert_device_capability(dev)
+        assert_device_properties(dev)
     end
 
     def assert_device_name(dev)
@@ -683,6 +685,22 @@ private
     def assert_device_capability(dev)
         cap = dev.compute_capability
         assert(cap[:major] > 0 && cap[:minor] >= 0, "Device compute capability failed.")
+    end
+
+    def assert_device_properties(dev)
+        p = dev.get_properties
+        assert(p[:clock_rate] > 0)
+        assert(p[:max_threads_per_block] > 0)
+        assert(p[:mem_pitch] > 0)
+        assert(p[:regs_per_block] > 0)
+        assert(p[:shared_mem_per_block] > 0)
+        assert(p[:simd_width] > 0)
+        assert(p[:texture_align] > 0)
+        assert(p[:total_constant_memory] > 0)
+        assert_instance_of(Array, p[:max_grid_size])
+        assert_equal(3, p[:max_grid_size].size)
+        assert_instance_of(Array, p[:max_threads_dim])
+        assert_equal(3, p[:max_threads_dim].size)
     end
 
     def assert_function_launch(size)
