@@ -1,0 +1,51 @@
+== Supported CUDA 3.2 Driver API Modules
+
+    * Fully supported (excluding deprecated functions).
+    + Partially supported.
+    - Not supported.
+
+    Feature                         Supported?
+    ------------------------------------------
+    Version Management                  *
+    Device Management                   *
+    Context Management                  *
+    Module Management                   +
+    Memory Management                   +
+    Execution Control                   +
+    Stream Management                   *
+    Event Management                    *
+    Texture Reference Management        +
+    Surface Reference Management        -
+    Graphics Interoperability           -
+    OpenGL Interoperability             -
+    Direct3D 9 Interoperability         -
+    Direct3D 10 Interoperability        -
+    Direct3D 11 Interoperability        -
+    VDPAU Interoperability              -
+
+
+== Supported CUDA 3.2 Runtime API Modules
+
+    * Fully supported (excluding deprecated functions).
+    + Partially supported.
+    - Not supported.
+
+    Feature                         Supported?
+    ------------------------------------------
+    Version Management                  -
+    Error Handling                      -
+    Device Management                   -
+    Thread Management                   -
+    Memory Management                   -
+    Execution Control                   -
+    Stream Management                   -
+    Event Management                    -
+    Texture Reference Management        -
+    Surface Reference Management        -
+    C++ API Routines                    -
+    Graphics Interoperability           -
+    OpenGL Interoperability             -
+    Direct3D 9 Interoperability         -
+    Direct3D 10 Interoperability        -
+    Direct3D 11 Interoperability        -
+    VDPAU Interoperability              -
