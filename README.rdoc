@@ -42,6 +42,7 @@ Ruby way would be built on top of the Ruby CUDA API.
 == Prerequisites
 
 * Ruby         (Tested with Ruby 1.9.2)
+* Ruby-FFI     (Tested with Ruby-FFI 1.0.1)
 * CUDA Toolkit (Tested with CUDA Toolkit 3.1 and 3.2)
 * C++ compiler (Tested with GCC 4.5.1)
 

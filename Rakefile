@@ -56,6 +56,8 @@ spec = Gem::Specification.new do |s|
     s.has_rdoc         = true
     s.extra_rdoc_files = FileList['README.rdoc', "#{DOC_PATH}/**/*.rdoc"].to_a
 
+    s.add_dependency 'ffi', '>= 1.0.1'
+
     s.requirements << 'CUDA Toolkit 3.1'
     s.requirements << 'C++ compiler'
     s.requirements << 'CUDA-enabled GPU'
