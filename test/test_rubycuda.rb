@@ -320,6 +320,32 @@ class TestRubyCuda < Test::Unit::TestCase
         CudaDeviceMemory.free(r)
     end
 
+    def test_stream_create_destroy
+        s = CudaStream.new.create
+        assert_instance_of(CudaStream, s)
+        r = s.destroy
+        assert_nil(r)
+    end
+
+    def test_stream_query
+        s = CudaStream.new.create
+        b = s.query
+        assert(b)
+        s.destroy
+    end
+
+    def test_stream_synchronize
+        s = CudaStream.new.create
+        r = s.synchronize
+        assert_instance_of(CudaStream, r)
+        s.destroy
+    end
+
+    def test_stream_wait_event
+        s = CudaStream.new.create
+        s.destroy
+    end
+
 private
 
     def prepare_kernel_lib
