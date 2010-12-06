@@ -23,6 +23,7 @@
 #
 
 require 'cuda/runtime/ffi-cuda'
+require 'memory/buffer'
 
 
 module SGC
@@ -54,6 +55,8 @@ module Cuda
     CudaMemcpy3DParms = API::CudaMemcpy3DParms
     TextureReference = API::TextureReference
     SurfaceReference = API::SurfaceReference
+
+    Buffer = SGC::Memory::Buffer
 
 end # module
 end # module
