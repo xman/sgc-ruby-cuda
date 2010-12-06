@@ -251,4 +251,82 @@ class TestRubyCuda < Test::Unit::TestCase
         CudaDeviceMemory.free(q)
     end
 
+    def test_function_name
+        f = CudaFunction.new("vadd")
+        assert_equal("vadd", f.name)
+    end
+
+    def test_function_attributes
+        path = prepare_kernel_lib
+        CudaFunction.load_lib_file(path)
+        f = CudaFunction.new("vadd")
+        a = f.attributes
+        assert_instance_of(CudaFuncAttributes, a)
+        CudaFunction.unload_all_libs
+    end
+
+    def test_function_cache_config
+        path = prepare_kernel_lib
+        CudaFunction.load_lib_file(path)
+        f = CudaFunction.new("vadd")
+        CudaFuncCache.symbols.each do |k|
+            f.cache_config = k
+        end
+        CudaFunction.unload_all_libs
+    end
+
+    def test_function_launch
+        type = :int
+        size = 10
+        nbytes = size*4
+
+        a = Buffer.new(type, size)
+        b = Buffer.new(type, size)
+        c = Buffer.new(type, size)
+
+        p = CudaDeviceMemory.malloc(nbytes)
+        q = CudaDeviceMemory.malloc(nbytes)
+        r = CudaDeviceMemory.malloc(nbytes)
+
+        (0...size).each do |i|
+            a[i] = i
+            b[i] = 2
+            c[i] = 0
+        end
+
+        CudaMemory.memcpy_htod(p, a, nbytes)
+        CudaMemory.memcpy_htod(q, b, nbytes)
+        CudaMemory.memcpy_htod(r, c, nbytes)
+
+        path = prepare_kernel_lib
+        CudaFunction.load_lib_file(path)
+
+        CudaFunction.configure(Dim3.new(1, 1, 1), Dim3.new(size, 1, 1))
+        CudaFunction.setup(p, q, r, size)
+
+        f = CudaFunction.new("vadd")
+        f.launch
+
+        CudaMemory.memcpy_dtoh(c, r, nbytes)
+
+        (0...size).each do |i|
+            assert_equal(a[i] + b[i], c[i])
+        end
+
+        CudaFunction.unload_all_libs
+
+        CudaDeviceMemory.free(p)
+        CudaDeviceMemory.free(q)
+        CudaDeviceMemory.free(r)
+    end
+
+private
+
+    def prepare_kernel_lib
+        if File.exists?('test/libvadd.so') == false || File.mtime('test/vadd.cu') > File.mtime('test/libvadd.so')
+            system %{cd test; nvcc -shared -Xcompiler -fPIC vadd.cu -o libvadd.so}
+        end
+        'test/libvadd.so'
+    end
+
 end
