@@ -346,6 +346,48 @@ class TestRubyCuda < Test::Unit::TestCase
         s.destroy
     end
 
+    def test_event_create_destroy
+        e = CudaEvent.new.create
+        assert_instance_of(CudaEvent, e)
+        r = e.destroy
+        assert_nil(r)
+
+        e = CudaEvent.new.create(CudaEventFlags[:cudaEventDefault] | CudaEventFlags[:cudaEventBlockingSync])
+        assert_instance_of(CudaEvent, e)
+        r = e.destroy
+        assert_nil(r)
+
+        e = CudaEvent.new.create(:cudaEventDefault)
+        assert_instance_of(CudaEvent, e)
+        r = e.destroy
+        assert_nil(r)
+    end
+
+    def test_event_record_synchronize_query
+        e = CudaEvent.new.create
+        e = e.record
+        assert_instance_of(CudaEvent, e)
+        e = e.synchronize
+        assert_instance_of(CudaEvent, e)
+        b = e.query
+        assert(b)
+        e.destroy
+    end
+
+    def test_event_elapsed_time
+        e1 = CudaEvent.new.create
+        e2 = CudaEvent.new.create
+
+        e1.record
+        e2.record
+        e2.synchronize
+        t = CudaEvent.elapsed_time(e1, e2)
+        assert_kind_of(Numeric, t)
+
+        e1.destroy
+        e2.destroy
+    end
+
 private
 
     def prepare_kernel_lib
