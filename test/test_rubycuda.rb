@@ -147,4 +147,57 @@ class TestRubyCuda < Test::Unit::TestCase
         assert_equal(CudaThread, r)
     end
 
+    def test_buffer_initialize
+        bint = Buffer.new(:int, 16)
+        assert_instance_of(Buffer, bint)
+        assert_equal(16, bint.size)
+        assert_equal(4, bint.element_size)
+        assert_equal(4, Buffer.element_size(:int))
+
+        blong = Buffer.new(:long, 10)
+        assert_instance_of(Buffer, blong)
+        assert_equal(10, blong.size)
+        # TODO: Detect if this is 32bit or 64bit OS and check accordingly.
+        assert(blong.element_size == 4 || blong.element_size == 8)
+        assert(Buffer.element_size(:long) == 4 || Buffer.element_size(:long) == 8)
+
+        bfloat = Buffer.new(:float, 20)
+        assert_instance_of(Buffer, bfloat)
+        assert_equal(20, bfloat.size)
+        assert_equal(4, bfloat.element_size)
+        assert_equal(4, Buffer.element_size(:float))
+    end
+
+    def test_buffer_access
+        b = Buffer.new(:int, 16)
+        b[0] = 10
+        assert_equal(10, b[0])
+        b[9] = 20
+        assert_equal(20, b[9])
+
+        b = Buffer.new(:float, 10)
+        b[2] = 3.14
+        assert_in_delta(3.14, b[2])
+        b[8] = 9.33
+        assert_in_delta(9.33, b[8])
+    end
+
+    def test_buffer_ptr
+        b = Buffer.new(:int, 32)
+        p = b.ptr
+        assert_not_nil(p)
+    end
+
+    def test_buffer_offset
+        size = 16
+        b = Buffer.new(:int, size)
+        (0...size).each do |i|
+            b[i] = i
+        end
+
+        m0 = b.offset(0)
+        m8 = b.offset(8)
+        assert_equal(m0.ptr, m8.offset(-8*b.element_size).ptr)
+    end
+
 end
