@@ -24,6 +24,7 @@
 
 require 'test/unit'
 require 'rubycuda'
+require 'memory/pointer'
 
 include SGC::Cuda
 
@@ -198,6 +199,56 @@ class TestRubyCuda < Test::Unit::TestCase
         m0 = b.offset(0)
         m8 = b.offset(8)
         assert_equal(m0.ptr, m8.offset(-8*b.element_size).ptr)
+    end
+
+    def test_cuda_device_memory_malloc_free
+        p = CudaDeviceMemory.malloc(1024)
+        assert_instance_of(SGC::Memory::MemoryPointer, p)
+        r = CudaDeviceMemory.free(p)
+        assert_nil(r)
+    end
+
+    def test_memory_copy
+        size = 16
+        type = :int
+        nbytes = size*Buffer.element_size(type)
+
+        a = Buffer.new(type, size)
+        b = Buffer.new(type, size)
+        c = Buffer.new(type, size)
+        d = Buffer.new(type, size)
+        p = CudaDeviceMemory.malloc(nbytes)
+        q = CudaDeviceMemory.malloc(nbytes)
+
+        (0...size).each do |i|
+            a[i] = 0
+            b[i] = 0
+            c[i] = 0
+            d[i] = 0
+        end
+
+        extend CudaMemory
+
+        memcpy_htoh(b, a, nbytes)
+        (0...size).each do |i|
+            assert_equal(a[i], b[i])
+        end
+
+        memcpy_htod(p, b, nbytes)
+        memcpy_dtoh(c, p, nbytes)
+        (0...size).each do |i|
+            assert_equal(a[i], c[i])
+        end
+
+        memcpy_dtod(q, p, nbytes)
+        CudaThread.synchronize
+        memcpy_dtoh(d, q, nbytes)
+        (0...size).each do |i|
+            assert_equal(a[i], d[i])
+        end
+
+        CudaDeviceMemory.free(p)
+        CudaDeviceMemory.free(q)
     end
 
 end
