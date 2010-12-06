@@ -54,4 +54,60 @@ class TestRubyCuda < Test::Unit::TestCase
         assert(rv > 0)
     end
 
+
+    def test_device_count
+        count = CudaDevice.count
+        assert(count > 0, "Device count failed.")
+    end
+
+    def test_device_get_set
+        count = CudaDevice.count
+        (0...count).each do |devid|
+            r = CudaDevice.set(devid)
+            assert_equal(CudaDevice, r)
+            d = CudaDevice.get
+            assert_equal(devid, d)
+        end
+
+        count = CudaDevice.count
+        (0...count).each do |devid|
+            r = CudaDevice.current = devid
+            assert_equal(devid, r)
+            d = CudaDevice.current
+            assert_equal(devid, d)
+        end
+    end
+
+    def test_device_choose
+        count = CudaDevice.count
+        prop = CudaDeviceProp.new
+        devid = CudaDevice.choose(prop)
+        assert(devid >= 0 && devid < count)
+    end
+
+    def test_device_properties
+        prop = CudaDevice.properties
+        assert_instance_of(CudaDeviceProp, prop)
+        # TODO: assert the content of the _prop_.
+    end
+
+    def test_device_flags
+        CudaDeviceFlags.symbols.each do |k|
+            r = CudaDevice.flags = k
+            assert_equal(k, r)
+            r = CudaDevice.flags = CudaDeviceFlags[k]
+            assert_equal(CudaDeviceFlags[k], r)
+        end
+    end
+
+    def test_device_valid_devices
+        count = CudaDevice.count
+        devs = []
+        (0...count).each do |devid|
+            devs << devid
+        end
+        r = CudaDevice.valid_devices = devs
+        assert_equal(devs, r)
+    end
+
 end
