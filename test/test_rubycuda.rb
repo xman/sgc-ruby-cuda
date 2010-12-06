@@ -46,4 +46,12 @@ class TestRubyCuda < Test::Unit::TestCase
         assert(s.size > 0)
     end
 
+
+    def test_version
+        dv = driver_version
+        rv = runtime_version
+        assert(dv > 0)
+        assert(rv > 0)
+    end
+
 end
