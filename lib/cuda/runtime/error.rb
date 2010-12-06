@@ -23,5 +23,39 @@
 #
 
 require 'cuda/runtime/ffi-cuda'
-require 'cuda/runtime/cuda'
-require 'cuda/runtime/error'
+
+
+module SGC
+module Cuda
+
+    def get_error_string(e)
+        API::cudaGetErrorString(e)
+    end
+    module_function :get_error_string
+
+
+    def get_last_error
+        API::cudaGetLastError
+    end
+    module_function :get_last_error
+
+
+    def peek_at_last_error
+        API::cudaPeekAtLastError
+    end
+    module_function :peek_at_last_error
+
+module Pvt
+
+    CUDA_SUCCESS = API::CudaError[:cudaSuccess]
+    CUDA_ERROR_NOT_READY = API::CudaError[:cudaErrorNotReady]
+
+    def self.handle_error(status)
+        status == CUDA_SUCCESS or raise API::cudaGetErrorString(status)
+        nil
+    end
+
+end
+
+end # module
+end # module
