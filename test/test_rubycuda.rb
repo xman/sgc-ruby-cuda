@@ -31,4 +31,19 @@ DEVID = ENV['DEVID'].to_i
 
 
 class TestRubyCuda < Test::Unit::TestCase
+
+    def test_error
+        CudaError.symbols.each do |k|
+            s = get_error_string(k)
+            assert(s.size > 0)
+        end
+        e = get_last_error
+        s = get_error_string(e)
+        assert(s.size > 0)
+
+        e = peek_at_last_error
+        s = get_error_string(e)
+        assert(s.size > 0)
+    end
+
 end
