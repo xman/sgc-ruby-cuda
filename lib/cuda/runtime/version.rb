@@ -23,6 +23,27 @@
 #
 
 require 'cuda/runtime/ffi-cuda'
-require 'cuda/runtime/cuda'
-require 'cuda/runtime/error'
-require 'cuda/runtime/version'
+
+
+module SGC
+module Cuda
+
+def driver_version
+    p = FFI::MemoryPointer.new(:int)
+    status = API::cudaDriverGetVersion(p)
+    Pvt::handle_error(status)
+    p.read_int
+end
+module_function :driver_version
+
+
+def runtime_version
+    p = FFI::MemoryPointer.new(:int)
+    status = API::cudaRuntimeGetVersion(p)
+    Pvt::handle_error(status)
+    p.read_int
+end
+module_function :runtime_version
+
+end # module
+end # module
