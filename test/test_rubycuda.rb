@@ -32,6 +32,15 @@ DEVID = ENV['DEVID'].to_i
 
 class TestRubyCuda < Test::Unit::TestCase
 
+    def setup
+        CudaDevice.current = DEVID
+    end
+
+    def teardown
+        CudaThread.exit
+    end
+
+
     def test_error
         CudaError.symbols.each do |k|
             s = get_error_string(k)
@@ -108,6 +117,34 @@ class TestRubyCuda < Test::Unit::TestCase
         end
         r = CudaDevice.valid_devices = devs
         assert_equal(devs, r)
+    end
+
+    def test_thread_exit
+        r = CudaThread.exit
+        assert_equal(CudaThread, r)
+    end
+
+    def test_thread_cache_config
+        CudaFuncCache.symbols.each do |k|
+            r = CudaThread.cache_config = k
+            assert_equal(k, r)
+            c = CudaThread.cache_config
+            assert_equal(k, c)
+        end
+    end
+
+    def test_thread_limit
+        CudaLimit.symbols.each do |k|
+            v = CudaThread.limit(k)
+            assert_kind_of(Integer, v)
+            r = CudaThread.limit = [k, v]
+            assert_equal([k, v], r)
+        end
+    end
+
+    def test_thread_synchronize
+        r = CudaThread.synchronize
+        assert_equal(CudaThread, r)
     end
 
 end
