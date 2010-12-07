@@ -1,0 +1,1 @@
+require 'cuda/runtime/rubycuda'
