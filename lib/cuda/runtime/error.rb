@@ -50,8 +50,8 @@ module Pvt
     CUDA_SUCCESS = API::CudaError[:cudaSuccess]
     CUDA_ERROR_NOT_READY = API::CudaError[:cudaErrorNotReady]
 
-    def self.handle_error(status)
-        status == CUDA_SUCCESS or raise API::cudaGetErrorString(status)
+    def self.handle_error(status, msg = nil)
+        status == CUDA_SUCCESS or raise API::cudaGetErrorString(status) + (msg.nil? ? "" : " : #{msg}")
         nil
     end
 
