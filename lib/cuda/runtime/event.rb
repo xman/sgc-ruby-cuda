@@ -60,7 +60,7 @@ class CudaEvent
         status = API::cudaEventQuery(@p.read_pointer)
         if status == Pvt::CUDA_SUCCESS
             return true
-        elsif status == Pvt::CUDA_ERROR_NOT_READ
+        elsif status == Pvt::CUDA_ERROR_NOT_READY
             return false
         end
         Pvt::handle_error(status)
