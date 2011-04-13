@@ -176,11 +176,26 @@ module API
         :cudaReadModeNormalizedFloat, 1,
     )
 
-    typedef :pointer, :CudaStream
-    typedef :pointer, :CudaEvent
+    FFI::typedef :pointer, :CudaStream
+    FFI::typedef :pointer, :CudaEvent
 
-    typedef :CudaStream, :CudaStream_t
-    typedef :CudaEvent, :CudaEvent_t
+    FFI::typedef :CudaStream, :CudaStream_t
+    FFI::typedef :CudaEvent, :CudaEvent_t
+
+    def read_pointer(ptr); ptr.read_pointer; end
+    def write_pointer(ptr, value); ptr.write_pointer(value); end
+
+    alias read_cudastream read_pointer
+    alias read_cudaevent read_pointer
+
+    alias write_cudastream write_pointer
+    alias write_cudaevent write_pointer
+
+    module_function :read_cudastream
+    module_function :read_cudaevent
+
+    module_function :write_cudastream
+    module_function :write_cudaevent
 
 
     class Dim3 < FFI::Struct
@@ -400,6 +415,7 @@ module API
         e[:width], e[:height], e[:depth] = w, h, d
         e
     end
+    module_function :make_cudaExtent
 
     def make_cudaPitchedPtr(d, p, xsz, ysz)
         s = CudaPitchedPtr.new
@@ -409,6 +425,7 @@ module API
         s[:ysize] = ysz
         s
     end
+    module_function :make_cudaPitchedPtr
 
     def make_cudaPos(x, y, z)
         p = CudaPos.new
@@ -417,6 +434,7 @@ module API
         p[:z] = z
         p
     end
+    module_function :make_cudaPos
 
     # CUDA Execution Control.
     attach_function :cudaConfigureCall, [Dim3.by_value, Dim3.by_value, :size_t, :uint], :int
