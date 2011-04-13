@@ -45,7 +45,8 @@ class CudaDevice
         Pvt::handle_error(status)
         p.read_int
     end
-    class << self; alias_method :current, :get; end
+
+    def self.current; self.get; end
 
 
     def self.set(devid)
