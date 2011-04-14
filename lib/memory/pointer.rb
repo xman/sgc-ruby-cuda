@@ -23,39 +23,45 @@
 #
 
 require 'ffi'
-require 'memory/interface/ipointer'
 
 
 module SGC
 module Memory
 
+# A memory pointer class.
 class MemoryPointer
 
-    include IMemoryPointer
-
-
-    def initialize(v = nil)
+    # @param [Integer] addr Memory address _addr_ to initialize to.
+    # @return A memory pointer pointing to address _addr_.
+    def initialize(addr = nil)
         @p = FFI::MemoryPointer.new(:pointer)
-        @p.write_pointer(v)
+        @p.write_pointer(addr)
     end
 
 
+    # @return The internal pointer representation.
     def ptr
         @p.read_pointer
     end
 
 
-    def ptr=(v)
-        @p.write_pointer(v)
-        v
+    # Set this pointer to point to memory address _addr_.
+    # @param [Integer] addr Memory address to set to.
+    # @return _addr_.
+    def ptr=(addr)
+        @p.write_pointer(addr)
+        addr
     end
 
 
-    def offset(i)
-        MemoryPointer.new(@p.read_pointer.to_i + i)
+    # @param [Integer] index Index to a memory offset.
+    # @return [MemoryPointer] A memory pointer pointing to the _index_ byte.
+    def offset(index)
+        MemoryPointer.new(@p.read_pointer.to_i + index)
     end
 
 
+    # @return The internal representation of a pointer pointing to this memory pointer.
     def ref
         @p
     end
