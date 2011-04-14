@@ -1,34 +1,22 @@
 require 'rubygems'
 require 'rake/gempackagetask'
-require 'rake/rdoctask'
 require 'rake/testtask'
 require 'rake/clean'
+require 'yard'
 
 load 'version.rb'
 
 CUDA_PATH         = "lib/cuda"
 CUDA_DRIVER_PATH  = "#{CUDA_PATH}/driver"
 CUDA_RUNTIME_PATH = "#{CUDA_PATH}/runtime"
-RUBYCU_LIB        = "#{CUDA_DRIVER_PATH}/rubycu.so"
-RUBYCU_LIB_DEP    = ["#{CUDA_DRIVER_PATH}/extconf.rb", "#{CUDA_DRIVER_PATH}/rubycu.cpp"]
 DOC_PATH          = "doc"
+HTML_OUTPUT_PATH   = "html"
 
 
-task :default => [:build]
+task :default => []
 
 desc 'Build everything.'
-task :all => [:build, :package, :rdoc]
-
-desc 'Build all SGC Ruby CUDA libraries.'
-task :build => [:rubycu]
-
-
-desc 'Build rubycu shared library.'
-task :rubycu => RUBYCU_LIB
-
-file RUBYCU_LIB => RUBYCU_LIB_DEP do
-    system %{cd #{CUDA_DRIVER_PATH}; ruby extconf.rb; make}
-end
+task :all => [:package, :yard]
 
 
 spec = Gem::Specification.new do |s|
@@ -39,7 +27,6 @@ spec = Gem::Specification.new do |s|
     s.description = 'SGC-Ruby-CUDA implements Ruby bindings to Nvidia CUDA SDK. It provides easy access to CUDA-enabled GPU from a Ruby program.'
 
     s.required_ruby_version     = '>= 1.9.2'
-    s.required_rubygems_version = '>= 1.3.6'
 
     s.author            = 'Chung Shin Yee'
     s.email             = 'shinyee@speedgocomputing.com'
@@ -48,17 +35,14 @@ spec = Gem::Specification.new do |s|
 
     s.require_path = 'lib'
 
-    s.files      = FileList['lib/**/*.rb', RUBYCU_LIB].to_a
-    s.files     += ['Rakefile', 'version.rb', 'COPYING']
-    s.files.reject! { |f| f.include? 'extconf.rb' }
+    s.files  = FileList['lib/**/*.rb', "#{DOC_PATH}/**/*.rdoc"].to_a
+    s.files += ['Rakefile', 'version.rb', 'README.rdoc', 'COPYING']
     s.test_files = FileList['test/{**/test_*.rb,vadd.cu,bad.ptx}'].to_a
 
-    s.has_rdoc         = true
-    s.extra_rdoc_files = FileList['README.rdoc', "#{DOC_PATH}/**/*.rdoc"].to_a
+    s.add_dependency 'ffi', '>= 1.0.7'
+    s.add_dependency 'yard', '>= 0.6.7'
 
-    s.add_dependency 'ffi', '>= 1.0.1'
-
-    s.requirements << 'CUDA Toolkit 3.1'
+    s.requirements << 'CUDA Toolkit 4.0'
     s.requirements << 'C++ compiler'
     s.requirements << 'CUDA-enabled GPU'
 end
@@ -68,30 +52,24 @@ Rake::GemPackageTask.new(spec) do |pkg|
 end
 
 
-desc 'Generate SGC Ruby CUDA documentation.'
-Rake::RDocTask.new do |r|
-    r.main       = 'README.rdoc'
-
-    r.rdoc_files.include 'README.rdoc', "#{DOC_PATH}/**/*.rdoc"
-    r.rdoc_files.include 'lib/**/*.rb', 'lib/**/*.cpp'
-
-    r.options << '--inline-source'
-    r.options << '--line-numbers'
-    r.options << '--all'
-    r.options << '--fileboxes'
-    r.options << '--diagram'
+desc 'Generate SGC Ruby CUDA documentation with YARD.'
+task :yard
+YARD::Rake::YardocTask.new do |t|
+    t.files = FileList['lib/**/*.rb'].to_a
+    t.options += ['--no-private', '-o', "#{HTML_OUTPUT_PATH}", '--files', "#{DOC_PATH}/**/*.rdoc"]
 end
 
 
+desc 'Run SGC Ruby CUDA test cases.'
+task :test
 Rake::TestTask.new do |t|
     t.libs << 'lib'
 
-    t.test_files = FileList['test/**/test_*.rb']
+    t.test_files = FileList['test/**/test_*.rb'].to_a
     t.verbose    = true
 end
 
 
-CLEAN.include ['pkg', 'html']
-CLEAN.include ["#{CUDA_DRIVER_PATH}/{Makefile,mkmf.log}"]
+CLEAN.include ['pkg', "#{HTML_OUTPUT_PATH}"]
 CLEAN.include ['**/*.o', '**/*.so']
 CLEAN.include ['test/vadd.ptx']
