@@ -24,19 +24,22 @@
 
 require 'test/unit'
 require 'rubycu'
+require 'memory/pointer'
 
 include SGC::CU
 
 DEVID = ENV['DEVID'].to_i
+
+CUInit.init
 
 
 class TestRubyCU < Test::Unit::TestCase
 
     def setup
         @dev = CUDevice.get(DEVID)
-        @ctx = CUContext.new.create(0, @dev)
+        @ctx = CUContext.create(@dev)
         @mod = prepare_loaded_module
-        @func = @mod.get_function("vadd")
+        @func = @mod.function("vadd")
     end
 
     def teardown
@@ -48,81 +51,86 @@ class TestRubyCU < Test::Unit::TestCase
         @dev = nil
     end
 
+    def test_version
+        v = driver_version
+        assert_kind_of(Integer, v)
+    end
+
     def test_device_count
-        assert_nothing_raised do
-            count = CUDevice.get_count
-            assert(count > 0, "Device count failed.")
-        end
+        count = CUDevice.count
+        assert(count > 0, "Device count failed.")
     end
 
     def test_device_query
-        assert_nothing_raised do
-            d = CUDevice.get(DEVID)
-            assert_not_nil(d)
-            assert_device_name(d)
-            assert_device_memory_size(d)
-            assert_device_capability(d)
-            assert_device_properties(d)
-            CUDeviceAttribute.constants.each do |symbol|
-                k = CUDeviceAttribute.const_get(symbol)
-                v = d.get_attribute(k)
-                assert_instance_of(Fixnum, v)
-            end
+        d = CUDevice.get(DEVID)
+        assert_instance_of(CUDevice, d)
+        assert_device_name(d)
+        assert_device_memory_size(d)
+        assert_device_capability(d)
+        assert_device_properties(d)
+        CUDeviceAttribute.symbols.each do |k|
+            v = d.attribute(k)
+            assert_instance_of(Fixnum, v)
+        end
+    end
+
+    def test_device_malloc_free
+        p = CUDevice.malloc(1024)
+        assert_instance_of(CUDevicePtr, p)
+        r = p.free
+        assert_nil(r)
+    end
+
+    def test_device_malloc_with_huge_mem
+        assert_raise(CUOutOfMemoryError) do
+            size = @dev.total_mem + 1
+            CUDevice.malloc(size)
         end
     end
 
     def test_context_create_destroy
-        assert_nothing_raised do
-            c = CUContext.new.create(@dev)
-            assert_not_nil(c)
+        c = CUContext.create(@dev)
+        assert_instance_of(CUContext, c)
+        c = c.destroy
+        assert_nil(c)
+        c = CUContext.create(0, @dev)
+        assert_instance_of(CUContext, c)
+        c = c.destroy
+        assert_nil(c)
+        CUContextFlags.symbols.each do |k|
+            c = CUContext.create(k, @dev)
+            assert_instance_of(CUContext, c)
             c = c.destroy
             assert_nil(c)
-            c = CUContext.new.create(0, @dev)
-            assert_not_nil(c)
-            c = c.destroy
-            assert_nil(c)
-            CUContextFlags.constants.each do |symbol|
-                k = CUContextFlags.const_get(symbol)
-                c = CUContext.new.create(k, @dev)
-                assert_not_nil(c)
-                c = c.destroy
-                assert_nil(c)
-            end
         end
     end
 
     def test_context_attach_detach
-        assert_nothing_raised do
-            c1 = @ctx.attach(0)
-            assert_not_nil(c1)
-            c2 = @ctx.detach
-            assert_nil(c2)
-        end
+        c1 = @ctx.attach(0)
+        assert_instance_of(CUContext, c1)
+        c2 = @ctx.detach
+        assert_nil(c2)
     end
 
     def test_context_attach_nonzero_flags_detach
         assert_raise(CUInvalidValueError) do
             c1 = @ctx.attach(999)
-            assert_not_nil(c1)
+            assert_instance_of(CUContext, c1)
             c2 = @ctx.detach
             assert_nil(c2)
         end
     end
 
     def test_context_push_pop_current
-        assert_nothing_raised do
-            c1 = CUContext.pop_current
-            assert_not_nil(c1)
-            c2 = @ctx.push_current
-            assert_not_nil(c2)
-        end
+        c1 = CUContext.pop_current
+        assert_instance_of(CUContext, c1)
+        c2 = @ctx.push_current
+        assert_instance_of(CUContext, c2)
     end
 
     def test_context_get_device
-        assert_nothing_raised do
-            d = CUContext.get_device
-            assert_device(d)
-        end
+        d = CUContext.device
+        assert_device(d)
     end
 
     def test_context_get_set_limit
@@ -132,63 +140,55 @@ class TestRubyCU < Test::Unit::TestCase
             assert_limit = Proc.new { |&b| assert_raise(CUUnsupportedLimitError, &b) }
         end
         assert_limit.call do
-            stack_size = CUContext.get_limit(CULimit::STACK_SIZE)
-            assert_kind_of(Numeric, stack_size)
-            fifo_size = CUContext.get_limit(CULimit::PRINTF_FIFO_SIZE)
-            assert_kind_of(Numeric, fifo_size)
-            heap_size = CUContext.get_limit(CULimit::MALLOC_HEAP_SIZE)
-            assert_kind_of(Numeric, heap_size)
-            s1 = CUContext.set_limit(CULimit::STACK_SIZE, stack_size)
-            assert_nil(s1)
-            s2 = CUContext.set_limit(CULimit::PRINTF_FIFO_SIZE, fifo_size)
-            assert_nil(s2)
-            s3 = CUContext.set_limit(CULimit::MALLOC_HEAP_SIZE, heap_size)
-            assert_nil(s3)
+            stack_size = CUContext.limit(:STACK_SIZE)
+            assert_kind_of(Integer, stack_size)
+            fifo_size = CUContext.limit(:PRINTF_FIFO_SIZE)
+            assert_kind_of(Integer, fifo_size)
+            heap_size = CUContext.limit(:MALLOC_HEAP_SIZE)
+            assert_kind_of(Integer, heap_size)
+            s1 = CUContext.limit = [:STACK_SIZE, stack_size]
+            assert_equal([:STACK_SIZE, stack_size], s1)
+            s2 = CUContext.limit = [:PRINTF_FIFO_SIZE, fifo_size]
+            assert_equal([:PRINTF_FIFO_SIZE, fifo_size], s2)
+            s3 = (CUContext.limit = :MALLOC_HEAP_SIZE, heap_size)
+            assert_equal([:MALLOC_HEAP_SIZE, heap_size], s3)
         end
     end
 
     def test_context_get_set_cache_config
-        assert_nothing_raised do
-            if @dev.compute_capability[:major] >= 2
-                config = CUContext.get_cache_config
-                assert_const_in_class(CUFunctionCache, config)
-                s = CUContext.set_cache_config(config)
-                assert_nil(s)
-            else
-                config = CUContext.get_cache_config
-                assert_equal(CUFunctionCache::PREFER_NONE, config)
-                s = CUContext.set_cache_config(config)
-                assert_nil(s)
-            end
+        if @dev.compute_capability[:major] >= 2
+            config = CUContext.cache_config
+            assert_not_nil(CUFunctionCache[config])
+            s = CUContext.cache_config = config
+            assert_equal(config, s)
+        else
+            config = CUContext.cache_config
+            assert_equal(:PREFER_NONE, config)
+            s = CUContext.cache_config = config
+            assert_equal(config, s)
         end
     end
 
     def test_context_get_api_version
-        assert_nothing_raised do
-            v1 = @ctx.get_api_version
-            v2 = CUContext.get_api_version
-            assert_kind_of(Numeric, v1)
-            assert_kind_of(Numeric, v2)
-            assert(v1 == v2)
-        end
+        v1 = @ctx.api_version
+        v2 = CUContext.api_version
+        assert_kind_of(Integer, v1)
+        assert_kind_of(Integer, v2)
+        assert(v1 == v2)
     end
 
     def test_context_synchronize
-        assert_nothing_raised do
-            s = CUContext.synchronize
-            assert_nil(s)
-        end
+        s = CUContext.synchronize
+        assert_nil(s)
     end
 
     def test_module_load_unload
-        assert_nothing_raised do
-            path = prepare_ptx
-            m = CUModule.new
-            m = m.load(path)
-            assert_not_nil(m)
-            m = m.unload
-            assert_not_nil(m)
-        end
+        path = prepare_ptx
+        m = CUModule.new
+        m = m.load(path)
+        assert_instance_of(CUModule, m)
+        m = m.unload
+        assert_instance_of(CUModule, m)
     end
 
     def test_module_load_with_invalid_ptx
@@ -205,13 +205,12 @@ class TestRubyCU < Test::Unit::TestCase
 
     def test_module_load_data
         path = prepare_ptx
-        assert_nothing_raised do
-            m = CUModule.new
-            File.open(path) do |f|
-                str = f.read
-                m.load_data(str)
-                m.unload
-            end
+        m = CUModule.new
+        File.open(path) do |f|
+            str = f.read
+            r = m.load_data(str)
+            assert_instance_of(CUModule, r)
+            m.unload
         end
     end
 
@@ -224,139 +223,116 @@ class TestRubyCU < Test::Unit::TestCase
     end
 
     def test_module_get_function
-        assert_nothing_raised do
-            f = @mod.get_function('vadd')
-            assert_not_nil(f)
-        end
+        f = @mod.function('vadd')
+        assert_instance_of(CUFunction, f)
     end
 
     def test_module_get_function_with_invalid_name
         assert_raise(CUInvalidValueError) do
-            f = @mod.get_function('')
+            f = @mod.function('')
         end
 
         assert_raise(CUReferenceNotFoundError) do
-            f = @mod.get_function('badname')
+            f = @mod.function('badname')
         end
     end
 
     def test_module_get_global
-        assert_nothing_raised do
-            devptr, nbytes = @mod.get_global('gvar')
-            assert_equal(4, nbytes)
-            u = Int32Buffer.new(1)
-            memcpy_dtoh(u, devptr, nbytes)
-            assert_equal(1997, u[0])
-        end
+        devptr, nbytes = @mod.global('gvar')
+        assert_equal(4, nbytes)
+        u = Buffer.new(:int, 1)
+        memcpy_dtoh(u, devptr, nbytes)
+        assert_equal(1997, u[0])
     end
 
     def test_module_get_global_with_invalid_name
         assert_raise(CUInvalidValueError) do
-            devptr, nbytes = @mod.get_global('')
+            devptr, nbytes = @mod.global('')
         end
 
         assert_raise(CUReferenceNotFoundError) do
-            devptr, nbytes = @mod.get_global('badname')
+            devptr, nbytes = @mod.global('badname')
         end
     end
 
-    def test_module_get_texref
-        assert_nothing_raised do
-            tex = @mod.get_texref('tex')
-            assert_not_nil(tex)
-        end
-    end
+#    def test_module_get_texref
+#        assert_nothing_raised do
+#            tex = @mod.get_texref('tex')
+#            assert_not_nil(tex)
+#        end
+#    end
 
-    def test_module_get_texref_with_invalid_name
-        assert_raise(CUInvalidValueError) do
-            tex = @mod.get_texref('')
-        end
+#    def test_module_get_texref_with_invalid_name
+#        assert_raise(CUInvalidValueError) do
+#            tex = @mod.get_texref('')
+#        end
 
-        assert_raise(CUReferenceNotFoundError) do
-            tex = @mod.get_texref('badname')
-        end
-    end
-
-    def test_device_ptr_mem_alloc_free
-        assert_nothing_raised do
-            devptr = CUDevicePtr.new
-            devptr.mem_free
-            devptr.mem_alloc(1024)
-            devptr.mem_free
-        end
-    end
-
-    def test_device_ptr_mem_alloc_with_huge_mem
-        assert_raise(CUOutOfMemoryError) do
-            devptr = CUDevicePtr.new
-            size = @dev.total_mem + 1
-            devptr.mem_alloc(size)
-        end
-    end
+#        assert_raise(CUReferenceNotFoundError) do
+#            tex = @mod.get_texref('badname')
+#        end
+#    end
 
     def test_device_ptr_offset
-        assert_nothing_raised do
-            devptr = CUDevicePtr.new
-            p = devptr.offset(1024)
-            assert_instance_of(CUDevicePtr, p)
-            p = devptr.offset(-1024)
-            assert_instance_of(CUDevicePtr, p)
-        end
+        devptr = CUDevice.malloc(1024)
+        p = devptr.offset(1024)
+        assert_instance_of(CUDevicePtr, p)
+        p = devptr.offset(-1024)
+        assert_instance_of(CUDevicePtr, p)
+        devptr.free
     end
 
     def test_function_set_param
-        assert_nothing_raised do
-            da = CUDevicePtr.new
-            db = CUDevicePtr.new
-            dc = CUDevicePtr.new
-            f = @func.set_param(da, db, dc, 10)
-            assert_instance_of(CUFunction, f)
-        end
+        da = CUDevice.malloc(1024)
+        db = CUDevice.malloc(1024)
+        dc = CUDevice.malloc(1024)
+        r = @func.param = []
+        r = @func.param = [da, db, dc, 10]
+        assert_equal([da, db, dc, 10], r)
+
+        f = @func.param_setf(0, 2.5)
+        assert_instance_of(CUFunction, f)
+        f = @func.param_seti(4, 33)
+        assert_instance_of(CUFunction, f)
+        f = @func.param_set_size(8)
+        assert_instance_of(CUFunction, f)
     end
 
     def test_function_set_block_shape
-        assert_nothing_raised do
-            f = @func.set_block_shape(2)
-            assert_instance_of(CUFunction, f)
-            f = @func.set_block_shape(2, 3)
-            assert_instance_of(CUFunction, f)
-            f = @func.set_block_shape(2, 3, 4)
-            assert_instance_of(CUFunction, f)
-        end
+        r = @func.block_shape = 2
+        assert_equal(2, r)
+        r = @func.block_shape = [2, 3]
+        assert_equal([2, 3], r)
+        r = (@func.block_shape = 2, 3, 4)
+        assert_equal([2, 3, 4], r)
     end
 
     def test_function_set_shared_size
-        assert_nothing_raised do
-            f = @func.set_shared_size(0)
-            assert_instance_of(CUFunction, f)
-            f = @func.set_shared_size(1024)
-            assert_instance_of(CUFunction, f)
-        end
+        r = @func.shared_size = 0
+        assert_equal(0, r)
+        r = @func.shared_size = 1024
+        assert_equal(1024, r)
     end
 
     def test_function_launch
-        assert_nothing_raised do
-            assert_function_launch(10) do |f|
-                f.set_block_shape(10)
-                f.launch
-            end
+        assert_function_launch(10) do |f|
+            f.block_shape = 10
+            f.launch
         end
     end
 
     def test_function_launch_grid
-        assert_nothing_raised do
-            assert_function_launch(10) do |f|
-                f.set_block_shape(10)
-                f.launch_grid(1)
-            end
+        assert_function_launch(10) do |f|
+            f.block_shape = 10
+            f.launch_grid(1)
+        end
 
-            assert_function_launch(20) do |f|
-                f.set_block_shape(5)
-                f.launch_grid(4)
-            end
+        assert_function_launch(20) do |f|
+            f.block_shape = 5
+            f.launch_grid(4)
         end
     end
 
+=begin
     def test_function_launch_async
         assert_nothing_raised do
             assert_function_launch(10) do |f|
@@ -370,114 +346,98 @@ class TestRubyCU < Test::Unit::TestCase
             end
         end
     end
+=end
 
     def test_function_get_attribute
-        CUFunctionAttribute.constants.each do |symbol|
-            k = CUFunctionAttribute.const_get(symbol)
-            v = @func.get_attribute(k)
+        CUFunctionAttribute.symbols.each do |k|
+            v = @func.attribute(k)
             assert_instance_of(Fixnum, v)
         end
     end
 
     def test_function_set_cache_config
-        CUFunctionCache.constants.each do |symbol|
-            k = CUFunctionCache.const_get(symbol)
-            f = @func.set_cache_config(k)
-            assert_instance_of(CUFunction, f)
+        CUFunctionCache.symbols.each do |k|
+            f = @func.cache_config = k
+            assert_equal(k, f)
         end
     end
 
     def test_stream_create_destroy
-        assert_nothing_raised do
-            s = CUStream.new
-            s = s.create
-            assert_instance_of(CUStream, s)
-            s = s.destroy
-            assert_nil(s)
+        s = CUStream.create
+        assert_instance_of(CUStream, s)
+        s = s.destroy
+        assert_nil(s)
 
-            s = CUStream.new
-            s = s.create(0)
-            assert_instance_of(CUStream, s)
-            s = s.destroy
-            assert_nil(s)
-        end
+        s = CUStream.create(0)
+        assert_instance_of(CUStream, s)
+        s = s.destroy
+        assert_nil(s)
     end
 
     def test_stream_query
-        assert_nothing_raised do
-            s = CUStream.new.create(0)
-            b = s.query
-            assert(b)
-            s.destroy
-        end
+        s = CUStream.create
+        b = s.query
+        assert(b)
+        s.destroy
     end
 
     def test_stream_synchronize
-        assert_nothing_raised do
-            s = CUStream.new.create(0)
-            s = s.synchronize
-            assert_instance_of(CUStream, s)
-            s.destroy
-        end
+        s = CUStream.create
+        s = s.synchronize
+        assert_instance_of(CUStream, s)
+        s.destroy
     end
 
     def test_stream_wait_event
-        assert_nothing_raised do
-            s = CUStream.new.create
-            e = CUEvent.new.create
-            s = s.wait_event(e)
-            assert_instance_of(CUStream, s)
-            s = s.wait_event(e, 0)
-            assert_instance_of(CUStream, s)
-            s.destroy
-            s = CUStream.wait_event(e)
-            assert_nil(s)
-            s = CUStream.wait_event(e, 0)
-            assert_nil(s)
-        end
+        s = CUStream.create
+        e = CUEvent.create
+        s = s.wait_event(e)
+        assert_instance_of(CUStream, s)
+        s = s.wait_event(e, 0)
+        assert_instance_of(CUStream, s)
+        s.destroy
+        s = CUStream.wait_event(e)
+        assert_nil(s)
+        s = CUStream.wait_event(e, 0)
+        assert_nil(s)
     end
 
     def test_event_create_destroy
-        assert_nothing_raised do
-            e = CUEvent.new.create
-            assert_instance_of(CUEvent, e)
-            e = e.destroy
-            assert_nil(e)
+        e = CUEvent.create
+        assert_instance_of(CUEvent, e)
+        e = e.destroy
+        assert_nil(e)
 
-            e = CUEvent.new.create(CUEventFlags::DEFAULT)
-            assert_instance_of(CUEvent, e)
-            e = e.destroy
-            assert_nil(e)
-        end
+        e = CUEvent.create(:DEFAULT)
+        assert_instance_of(CUEvent, e)
+        e = e.destroy
+        assert_nil(e)
     end
 
     def test_event_record_synchronize_query
-        assert_nothing_raised do
-            e = CUEvent.new.create(CUEventFlags::DEFAULT)
-            e = e.record(0)
-            assert_instance_of(CUEvent, e)
-            e = e.synchronize
-            assert_instance_of(CUEvent, e)
-            b = e.query
-            assert(b)
-            e.destroy
-        end
+        e = CUEvent.create(:DEFAULT)
+        e = e.record(0)
+        assert_instance_of(CUEvent, e)
+        e = e.synchronize
+        assert_instance_of(CUEvent, e)
+        b = e.query
+        assert(b)
+        e.destroy
     end
 
     def test_event_elapsed_time
-        assert_nothing_raised do
-            e1 = CUEvent.new.create(CUEventFlags::DEFAULT)
-            e2 = CUEvent.new.create(CUEventFlags::DEFAULT)
-            e1.record(0)
-            e2.record(0)
-            e2.synchronize
-            elapsed = CUEvent.elapsed_time(e1, e2)
-            assert_instance_of(Float, elapsed)
-            e1.destroy
-            e2.destroy
-        end
+        e1 = CUEvent.create(:DEFAULT)
+        e2 = CUEvent.create(:DEFAULT)
+        e1.record(0)
+        e2.record(0)
+        e2.synchronize
+        elapsed = CUEvent.elapsed_time(e1, e2)
+        assert_instance_of(Float, elapsed)
+        e1.destroy
+        e2.destroy
     end
 
+=begin
     def test_texref_get_set_address
         assert_nothing_raised do
             t = @mod.get_texref("tex")
@@ -518,42 +478,41 @@ class TestRubyCU < Test::Unit::TestCase
             assert_instance_of(CUTexRef, t)
         end
     end
+=end
 
     def test_buffer_initialize
-        assert_nothing_raised do
-            b = MemoryBuffer.new(16)
-            assert_instance_of(MemoryBuffer, b)
-            assert_equal(false, b.page_locked?)
-            assert_equal(16, b.size)
+        # b = MemoryBuffer.new(16)
+        # assert_instance_of(MemoryBuffer, b)
+        # assert_equal(false, b.page_locked?)
+        # assert_equal(16, b.size)
 
-            b = Int32Buffer.new(10)
-            assert_instance_of(Int32Buffer, b)
-            assert_equal(false, b.page_locked?)
-            assert_equal(10, b.size)
+        b = Buffer.new(:int, 10)
+        assert_instance_of(Buffer, b)
+        # assert_equal(false, b.page_locked?)
+        assert_equal(10, b.size)
 
-            b = Int64Buffer.new(20)
-            assert_instance_of(Int64Buffer, b)
-            assert_equal(false, b.page_locked?)
-            assert_equal(20, b.size)
+        b = Buffer.new(:long, 20)
+        assert_instance_of(Buffer, b)
+        # assert_equal(false, b.page_locked?)
+        assert_equal(20, b.size)
 
-            b = Float32Buffer.new(30)
-            assert_instance_of(Float32Buffer, b)
-            assert_equal(false, b.page_locked?)
-            assert_equal(30, b.size)
+        b = Buffer.new(:float, 30)
+        assert_instance_of(Buffer, b)
+        # assert_equal(false, b.page_locked?)
+        assert_equal(30, b.size)
 
-            b = Float64Buffer.new(40)
-            assert_instance_of(Float64Buffer, b)
-            assert_equal(false, b.page_locked?)
-            assert_equal(40, b.size)
-        end
+        # b = Float64Buffer.new(40)
+        # assert_instance_of(Float64Buffer, b)
+        # assert_equal(false, b.page_locked?)
+        # assert_equal(40, b.size)
     end
 
     def test_buffer_initialize_page_locked
-        assert_nothing_raised do
-            b = MemoryBuffer.new(16, page_locked: true)
-            assert_instance_of(MemoryBuffer, b)
-            assert_equal(true, b.page_locked?)
-            assert_equal(16, b.size)
+=begin
+        b = MemoryBuffer.new(16, page_locked: true)
+        assert_instance_of(MemoryBuffer, b)
+        assert_equal(true, b.page_locked?)
+        assert_equal(16, b.size)
 
             b = Int32Buffer.new(10, page_locked: true)
             assert_instance_of(Int32Buffer, b)
@@ -575,133 +534,130 @@ class TestRubyCU < Test::Unit::TestCase
             assert_equal(true, b.page_locked?)
             assert_equal(40, b.size)
         end
+=end
     end
 
     def test_buffer_element_size
-        assert_nothing_raised do
-            assert_equal(1, MemoryBuffer.element_size)
-            assert_equal(4, Int32Buffer.element_size)
-            assert_equal(8, Int64Buffer.element_size)
-            assert_equal(4, Float32Buffer.element_size)
-            assert_equal(8, Float64Buffer.element_size)
-        end
+        # assert_equal(1, Buffer.element_size)
+        # assert_equal(4, Int32Buffer.element_size)
+        # assert_equal(8, Int64Buffer.element_size)
+        # assert_equal(4, Float32Buffer.element_size)
+        # assert_equal(8, Float64Buffer.element_size)
     end
 
     def test_buffer_offset
-        assert_nothing_raised do
-            b = MemoryBuffer.new(16)
-            c = b.offset(4)
-            assert_kind_of(MemoryPointer, c)
+        b = Buffer.new(:int, 16)
+        c = b.offset(4)
+        assert_kind_of(MemoryPointer, c)
 
-            b = Int32Buffer.new(10)
-            c = b.offset(2)
-            assert_kind_of(MemoryPointer, c)
+        b = Buffer.new(:int, 10)
+        c = b.offset(5)
+        assert_kind_of(MemoryPointer, c)
 
-            b = Int64Buffer.new(10)
-            c = b.offset(3)
-            assert_kind_of(MemoryPointer, c)
+        b = Buffer.new(:long, 10)
+        c = b.offset(3)
+        assert_kind_of(MemoryPointer, c)
 
-            b = Float32Buffer.new(10)
-            c = b.offset(4)
-            assert_kind_of(MemoryPointer, c)
+        b = Buffer.new(:float, 10)
+        c = b.offset(4)
+        assert_kind_of(MemoryPointer, c)
 
-            b = Float64Buffer.new(10)
-            c = b.offset(5)
-            assert_kind_of(MemoryPointer, c)
-        end
+        # b = Float64Buffer.new(10)
+        # c = b.offset(5)
+        # assert_kind_of(MemoryPointer, c)
     end
 
     def test_buffer_access
-        assert_nothing_raised do
-            b = MemoryBuffer.new(16)
-            b[0] = 127
-            assert_equal(127, b[0])
-            b[15] = 128
-            assert_not_equal(128, b[15])
+        # b = Buffer.new(:char, 16)
+        # b[0] = 127
+        # assert_equal(127, b[0])
+        # b[15] = 128
+        # assert_not_equal(128, b[15])
 
-            b = Int32Buffer.new(10)
-            b[0] = 10
-            assert_equal(10, b[0])
-            b[9] = 20
-            assert_equal(20, b[9])
+        b = Buffer.new(:int, 10)
+        b[0] = 10
+        assert_equal(10, b[0])
+        b[9] = 20
+        assert_equal(20, b[9])
 
-            b = Int64Buffer.new(10)
-            b[3] = 2**40
-            assert_equal(2**40, b[3])
-            b[7] = 2**50
-            assert_equal(2**50, b[7])
+        b = Buffer.new(:long, 10)
+        b[3] = 2**40
+        assert_equal(2**40, b[3])
+        b[7] = 2**50
+        assert_equal(2**50, b[7])
 
-            b = Float32Buffer.new(10)
-            b[2] = 3.14
-            assert_in_delta(3.14, b[2])
-            b[8] = 9.33
-            assert_in_delta(9.33, b[8])
+        b = Buffer.new(:float, 10)
+        b[2] = 3.14
+        assert_in_delta(3.14, b[2])
+        b[8] = 9.33
+        assert_in_delta(9.33, b[8])
 
-            b = Float64Buffer.new(10)
-            b[1] = 3.14
-            assert_in_delta(3.14, b[1])
-            b[6] = 9.33
-            assert_in_delta(9.33, b[6])
-        end
+        # b = Float64Buffer.new(10)
+        # b[1] = 3.14
+        # assert_in_delta(3.14, b[1])
+        # b[6] = 9.33
+        # assert_in_delta(9.33, b[6])
     end
 
     def test_memory_copy
-        assert_nothing_raised do
-            cBuffer = Int32Buffer
-            size = 16
-            b = cBuffer.new(size, page_locked: true)
-            c = cBuffer.new(size, page_locked: true)
-            d = cBuffer.new(size)
-            e = cBuffer.new(size)
-            p = CUDevicePtr.new.mem_alloc(size*cBuffer.element_size)
-            q = CUDevicePtr.new.mem_alloc(size*cBuffer.element_size)
-            r = CUDevicePtr.new.mem_alloc(size*cBuffer.element_size)
+        type = :int
+        size = 16
+        element_size = 4
+        nbytes = size*element_size
+        # b = Buffer.new(type, size, page_locked: true)
+        # c = Buffer.new(type, size, page_locked: true)
+        b = Buffer.new(type, size)
+        c = Buffer.new(type, size)
+        d = Buffer.new(type, size)
+        e = Buffer.new(type, size)
+        p = CUDevice.malloc(nbytes)
+        q = CUDevice.malloc(nbytes)
+        r = CUDevice.malloc(nbytes)
 
-            (0...size).each do |i|
-                b[i] = i
-                c[i] = 0
-                d[i] = 0
-                e[i] = 0
-            end
-            memcpy_htod(p, b, size*cBuffer.element_size)
-            memcpy_dtoh(c, p, size*cBuffer.element_size)
-            (0...size).each do |i|
-                assert_equal(b[i], c[i])
-            end
-
-            (0...size).each do |i|
-                b[i] = 2*i
-                c[i] = 0
-            end
-            memcpy_htod_async(p, b, size*cBuffer.element_size, 0)
-            memcpy_dtoh_async(c, p, size*cBuffer.element_size, 0)
-            CUContext.synchronize
-            (0...size).each do |i|
-                assert_equal(b[i], c[i])
-            end
-
-            memcpy_dtod(q, p, size*cBuffer.element_size)
-            CUContext.synchronize
-            memcpy_dtoh(d, q, size*cBuffer.element_size)
-            (0...size).each do |i|
-                assert_equal(b[i], d[i])
-            end
-
-            memcpy_dtod_async(r, p, size*cBuffer.element_size, 0)
-            CUContext.synchronize
-            memcpy_dtoh(e, r, size*cBuffer.element_size)
-            (0...size).each do |i|
-                assert_equal(b[i], e[i])
-            end
-
-            p.mem_free
-            q.mem_free
-            r.mem_free
+        (0...size).each do |i|
+            b[i] = i
+            c[i] = 0
+            d[i] = 0
+            e[i] = 0
         end
+        memcpy_htod(p, b, nbytes)
+        memcpy_dtoh(c, p, nbytes)
+        (0...size).each do |i|
+            assert_equal(b[i], c[i])
+        end
+
+        (0...size).each do |i|
+            b[i] = 2*i
+            c[i] = 0
+        end
+        # memcpy_htod_async(p, b, nbytes, 0)
+        # memcpy_dtoh_async(c, p, nbytes, 0)
+        CUContext.synchronize
+        # (0...size).each do |i|
+        #     assert_equal(b[i], c[i])
+        # end
+
+        memcpy_dtod(q, p, nbytes)
+        CUContext.synchronize
+        memcpy_dtoh(d, q, nbytes)
+        # (0...size).each do |i|
+        #     assert_equal(b[i], d[i])
+        # end
+
+        # memcpy_dtod_async(r, p, size*cBuffer.element_size, 0)
+        CUContext.synchronize
+        memcpy_dtoh(e, r, nbytes)
+        # (0...size).each do |i|
+        #     assert_equal(b[i], e[i])
+        # end
+
+        p.free
+        q.free
+        r.free
     end
 
     def test_memory_get_info
-        info = mem_get_info
+        info = mem_info
         assert(info[:free] >= 0)
         assert(info[:total] >= 0)
     end
@@ -716,7 +672,7 @@ private
     end
 
     def assert_device_name(dev)
-        assert(dev.get_name.size > 0, "Device name failed.")
+        assert(dev.name.size > 0, "Device name failed.")
     end
 
     def assert_device_memory_size(dev)
@@ -729,7 +685,7 @@ private
     end
 
     def assert_device_properties(dev)
-        p = dev.get_properties
+        p = dev.properties
         assert(p[:clock_rate] > 0)
         assert(p[:max_threads_per_block] > 0)
         assert(p[:mem_pitch] > 0)
@@ -738,46 +694,46 @@ private
         assert(p[:simd_width] > 0)
         assert(p[:texture_align] > 0)
         assert(p[:total_constant_memory] > 0)
-        assert_instance_of(Array, p[:max_grid_size])
-        assert_equal(3, p[:max_grid_size].size)
-        assert_instance_of(Array, p[:max_threads_dim])
-        assert_equal(3, p[:max_threads_dim].size)
+        assert_equal(3, p[:max_grid_size].count)
+        assert_kind_of(Integer, p[:max_grid_size][0])
+        assert_kind_of(Integer, p[:max_grid_size][1])
+        assert_kind_of(Integer, p[:max_grid_size][2])
+        assert_equal(3, p[:max_threads_dim].count)
+        assert_kind_of(Integer, p[:max_threads_dim][0])
+        assert_kind_of(Integer, p[:max_threads_dim][1])
+        assert_kind_of(Integer, p[:max_threads_dim][2])
     end
 
     def assert_function_launch(size)
-        assert_nothing_raised do
-            cBuffer = Int32Buffer
-            da = CUDevicePtr.new.mem_alloc(size*cBuffer.element_size)
-            db = CUDevicePtr.new.mem_alloc(size*cBuffer.element_size)
-            dc = CUDevicePtr.new.mem_alloc(size*cBuffer.element_size)
-            ha = cBuffer.new(size)
-            hb = cBuffer.new(size)
-            hc = Array.new(size)
-            hd = cBuffer.new(size)
-            (0...size).each { |i|
-                ha[i] = i
-                hb[i] = 1
-                hc[i] = ha[i] + hb[i]
-                hd[i] = 0
-            }
-            memcpy_htod(da, ha, size*cBuffer.element_size)
-            memcpy_htod(db, hb, size*cBuffer.element_size)
-            @func.set_param(da, db, dc, size)
+        type = :int
+        element_size = 4
+        nbytes = size*element_size
+        da = CUDevice.malloc(nbytes)
+        db = CUDevice.malloc(nbytes)
+        dc = CUDevice.malloc(nbytes)
+        ha = Buffer.new(type, size)
+        hb = Buffer.new(type, size)
+        hc = Array.new(size)
+        hd = Buffer.new(type, size)
+        (0...size).each { |i|
+            ha[i] = i
+            hb[i] = 1
+            hc[i] = ha[i] + hb[i]
+            hd[i] = 0
+        }
+        memcpy_htod(da, ha, nbytes)
+        memcpy_htod(db, hb, nbytes)
+        @func.param = da, db, dc, size
 
-            yield @func
+        yield @func
 
-            memcpy_dtoh(hd, dc, size*cBuffer.element_size)
-            (0...size).each { |i|
-                assert_equal(hc[i], hd[i])
-            }
-            da.mem_free
-            db.mem_free
-            dc.mem_free
-        end
-    end
-
-    def assert_const_in_class(klass, v)
-        assert_not_nil(klass.constants.find { |k| klass.const_get(k) == v })
+        memcpy_dtoh(hd, dc, nbytes)
+        (0...size).each { |i|
+            assert_equal(hc[i], hd[i])
+        }
+        da.free
+        db.free
+        dc.free
     end
 
     def prepare_ptx
