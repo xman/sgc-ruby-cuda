@@ -237,14 +237,14 @@ class TestRubyCuda < Test::Unit::TestCase
         memcpy_htod(p, b, nbytes)
         memcpy_dtoh(c, p, nbytes)
         (0...size).each do |i|
-            assert_equal(a[i], c[i])
+            assert_equal(b[i], c[i])
         end
 
         memcpy_dtod(q, p, nbytes)
         CudaThread.synchronize
         memcpy_dtoh(d, q, nbytes)
         (0...size).each do |i|
-            assert_equal(a[i], d[i])
+            assert_equal(b[i], d[i])
         end
 
         CudaDeviceMemory.free(p)
