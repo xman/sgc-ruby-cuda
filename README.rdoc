@@ -4,17 +4,18 @@ SGC-Ruby-CUDA implements Ruby bindings to Nvidia CUDA SDK. It provides easy
 access to CUDA-enabled GPU from a Ruby program.
 
 SGC-Ruby-CUDA is incomplete in many ways. Currently, it supports only some
-crucial CUDA Driver API functions. We aim to include the supports for most CUDA
-Driver API and CUDA Runtime API functions.
+crucial CUDA Driver and Runtime API functions. We hope to expand the coverage
+as much as possible.
 
-SGC-Ruby-CUDA is tested on 64bit Fedora 14. We have not tested it against
-32bit Linux OS and Windows. We certainly wish to improve the code base to
-support multiple platforms in the future.
+SGC-Ruby-CUDA is tested on 64bit Fedora 14. We are looking forward to support
+Mac OSX. We have not tested it against 32bit Linux OS and Windows. We certainly
+wish to improve the code base to support multiple platforms in the future.
+We also welcome CUDA users to test it against their working environments.
 
-Current development will focus on supporting CUDA Toolkit 3.2.
+Current development will focus on supporting CUDA Toolkit 4.0.
 
-Check out doc/features.rdoc for the supported CUDA features.
-Also see doc/devel.rdoc for the latest development plan.
+Check out {file:doc/features.rdoc} for the supported CUDA features.
+Also see {file:doc/devel.rdoc} for the latest development plan.
 
 
 Fedora and the Infinity design logo are trademarks of Red Hat, Inc.
@@ -33,18 +34,22 @@ and other countries.
 The Ruby bindings, Ruby CUDA API, which deal directly with Nvidia CUDA SDK C/C++
 bindings retain the CUDA Driver and Runtime API in a systematic way whenever
 possible. This facilitates developers familiar with CUDA C who should be able to
-use SGC-Ruby-CUDA with minimum effort.
+use SGC-Ruby-CUDA with minimum effort. At times, we may design the API to be
+more Ruby-like and let go unnecessary API structure in modern programming
+language.
 
-Ruby classes and methods to ease the use of the API or making CUDA the
-Ruby way would be built on top of the Ruby CUDA API.
+We use Ruby-FFI as a bridge to call the CUDA C API. Ruby classes and methods to
+are built on top. The use of Ruby-FFI would ease the support of multiple Ruby
+interpretors.
 
 
 == Prerequisites
 
 * Ruby         (Tested with Ruby 1.9.2)
-* Ruby-FFI     (Tested with Ruby-FFI 1.0.1)
-* CUDA Toolkit (Tested with CUDA Toolkit 3.1 and 3.2)
-* C++ compiler (Tested with GCC 4.5.1)
+* Ruby-FFI     (Tested with Ruby-FFI 1.0.7)
+* CUDA Toolkit (Tested with CUDA Toolkit 4.0)
+* C++ compiler (Tested with GCC 4.6.0 but requires simple patch to CUDA Toolkit)
+* Yard         (Tested with Yard 0.6.7, required for generating documentations)
 
 
 == How to get SGC-Ruby-CUDA
@@ -64,6 +69,28 @@ However, they are highly volatile and _rebase_ may be applied for cleaner
 commits. The devel* branches serve as grace period before commits move into
 mainstream or master branches which are considered stable commits. This would
 minimize unnecessary fixing commits.
+
+
+== Getting started
+
+    # Setup the environment. Assuming the CUDA Toolkit is installed in
+    # the default path /usr/local/cuda.
+
+    # For 64bit Linux:
+    export CPATH="/usr/local/cuda/include"
+    export LIBRARY_PATH="/usr/local/cuda/lib64"
+    export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+    export PATH="/usr/local/cuda/bin:$PATH"
+
+    gem install ffi
+    cd sgc-ruby-cuda
+    rake test
+    # Check out the test cases in test/ on how to use Ruby CUDA API.
+
+    gem install yard
+    cd sgc-ruby-cuda
+    rake yard
+    # Check out the generated documentations in html/index.html with a browser.
 
 
 == License

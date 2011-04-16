@@ -10,9 +10,19 @@ consistently and catching up the development of Nvidia CUDA SDK.
 === On-going
 * Include Ruby bindings for the use of CUDA compiler to compile a .cu file to
   generate a .ptx file.
+* Supporting CUDA Toolkit 4.0.
 
 === Todo
 * Port some CUDA samples to SGC-Ruby-CUDA with benchmark.
+* Develop sample programs.
+
+
+== Creating Ruby bindings for using CUDA Driver API on Mac Platform
+
+=== On-going
+* Porting Ruby CUDA to run on Mac OSX.
+
+=== Todo
 
 
 == Towards robust development of Ruby CUDA Driver API
@@ -20,7 +30,6 @@ consistently and catching up the development of Nvidia CUDA SDK.
 === On-going
 
 === Todo
-* Document the API details.
 * Update the memory abstraction or parameter passing.
   * To allow one to specify a paramater as a float or double, int or long, etc.
   * To provide memory buffers for more data types?
@@ -28,13 +37,19 @@ consistently and catching up the development of Nvidia CUDA SDK.
 
 == Creating Ruby bindings for using CUDA Runtime API on Linux Platform
 
+=== On-going
+* Supporting CUDA Toolkit 4.0.
+
 === Todo
-* Investigate on how to support CUDA Runtime API? using Ruby C API or Ruby
-  classes with rubycu?
-* Investigate Runtime APIs that are significantly different from the Driver API.
-* Develop Ruby bindings for CUDA Runtime API with rdoc.
-* Develop test cases.
 * Develop sample programs.
+
+
+== Creating Ruby bindings for using CUDA Runtime API on Mac Platform
+
+=== On-going
+* Porting Ruby CUDA to run on Mac OSX.
+
+=== Todo
 
 
 == Towards portable platform - supporting Linux, Mac, Windows
@@ -62,12 +77,3 @@ consistently and catching up the development of Nvidia CUDA SDK.
 === Todo
 * Identify existing benchmarking suites for GPU.
 * Porting existing CUDA kernels and benchmark programs to SGC-Ruby-CUDA.
-
-
-== Supporting multiple GPUs
-
-=== Todo
-* Test the use of multiple contexts on the same GPU in rubycu.
-* Test the use of multiple contexts with multiple threads on the same GPU.
-* Test the use of multiple contexts on multiple GPUs.
-* Write test cases for testing multiple GPUs.

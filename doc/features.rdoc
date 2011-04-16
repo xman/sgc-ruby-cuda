@@ -1,4 +1,4 @@
-== Supported CUDA 3.2 Driver API Modules
+== Supported CUDA 4.0 Driver API Modules
 
     * Fully supported (excluding deprecated functions).
     + Partially supported.
@@ -11,10 +11,12 @@
     Context Management                  *
     Module Management                   +
     Memory Management                   +
+    Unified Addressing                  -
+    Peer Context Memory Access          -
     Execution Control                   +
     Stream Management                   *
     Event Management                    *
-    Texture Reference Management        +
+    Texture Reference Management        -
     Surface Reference Management        -
     Graphics Interoperability           -
     OpenGL Interoperability             -
@@ -24,7 +26,7 @@
     VDPAU Interoperability              -
 
 
-== Supported CUDA 3.2 Runtime API Modules
+== Supported CUDA 4.0 Runtime API Modules
 
     * Fully supported (excluding deprecated functions).
     + Partially supported.
@@ -32,14 +34,16 @@
 
     Feature                         Supported?
     ------------------------------------------
-    Version Management                  -
-    Error Handling                      -
-    Device Management                   -
-    Thread Management                   -
-    Memory Management                   -
-    Execution Control                   -
-    Stream Management                   -
-    Event Management                    -
+    Version Management                  *
+    Error Handling                      *
+    Device Management                   +
+    Thread Management                   *
+    Memory Management                   +
+    Unified Addressing                  -
+    Peer Device Memory Access           -
+    Execution Control                   +
+    Stream Management                   *
+    Event Management                    *
     Texture Reference Management        -
     Surface Reference Management        -
     C++ API Routines                    -
