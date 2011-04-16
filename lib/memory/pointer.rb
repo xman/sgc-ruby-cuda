@@ -35,7 +35,7 @@ class MemoryPointer
     # @return A memory pointer pointing to address _addr_.
     def initialize(addr = nil)
         @p = FFI::MemoryPointer.new(:pointer)
-        @p.write_pointer(addr)
+        @p.write_long(addr.to_i)
     end
 
 
