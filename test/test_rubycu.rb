@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------
-# Copyright (c) 2010 Chung Shin Yee
+# Copyright (c) 2010-2011 Chung Shin Yee
 #
 #       shinyee@speedgocomputing.com
 #       http://www.speedgocomputing.com
@@ -28,15 +28,13 @@ require 'memory/pointer'
 
 include SGC::CU
 
-DEVID = ENV['DEVID'].to_i
-
 CUInit.init
 
 
 class TestRubyCU < Test::Unit::TestCase
 
     def setup
-        @dev = CUDevice.get(DEVID)
+        @dev = CUDevice.get(ENV['DEVID'].to_i)
         @ctx = CUContext.create(@dev)
         @mod = prepare_loaded_module
         @func = @mod.function("vadd")
@@ -62,7 +60,7 @@ class TestRubyCU < Test::Unit::TestCase
     end
 
     def test_device_query
-        d = CUDevice.get(DEVID)
+        d = @dev
         assert_instance_of(CUDevice, d)
         assert_device_name(d)
         assert_device_memory_size(d)
@@ -103,6 +101,13 @@ class TestRubyCU < Test::Unit::TestCase
             c = c.destroy
             assert_nil(c)
         end
+    end
+
+    def test_context_current
+        c = CUContext.current
+        assert_instance_of(CUContext, c)
+        d = CUContext.current = c
+        assert_instance_of(CUContext, d)
     end
 
     def test_context_attach_detach
@@ -241,7 +246,7 @@ class TestRubyCU < Test::Unit::TestCase
         devptr, nbytes = @mod.global('gvar')
         assert_equal(4, nbytes)
         u = Buffer.new(:int, 1)
-        memcpy_dtoh(u, devptr, nbytes)
+        CUMemory.memcpy_dtoh(u, devptr, nbytes)
         assert_equal(1997, u[0])
     end
 
@@ -257,18 +262,18 @@ class TestRubyCU < Test::Unit::TestCase
 
 #    def test_module_get_texref
 #        assert_nothing_raised do
-#            tex = @mod.get_texref('tex')
+#            tex = @mod.texref('tex')
 #            assert_not_nil(tex)
 #        end
 #    end
 
 #    def test_module_get_texref_with_invalid_name
 #        assert_raise(CUInvalidValueError) do
-#            tex = @mod.get_texref('')
+#            tex = @mod.texref('')
 #        end
 
 #        assert_raise(CUReferenceNotFoundError) do
-#            tex = @mod.get_texref('badname')
+#            tex = @mod.texref('badname')
 #        end
 #    end
 
@@ -293,8 +298,15 @@ class TestRubyCU < Test::Unit::TestCase
         assert_instance_of(CUFunction, f)
         f = @func.param_seti(4, 33)
         assert_instance_of(CUFunction, f)
+        v = Buffer.new(:int, 1)
+        f = @func.param_setv(0, v, 4)
+        assert_instance_of(CUFunction, f)
         f = @func.param_set_size(8)
         assert_instance_of(CUFunction, f)
+
+        da.free
+        db.free
+        dc.free
     end
 
     def test_function_set_block_shape
@@ -314,39 +326,48 @@ class TestRubyCU < Test::Unit::TestCase
     end
 
     def test_function_launch
-        assert_function_launch(10) do |f|
+        assert_function_launch(10) do |f, params|
+            f.param = params
             f.block_shape = 10
             f.launch
         end
     end
 
     def test_function_launch_grid
-        assert_function_launch(10) do |f|
+        assert_function_launch(10) do |f, params|
+            f.param = params
             f.block_shape = 10
             f.launch_grid(1)
         end
 
-        assert_function_launch(20) do |f|
+        assert_function_launch(20) do |f, params|
+            f.param = params
             f.block_shape = 5
             f.launch_grid(4)
         end
     end
 
-=begin
+    def test_function_launch_kernel
+        assert_function_launch(30) do |f, params|
+            f.launch_kernel(3, 1, 1, 10, 1, 1, 0, 0, params)
+        end
+    end
+
     def test_function_launch_async
         assert_nothing_raised do
-            assert_function_launch(10) do |f|
-                f.set_block_shape(10)
+            assert_function_launch(10) do |f, params|
+                f.param = params
+                f.block_shape = 10
                 f.launch_grid_async(1, 0)
             end
 
-            assert_function_launch(20) do |f|
-                f.set_block_shape(5)
+            assert_function_launch(20) do |f, params|
+                f.param = params
+                f.block_shape = 5
                 f.launch_grid_async(4, 0)
             end
         end
     end
-=end
 
     def test_function_get_attribute
         CUFunctionAttribute.symbols.each do |k|
@@ -481,11 +502,6 @@ class TestRubyCU < Test::Unit::TestCase
 =end
 
     def test_buffer_initialize
-        # b = MemoryBuffer.new(16)
-        # assert_instance_of(MemoryBuffer, b)
-        # assert_equal(false, b.page_locked?)
-        # assert_equal(16, b.size)
-
         b = Buffer.new(:int, 10)
         assert_instance_of(Buffer, b)
         # assert_equal(false, b.page_locked?)
@@ -500,49 +516,14 @@ class TestRubyCU < Test::Unit::TestCase
         assert_instance_of(Buffer, b)
         # assert_equal(false, b.page_locked?)
         assert_equal(30, b.size)
-
-        # b = Float64Buffer.new(40)
-        # assert_instance_of(Float64Buffer, b)
-        # assert_equal(false, b.page_locked?)
-        # assert_equal(40, b.size)
     end
 
     def test_buffer_initialize_page_locked
-=begin
-        b = MemoryBuffer.new(16, page_locked: true)
-        assert_instance_of(MemoryBuffer, b)
-        assert_equal(true, b.page_locked?)
-        assert_equal(16, b.size)
-
-            b = Int32Buffer.new(10, page_locked: true)
-            assert_instance_of(Int32Buffer, b)
-            assert_equal(true, b.page_locked?)
-            assert_equal(10, b.size)
-
-            b = Int64Buffer.new(20, page_locked: true)
-            assert_instance_of(Int64Buffer, b)
-            assert_equal(true, b.page_locked?)
-            assert_equal(20, b.size)
-
-            b = Float32Buffer.new(30, page_locked: true)
-            assert_instance_of(Float32Buffer, b)
-            assert_equal(true, b.page_locked?)
-            assert_equal(30, b.size)
-
-            b = Float64Buffer.new(40, page_locked: true)
-            assert_instance_of(Float64Buffer, b)
-            assert_equal(true, b.page_locked?)
-            assert_equal(40, b.size)
-        end
-=end
     end
 
     def test_buffer_element_size
-        # assert_equal(1, Buffer.element_size)
-        # assert_equal(4, Int32Buffer.element_size)
-        # assert_equal(8, Int64Buffer.element_size)
-        # assert_equal(4, Float32Buffer.element_size)
-        # assert_equal(8, Float64Buffer.element_size)
+        assert_equal(4, Buffer.element_size(:int))
+        assert_equal(4, Buffer.element_size(:float))
     end
 
     def test_buffer_offset
@@ -561,19 +542,9 @@ class TestRubyCU < Test::Unit::TestCase
         b = Buffer.new(:float, 10)
         c = b.offset(4)
         assert_kind_of(MemoryPointer, c)
-
-        # b = Float64Buffer.new(10)
-        # c = b.offset(5)
-        # assert_kind_of(MemoryPointer, c)
     end
 
     def test_buffer_access
-        # b = Buffer.new(:char, 16)
-        # b[0] = 127
-        # assert_equal(127, b[0])
-        # b[15] = 128
-        # assert_not_equal(128, b[15])
-
         b = Buffer.new(:int, 10)
         b[0] = 10
         assert_equal(10, b[0])
@@ -591,12 +562,6 @@ class TestRubyCU < Test::Unit::TestCase
         assert_in_delta(3.14, b[2])
         b[8] = 9.33
         assert_in_delta(9.33, b[8])
-
-        # b = Float64Buffer.new(10)
-        # b[1] = 3.14
-        # assert_in_delta(3.14, b[1])
-        # b[6] = 9.33
-        # assert_in_delta(9.33, b[6])
     end
 
     def test_memory_copy
@@ -620,8 +585,9 @@ class TestRubyCU < Test::Unit::TestCase
             d[i] = 0
             e[i] = 0
         end
-        memcpy_htod(p, b, nbytes)
-        memcpy_dtoh(c, p, nbytes)
+
+        CUMemory.memcpy_htod(p, b, nbytes)
+        CUMemory.memcpy_dtoh(c, p, nbytes)
         (0...size).each do |i|
             assert_equal(b[i], c[i])
         end
@@ -630,26 +596,42 @@ class TestRubyCU < Test::Unit::TestCase
             b[i] = 2*i
             c[i] = 0
         end
-        # memcpy_htod_async(p, b, nbytes, 0)
-        # memcpy_dtoh_async(c, p, nbytes, 0)
+        CUMemory.memcpy_htod_async(p, b, nbytes, 0)
+        CUMemory.memcpy_dtoh_async(c, p, nbytes, 0)
         CUContext.synchronize
-        # (0...size).each do |i|
-        #     assert_equal(b[i], c[i])
-        # end
+        (0...size).each do |i|
+            assert_equal(b[i], c[i])
+        end
 
-        memcpy_dtod(q, p, nbytes)
+        CUMemory.memcpy_dtod(q, p, nbytes)
         CUContext.synchronize
-        memcpy_dtoh(d, q, nbytes)
-        # (0...size).each do |i|
-        #     assert_equal(b[i], d[i])
-        # end
+        CUMemory.memcpy_dtoh(d, q, nbytes)
+        (0...size).each do |i|
+            assert_equal(b[i], d[i])
+        end
 
-        # memcpy_dtod_async(r, p, size*cBuffer.element_size, 0)
+        CUMemory.memcpy_dtod_async(r, p, size*element_size, 0)
         CUContext.synchronize
-        memcpy_dtoh(e, r, nbytes)
-        # (0...size).each do |i|
-        #     assert_equal(b[i], e[i])
-        # end
+        CUMemory.memcpy_dtoh(e, r, nbytes)
+        (0...size).each do |i|
+            assert_equal(b[i], e[i])
+        end
+
+        if false    # FIXME: The memcpy is not working.
+        if @dev.attribute(:UNIFIED_ADDRESSING) > 0
+            (0...size).each do |i|
+                b[i] = i
+                c[i] = 0
+                d[i] = 0
+                e[i] = 0
+            end
+            CUMemory.memcpy(p, b, nbytes)
+            CUMemory.memcpy(c, p, nbytes)
+            (0...size).each do |i|
+                assert_equal(b[i], c[i])
+            end
+        end
+        end
 
         p.free
         q.free
@@ -657,7 +639,7 @@ class TestRubyCU < Test::Unit::TestCase
     end
 
     def test_memory_get_info
-        info = mem_info
+        info = CUMemory.mem_info
         assert(info[:free] >= 0)
         assert(info[:total] >= 0)
     end
@@ -721,13 +703,12 @@ private
             hc[i] = ha[i] + hb[i]
             hd[i] = 0
         }
-        memcpy_htod(da, ha, nbytes)
-        memcpy_htod(db, hb, nbytes)
-        @func.param = da, db, dc, size
+        CUMemory.memcpy_htod(da, ha, nbytes)
+        CUMemory.memcpy_htod(db, hb, nbytes)
 
-        yield @func
+        yield @func, [da, db, dc, size]
 
-        memcpy_dtoh(hd, dc, nbytes)
+        CUMemory.memcpy_dtoh(hd, dc, nbytes)
         (0...size).each { |i|
             assert_equal(hc[i], hd[i])
         }
