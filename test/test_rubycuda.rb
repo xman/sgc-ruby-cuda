@@ -28,13 +28,11 @@ require 'memory/pointer'
 
 include SGC::Cuda
 
-DEVID = ENV['DEVID'].to_i
-
 
 class TestRubyCuda < Test::Unit::TestCase
 
     def setup
-        CudaDevice.current = DEVID
+        CudaDevice.current = ENV['DEVID'].to_i
     end
 
     def teardown
