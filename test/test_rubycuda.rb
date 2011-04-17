@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------
-# Copyright (c) 2010 Chung Shin Yee
+# Copyright (c) 2011 Chung Shin Yee
 #
 #       shinyee@speedgocomputing.com
 #       http://www.speedgocomputing.com
