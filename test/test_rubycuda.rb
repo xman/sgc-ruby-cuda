@@ -23,6 +23,7 @@
 #-----------------------------------------------------------------------
 
 require 'test/unit'
+require 'tempfile'
 require 'rubycuda'
 require 'memory/pointer'
 
@@ -389,10 +390,27 @@ class TestRubyCuda < Test::Unit::TestCase
 private
 
     def prepare_kernel_lib
-        if File.exists?('test/libvadd.so') == false || File.mtime('test/vadd.cu') > File.mtime('test/libvadd.so')
-            system %{cd test; nvcc -shared -Xcompiler -fPIC vadd.cu -o libvadd.so}
+        src_file = 'test/vadd.cu'
+        lib_file = 'test/libvadd.so'
+        if File.exists?(lib_file) == false || File.mtime(src_file) > File.mtime(lib_file)
+            nvcc_build_dynamic_library(src_file, lib_file)
         end
-        'test/libvadd.so'
+        lib_file
+    end
+
+    def nvcc_build_dynamic_library(src_path, lib_path)
+        case RUBY_PLATFORM
+            when /darwin/    # Build universal binary for i386 and x86_64 platforms.
+                f32 = Tempfile.new("rubycuda_test32.so")
+                f64 = Tempfile.new("rubycuda_test64.so")
+                f32.close
+                f64.close
+                system %{nvcc -shared -m32 -Xcompiler -fPIC #{src_path} -o #{f32.path}}
+                system %{nvcc -shared -m64 -Xcompiler -fPIC #{src_path} -o #{f64.path}}
+                system %{lipo -arch i386 #{f32.path} -arch x86_64 #{f64.path} -create -output #{lib_path}}
+            else    # Build default platform binary.
+                system %{nvcc -shared -Xcompiler -fPIC #{src_path} -o #{lib_path}}
+        end
     end
 
 end
