@@ -28,18 +28,23 @@ require 'cuda/runtime/ffi-cuda'
 module SGC
 module Cuda
 
+    # @param [Integer, CudaError] e A CUDA error value or label.
+    # @return [String] The error string of _e_.
     def get_error_string(e)
         API::cudaGetErrorString(e)
     end
     module_function :get_error_string
 
 
+    # @return [Integer] The error value of the last CUDA error.
     def get_last_error
         API::cudaGetLastError
     end
     module_function :get_last_error
 
 
+    # Return the last CUDA error, but do not reset the error.
+    # @return [Integer] The error value of the last CUDA error.
     def peek_at_last_error
         API::cudaPeekAtLastError
     end
