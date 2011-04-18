@@ -31,7 +31,7 @@ module CU
 
 class CUFunction
 
-    # @deprecated
+    # @deprecated Use {#launch_kernel}.
     #
     # Set the argument list of subsequent function call to _arg1_, _arg2_, *other_args.
     # @param *args The list of arguments to pass to the kernel function.
@@ -67,7 +67,7 @@ class CUFunction
     end
 
 
-    # @deprecated
+    # @deprecated Use {#launch_kernel}.
     #
     # Set a float parameter to the function's argument list at _offset_ with _value_.
     # @param [Integer] offset Number of bytes to offset.
@@ -80,7 +80,7 @@ class CUFunction
     end
 
 
-    # @deprecated
+    # @deprecated Use {#launch_kernel}.
     #
     # Set an integer parameter to the function's argument list at _offset_ with _value_.
     # @param [Integer] offset Number of bytes to offset.
@@ -93,7 +93,7 @@ class CUFunction
     end
 
 
-    # @deprecated
+    # @deprecated Use {#launch_kernel}.
     #
     # Set an arbitrary data to the function's argument list at _offset_ with _ptr_ pointed _nbytes_ data.
     # @param [Integer] offset Number of bytes to offset.
@@ -107,7 +107,7 @@ class CUFunction
     end
 
 
-    # @deprecated
+    # @deprecated Use {#launch_kernel}.
     #
     # Set the function parameter size to _nbytes_.
     # @param [Integer] nbytes The parameter size in bytes.
@@ -126,7 +126,7 @@ class CUFunction
     end
 
 
-    # @deprecated
+    # @deprecated Use {#launch_kernel}.
     #
     # Set the block dimensions to use for next launch.
     # @overload block_shape=(xdim)
@@ -146,7 +146,7 @@ class CUFunction
     end
 
 
-    # @deprecated
+    # @deprecated Use {#launch_kernel}.
     #
     # Set the dynamic shared-memory size to use for next launch.
     # @param [Integer] nbytes Number of bytes.
@@ -158,7 +158,7 @@ class CUFunction
     end
 
 
-    # @deprecated
+    # @deprecated Use {#launch_kernel}.
     #
     # Launch this kernel function with 1x1x1 grid of blocks to execute on the current CUDA device.
     # @return [CUFunction] This function.
@@ -169,7 +169,7 @@ class CUFunction
     end
 
 
-    # @deprecated
+    # @deprecated Use {#launch_kernel}.
     #
     # Launch this kernel function with grid dimensions (_xdim_, _ydim_) to execute on the current CUDA device.
     # @overload launch_grid(xdim)
@@ -184,7 +184,7 @@ class CUFunction
     end
 
 
-    # @deprecated
+    # @deprecated Use {#launch_kernel}.
     #
     # Launch this kernel function with grid dimensions (_xdim_, _ydim_) on _stream_ asynchronously to execute
     # on the current CUDA device. Setting _stream_ to anything other than an instance of CUStream
