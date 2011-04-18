@@ -87,6 +87,10 @@ module CU
     # @see SGC::Helper::IEnum::ClassMethods
     class CUMemoryType < API::Enum; end
 
+    # @see API::CUPointerAttribute
+    # @see SGC::Helper::IEnum::ClassMethods
+    class CUPointerAttribute < API::Enum; end
+
     # @see API::CUJitOption
     # @see SGC::Helper::IEnum::ClassMethods
     class CUJitOption < API::Enum; end
@@ -102,6 +106,7 @@ module CU
     class CUDevProp < API::CUDevProp; end
     class CudaMemcpy2D < API::CudaMemcpy2D; end
     class CudaMemcpy3D < API::CudaMemcpy3D; end
+    class CudaMemcpy3DPeer < API::CudaMemcpy3DPeer; end
     class CudaArrayDescriptor < API::CudaArrayDescriptor; end
     class CudaArray3DDescriptor < API::CudaArray3DDescriptor; end
 
