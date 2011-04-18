@@ -47,7 +47,7 @@ module CU
 
     class CUContextError < CUStandardError; end
     class CUInvalidContextError < CUContextError; end
-    class CUContextAlreadyCurrentError < CUContextError; end
+    class CUContextAlreadyCurrentError < CUContextError; end # @deprecated
     class CUContextAlreadyInUseError < CUContextError; end
     class CUUnsupportedLimitError < CUContextError; end
     class CUPrimaryContextActiveError < CUContextError; end
