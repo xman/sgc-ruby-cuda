@@ -59,10 +59,6 @@ module CU
     # @see SGC::Helper::IEnum::ClassMethods
     class CUFunctionCache < API::Enum; end
 
-    # @see API::CUFunctionCache
-    # @see SGC::Helper::IEnum::ClassMethods
-    class CUFuncCache < API::Enum; end
-
     # @see API::CUEventFlags
     # @see SGC::Helper::IEnum::ClassMethods
     class CUEventFlags < API::Enum; end

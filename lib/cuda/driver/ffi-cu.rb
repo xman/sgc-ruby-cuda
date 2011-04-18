@@ -177,7 +177,6 @@ module API
         :PREFER_SHARED, 0x01,
         :PREFER_L1, 0x02,
     )
-    CUFuncCache = CUFunctionCache
 
     CUEventFlags = enum(
         :DEFAULT, 0,
