@@ -58,22 +58,22 @@ module CudaMemory
     module_function :memcpy
 
     def memcpy_htoh(dst_ptr, src_ptr, nbytes)
-        memcpy(dst_ptr, src_ptr, nbytes, :cudaMemcpyHostToHost)
+        memcpy(dst_ptr, src_ptr, nbytes, :HOST_TO_HOST)
     end
     module_function :memcpy_htoh
 
     def memcpy_htod(dst_ptr, src_ptr, nbytes)
-        memcpy(dst_ptr, src_ptr, nbytes, :cudaMemcpyHostToDevice)
+        memcpy(dst_ptr, src_ptr, nbytes, :HOST_TO_DEVICE)
     end
     module_function :memcpy_htod
 
     def memcpy_dtoh(dst_ptr, src_ptr, nbytes)
-        memcpy(dst_ptr, src_ptr, nbytes, :cudaMemcpyDeviceToHost)
+        memcpy(dst_ptr, src_ptr, nbytes, :DEVICE_TO_HOST)
     end
     module_function :memcpy_dtoh
 
     def memcpy_dtod(dst_ptr, src_ptr, nbytes)
-        memcpy(dst_ptr, src_ptr, nbytes, :cudaMemcpyDeviceToDevice)
+        memcpy(dst_ptr, src_ptr, nbytes, :DEVICE_TO_DEVICE)
     end
     module_function :memcpy_dtod
 

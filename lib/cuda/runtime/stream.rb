@@ -91,5 +91,17 @@ class CudaStream
 
 end
 
+# @private
+module Pvt
+
+    def self.parse_stream(stream)
+        if stream.kind_of?(CudaStream)
+            return stream.to_api
+        end
+        nil
+    end
+
+end
+
 end # module
 end # module

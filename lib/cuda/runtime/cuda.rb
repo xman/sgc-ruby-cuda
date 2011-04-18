@@ -31,15 +31,18 @@ module Cuda
 
     include SGC::Memory
 
-    CudaError_t = CudaError = API::CudaError
+    CudaError = API::CudaError
     CudaDeviceFlags = API::CudaDeviceFlags
     CudaEventFlags = API::CudaEventFlags
     CudaHostAllocFlags = API::CudaHostAllocFlags
+    CudaHostRegisterFlags = API::CudaHostRegisterFlags
     CudaArrayFlags = API::CudaArrayFlags
+    CudaMemoryType = API::CudaMemoryType
     CudaMemcpyKind = API::CudaMemcpyKind
     CudaChannelFormatKind = API::CudaChannelFormatKind
     CudaFuncCache = API::CudaFuncCache
     CudaLimit = API::CudaLimit
+    CudaOutputMode = API::CudaOutputMode
     CudaComputeMode = API::CudaComputeMode
     CudaSurfaceBoundaryMode = API::CudaSurfaceBoundaryMode
     CudaSurfaceFormatMode = API::CudaSurfaceFormatMode

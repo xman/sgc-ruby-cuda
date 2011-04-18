@@ -25,6 +25,7 @@
 require 'cuda/runtime/ffi-cuda'
 require 'cuda/runtime/cuda'
 require 'cuda/runtime/error'
+require 'cuda/runtime/stream'
 require 'memory/pointer'
 require 'dl'
 
@@ -64,8 +65,16 @@ class CudaFunction
     end
 
 
+    # Configure the settings for the next kernel launch.
+    # @param [Dim3] grid_dim The 3D grid dimensions x, y, z to launch.
+    # @param [Dim3] block_dim The 3D block dimensions x, y, z to launch.
+    # @param [Integer] shared_mem_size Number of bytes of dynamic shared memory for each thread block.
+    # @param [Integer, CudaStream] stream The stream to launch this kernel function on.
+    #     Setting _stream_ to anything other than an instance of CudaStream will execute on the default stream 0.
+    # @return [Class] This class.
     def self.configure(grid_dim, block_dim, shared_mem_size = 0, stream = 0)
-        status = API::cudaConfigureCall(grid_dim, block_dim, shared_mem_size, stream)
+        s = Pvt::parse_stream(stream)
+        status = API::cudaConfigureCall(grid_dim, block_dim, shared_mem_size, s)
         Pvt::handle_error(status)
         self
     end
@@ -117,13 +126,14 @@ class CudaFunction
         self
     end
 
-protected
+
+    @@libs = [] # @private
+
+private
 
     def self.align_up(offset, alignment)
         (offset + alignment - 1) & ~(alignment - 1)
     end
-
-    @@libs = []
 
 end
 
