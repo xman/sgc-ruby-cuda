@@ -433,6 +433,16 @@ class TestRubyCU < Test::Unit::TestCase
         assert_instance_of(CUEvent, e)
         e = e.destroy
         assert_nil(e)
+
+        e = CUEvent.create(:DEFAULT, :BLOCKING_SYNC)
+        assert_instance_of(CUEvent, e)
+        e = e.destroy
+        assert_nil(e)
+
+        e = CUEvent.create([:BLOCKING_SYNC, :DISABLE_TIMING])
+        assert_instance_of(CUEvent, e)
+        e = e.destroy
+        assert_nil(e)
     end
 
     def test_event_record_synchronize_query
