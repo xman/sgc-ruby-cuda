@@ -31,56 +31,23 @@ module CU
 
     include SGC::Memory
 
-    # @see API::CUResult
-    class CUResult < API::Enum; end
-
-    # @see API::CUComputeMode
-    class CUComputeMode < API::Enum; end
-
-    # @see API::CUDeviceAttribute
-    class CUDeviceAttribute < API::Enum; end
-
-    # @see API::CUContextFlags
-    class CUContextFlags < API::Enum; end
-
-    # @see API::CULimit
-    class CULimit < API::Enum; end
-
-    # @see API::CUFunctionAttribute
-    class CUFunctionAttribute < API::Enum; end
-
-    # @see API::CUFunctionCache
-    class CUFunctionCache < API::Enum; end
-
-    # @see API::CUEventFlags
-    class CUEventFlags < API::Enum; end
-
-    # @see API::CUAddressMode
-    class CUAddressMode < API::Enum; end
-
-    # @see API::CUFilterMode
-    class CUFilterMode < API::Enum; end
-
-    # @see API::CUTexRefFlags
-    class CUTexRefFlags < API::Enum; end
-
-    # @see API::CUArrayFormat
-    class CUArrayFormat < API::Enum; end
-
-    # @see API::CUMemoryType
-    class CUMemoryType < API::Enum; end
-
-    # @see API::CUPointerAttribute
-    class CUPointerAttribute < API::Enum; end
-
-    # @see API::CUJitOption
-    class CUJitOption < API::Enum; end
-
-    # @see API::CUJitFallBack
-    class CUJitFallBack < API::Enum; end
-
-    # @see API::CUJitTarget
-    class CUJitTarget < API::Enum; end
+    class CUResult < API::Enum; end # @see API::CUResult
+    class CUComputeMode < API::Enum; end # @see API::CUComputeMode
+    class CUDeviceAttribute < API::Enum; end # @see API::CUDeviceAttribute
+    class CUContextFlags < API::Enum; end # @see API::CUContextFlags
+    class CULimit < API::Enum; end # @see API::CULimit
+    class CUFunctionAttribute < API::Enum; end # @see API::CUFunctionAttribute
+    class CUFunctionCache < API::Enum; end # @see API::CUFunctionCache
+    class CUEventFlags < API::Enum; end # @see API::CUEventFlags
+    class CUAddressMode < API::Enum; end # @see API::CUAddressMode
+    class CUFilterMode < API::Enum; end # @see API::CUFilterMode
+    class CUTexRefFlags < API::Enum; end # @see API::CUTexRefFlags
+    class CUArrayFormat < API::Enum; end # @see API::CUArrayFormat
+    class CUMemoryType < API::Enum; end # @see API::CUMemoryType
+    class CUPointerAttribute < API::Enum; end # @see API::CUPointerAttribute
+    class CUJitOption < API::Enum; end # @see API::CUJitOption
+    class CUJitFallBack < API::Enum; end # @see API::CUJitFallBack
+    class CUJitTarget < API::Enum; end # @see API::CUJitTarget
 
     class CUDevProp < API::CUDevProp; end
     class CudaMemcpy2D < API::CudaMemcpy2D; end
