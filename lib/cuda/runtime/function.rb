@@ -44,7 +44,7 @@ class CudaFunction
 
 
     def attributes
-        a = CudaFuncAttributes.new
+        a = CudaFunctionAttributes.new
         status = API::cudaFuncGetAttributes(a.to_ptr, @name)
         Pvt::handle_error(status)
         a

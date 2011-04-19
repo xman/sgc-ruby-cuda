@@ -31,35 +31,35 @@ module Cuda
 
     include SGC::Memory
 
-    CudaError = API::CudaError
-    CudaDeviceFlags = API::CudaDeviceFlags
-    CudaEventFlags = API::CudaEventFlags
-    CudaHostAllocFlags = API::CudaHostAllocFlags
-    CudaHostRegisterFlags = API::CudaHostRegisterFlags
-    CudaArrayFlags = API::CudaArrayFlags
-    CudaMemoryType = API::CudaMemoryType
-    CudaMemcpyKind = API::CudaMemcpyKind
-    CudaChannelFormatKind = API::CudaChannelFormatKind
-    CudaFuncCache = API::CudaFuncCache
-    CudaLimit = API::CudaLimit
-    CudaOutputMode = API::CudaOutputMode
-    CudaComputeMode = API::CudaComputeMode
-    CudaSurfaceBoundaryMode = API::CudaSurfaceBoundaryMode
-    CudaSurfaceFormatMode = API::CudaSurfaceFormatMode
-    CudaTextureAddressMode = API::CudaTextureAddressMode
-    CudaTextureFilterMode = API::CudaTextureFilterMode
-    CudaTextureReadMode = API::CudaTextureReadMode
+    class CudaError < API::Enum; end # @see API::CudaError
+    class CudaDeviceFlags < API::Enum; end # @see API::CudaDeviceFlags
+    class CudaEventFlags < API::Enum; end # @see API::CudaEventFlags
+    class CudaHostAllocFlags < API::Enum; end # @see API::CudaHostAllocFlags
+    class CudaHostRegisterFlags < API::Enum; end # @see API::CudaHostRegisterFlags
+    class CudaArrayFlags < API::Enum; end # @see API::CudaArrayFlags
+    class CudaMemoryType < API::Enum; end # @see API::CudaMemoryType
+    class CudaMemcpyKind < API::Enum; end # @see API::CudaMemcpyKind
+    class CudaChannelFormatKind < API::Enum; end # @see API::CudaChannelFormatKind
+    class CudaFunctionCache < API::Enum; end # @see API::CudaFunctionCache
+    class CudaLimit < API::Enum; end # @see API::CudaLimit
+    class CudaOutputMode < API::Enum; end # @see API::CudaOutputMode
+    class CudaComputeMode < API::Enum; end # @see API::CudaComputeMode
+    class CudaSurfaceBoundaryMode < API::Enum; end # @see API::CudaSurfaceBoundaryMode
+    class CudaSurfaceFormatMode < API::Enum; end # @see API::CudaSurfaceFormatMode
+    class CudaTextureAddressMode < API::Enum; end # @see API::CudaTextureAddressMode
+    class CudaTextureFilterMode < API::Enum; end # @see API::CudaTextureFilterMode
+    class CudaTextureReadMode < API::Enum; end # @see API::CudaTextureReadMode
 
-    Dim3 = API::Dim3
-    CudaDeviceProp = API::CudaDeviceProp
-    CudaFuncAttributes = API::CudaFuncAttributes
-    CudaChannelFormatDesc = API::CudaChannelFormatDesc
-    CudaPitchedPtr = API::CudaPitchedPtr
-    CudaPos = API::CudaPos
-    CudaExtent = API::CudaExtent
-    CudaMemcpy3DParms = API::CudaMemcpy3DParms
-    TextureReference = API::TextureReference
-    SurfaceReference = API::SurfaceReference
+    class Dim3 < API::Dim3; end
+    class CudaDeviceProp < API::CudaDeviceProp; end
+    class CudaFunctionAttributes < API::CudaFunctionAttributes; end
+    class CudaChannelFormatDesc < API::CudaChannelFormatDesc; end
+    class CudaPitchedPtr < API::CudaPitchedPtr; end
+    class CudaPos < API::CudaPos; end
+    class CudaExtent < API::CudaExtent; end
+    class CudaMemcpy3DParms < API::CudaMemcpy3DParms; end
+    class TextureReference < API::TextureReference; end
+    class SurfaceReference < API::SurfaceReference; end
 
 end # module
 end # module

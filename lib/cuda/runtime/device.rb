@@ -66,7 +66,7 @@ class CudaDevice
 
 
     def self.properties(devid = self.get)
-        prop = API::CudaDeviceProp.new
+        prop = CudaDeviceProp.new
         status = API::cudaGetDeviceProperties(prop.to_ptr, devid)
         Pvt::handle_error(status)
         prop

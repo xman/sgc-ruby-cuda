@@ -44,7 +44,7 @@ class CudaThread
         p = FFI::MemoryPointer.new(:int)
         status = API::cudaThreadGetCacheConfig(p)
         Pvt::handle_error(status)
-        CudaFuncCache[p.read_int]
+        CudaFunctionCache[p.read_int]
     end
 
 
