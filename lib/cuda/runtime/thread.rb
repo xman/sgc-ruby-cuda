@@ -30,6 +30,7 @@ require 'cuda/runtime/error'
 module SGC
 module Cuda
 
+# @deprecated
 class CudaThread
 
     def self.exit
