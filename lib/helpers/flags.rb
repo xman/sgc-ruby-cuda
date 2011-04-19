@@ -25,12 +25,13 @@
 module SGC
 module Helper
 
-class Flags
+# Provide methods for evaluating the composite value of flags.
+# _self_ which _include/extend_ this module should implement {IEnum} interface.
+module FlagsValue
 
-    # @param [IEnum] e An enum that implements {IEnum} interface.
     # @param [Symbol, Integer, Array<Symbol, Integer>] *flags The list of flags to include in the returning value.
     # @raise [ArgumentError] Invalid symbol or value.
-    # @return [Integer] The composite value of the _flags_ with respect to _e_.
+    # @return [Integer] The composite value of the _flags_ with respect to _self_.
     #
     # @example Compute the composite value of flags with multiple symbols and integers.
     #     CUEventFlags.symbols            #=> [:DEFAULT, :BLOCKING_SYNC, :DISABLE_TIMING]
@@ -38,44 +39,42 @@ class Flags
     #     CUEventFlags[0]                 #=> :DEFAULT
     #     CUEventFlags[:BLOCKING_SYNC]    #=> 1
     #     CUEventFlags[1]                 #=> :BLOCKING_SYNC
-    #     Flags.value(CUEventFlags, :DISABLE_TIMING)                      #=> 2
-    #     Flags.value(CUEventFlags, :BLOCKING_SYNC, :DISABLE_TIMING)      #=> 3
-    #     Flags.value(CUEventFlags, [:BLOCKING_SYNC, :DISABLE_TIMING])    #=> 3
-    #     Flags.value(CUEventFlags, [ 1, :DISABLE_TIMING])                #=> 3
-    def self.value(e, *flags)
-        case flags
-            when Array
-                f = 0
-                flags.flatten.each do |x|
-                    case x
-                        when Symbol
-                            v = e[x] or raise_invalid_symbol(e, x)
-                            f |= v
-                        when Integer
-                            e[x] or raise_invalid_value(e, x)
-                            f |= x
-                        else
-                            raise ArgumentError, "Invalid flags: #{x.to_s}. Expect Symbol or Integer in the flags array."
-                    end
-                end
-                f
-            else raise ArgumentError, "Invalid flags: #{flags.to_s}. Expect Array<Symbol, Integer>, Symbol or Integer."
+    #     CUEventFlags.value(:DISABLE_TIMING)                      #=> 2
+    #     CUEventFlags.value(:BLOCKING_SYNC, :DISABLE_TIMING)      #=> 3
+    #     CUEventFlags.value([:BLOCKING_SYNC, :DISABLE_TIMING])    #=> 3
+    #     CUEventFlags.value([1, :DISABLE_TIMING])                 #=> 3
+    def value(*flags)
+        flags.empty? == false or raise ArgumentError, "No flags is provided. Expect Array<Symbol, Integer>, Symbol or Integer."
+
+        f = 0
+        flags.flatten.each do |x|
+            case x
+                when Symbol
+                    v = self[x] or Pvt::raise_invalid_symbol(x)
+                    f |= v
+                when Integer
+                    self[x] or Pvt::raise_invalid_value(x)
+                    f |= x
+                else
+                    raise ArgumentError, "Invalid flags: #{x.to_s}. Expect Symbol or Integer in the flags array."
+            end
         end
+        f
     end
 
 
-    # @private
-    def self.raise_invalid_symbol(e, symbol)
-        raise ArgumentError, "Invalid flags symbol: #{symbol.to_s}. Expect symbol in #{e.symbols.to_s}."
-    end
-    private_class_method :raise_invalid_symbol
+    module Pvt
+
+        def raise_invalid_symbol(symbol)
+            raise ArgumentError, "Invalid flags symbol: #{symbol.to_s}. Expect symbol in #{self.symbols.to_s}."
+        end
 
 
-    # @private
-    def self.raise_invalid_value(e, value)
-        raise ArgumentError, "Invalid flags value: #{value.to_s}."
+        def raise_invalid_value(value)
+            raise ArgumentError, "Invalid flags value: #{value.to_s}."
+        end
+
     end
-    private_class_method :raise_invalid_value
 
 end
 
