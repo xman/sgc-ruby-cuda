@@ -32,71 +32,54 @@ module CU
     include SGC::Memory
 
     # @see API::CUResult
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUResult < API::Enum; end
 
     # @see API::CUComputeMode
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUComputeMode < API::Enum; end
 
     # @see API::CUDeviceAttribute
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUDeviceAttribute < API::Enum; end
 
     # @see API::CUContextFlags
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUContextFlags < API::Enum; end
 
     # @see API::CULimit
-    # @see SGC::Helper::IEnum::ClassMethods
     class CULimit < API::Enum; end
 
     # @see API::CUFunctionAttribute
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUFunctionAttribute < API::Enum; end
 
     # @see API::CUFunctionCache
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUFunctionCache < API::Enum; end
 
     # @see API::CUEventFlags
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUEventFlags < API::Enum; end
 
     # @see API::CUAddressMode
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUAddressMode < API::Enum; end
 
     # @see API::CUFilterMode
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUFilterMode < API::Enum; end
 
     # @see API::CUTexRefFlags
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUTexRefFlags < API::Enum; end
 
     # @see API::CUArrayFormat
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUArrayFormat < API::Enum; end
 
     # @see API::CUMemoryType
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUMemoryType < API::Enum; end
 
     # @see API::CUPointerAttribute
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUPointerAttribute < API::Enum; end
 
     # @see API::CUJitOption
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUJitOption < API::Enum; end
 
     # @see API::CUJitFallBack
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUJitFallBack < API::Enum; end
 
     # @see API::CUJitTarget
-    # @see SGC::Helper::IEnum::ClassMethods
     class CUJitTarget < API::Enum; end
 
     class CUDevProp < API::CUDevProp; end

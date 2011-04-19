@@ -26,6 +26,7 @@ require 'cuda/driver/ffi-cu'
 require 'cuda/driver/cu'
 require 'cuda/driver/error'
 require 'cuda/driver/stream'
+require 'helpers/flags'
 
 
 module SGC
@@ -42,9 +43,10 @@ class CUEvent
     #     CUEvent.create                    #=> event
     #     CUEvent.create(:DEFAULT)          #=> event
     #     CUEvent.create(:BLOCKING_SYNC)    #=> event
-    def self.create(flags = :DEFAULT)
+    def self.create(*flags)
+        flags.empty? == false or flags = :DEFAULT
         p = FFI::MemoryPointer.new(:CUEvent)
-        f = flags.is_a?(Symbol) ? CUEventFlags[flags] : flags
+        f = CUEventFlags.value(flags)
         status = API::cuEventCreate(p, f)
         Pvt::handle_error(status, "Failed to create event: flags = #{flags}.")
         new(p)

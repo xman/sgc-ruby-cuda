@@ -53,7 +53,7 @@ class CUContext
     def self.create(arg1, arg2 = nil)
         if arg2 != nil
             flags, dev = arg1, arg2
-            flags = SGC::Helper::Flags.value(CUContextFlags, flags)
+            flags = CUContextFlags.value(flags)
         else
             flags = 0
             dev = arg1
