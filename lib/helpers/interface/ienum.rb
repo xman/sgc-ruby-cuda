@@ -29,37 +29,15 @@ module Helper
 # An enum maps a symbol to a value, and a value to a symbol.
 module IEnum
 
-    module ClassMethods
+    # @return [Array] The list of valid symbols of this enum.
+    def symbols; raise NotImplementedError; end
 
-        # @return [Array] The list of valid symbols of this Enum class.
-        def symbols; raise NotImplementedError; end
-
-        # @param [Symbol, Object] key A symbol or value to use as a key to map.
-        # @return [Symbol, Object] The symbol or value that the _key_ maps to.
-        #   * If the _key_ is a symbol, return the corresponding value.
-        #   * If the _key_ is a value, return the corresponding symbol.
-        #   * Return nil if the _key_ is invalid.
-        def [](key); raise NotImplementedError; end
-
-    end
-
-    # @private
-    def self.included(base)
-        base.extend(ClassMethods)
-    end
-
-    # @private
-    def self.forward(klass, dest)
-        klass.instance_eval %{
-            def symbols
-                #{dest}.symbols
-            end
-
-            def [](*args)
-                #{dest}[*args]
-            end
-        }
-    end
+    # @param [Symbol, Object] key A symbol or value to use as a key to map.
+    # @return [Symbol, Object] The symbol or value that the _key_ maps to.
+    #   * If the _key_ is a symbol, return the corresponding value.
+    #   * If the _key_ is a value, return the corresponding symbol.
+    #   * Return nil if the _key_ is invalid.
+    def [](key); raise NotImplementedError; end
 
 end
 
