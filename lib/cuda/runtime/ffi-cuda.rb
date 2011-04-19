@@ -24,6 +24,9 @@
 
 require 'ffi'
 require 'ffi/prettystruct'
+require 'helpers/interface/ienum'
+require 'helpers/flags'
+require 'helpers/klass'
 
 
 module SGC
@@ -32,6 +35,23 @@ module API
 
     extend FFI::Library
     ffi_lib "cudart"
+
+    class Enum
+        extend SGC::Helper::IEnum
+        extend SGC::Helper::FlagsValue
+
+        def self.inherited(subclass)
+            subclass.instance_eval %{
+                def symbols
+                    SGC::Cuda::API::#{SGC::Helper.classname(subclass)}.symbols
+                end
+
+                def [](*args)
+                    SGC::Cuda::API::#{SGC::Helper.classname(subclass)}[*args]
+                end
+            }
+        end
+    end
 
     CudaError = enum(
         :SUCCESS, 0,
