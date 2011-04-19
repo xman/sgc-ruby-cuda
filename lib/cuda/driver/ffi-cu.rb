@@ -25,6 +25,7 @@
 require 'ffi'
 require 'ffi/prettystruct'
 require 'helpers/interface/ienum'
+require 'helpers/flags'
 require 'helpers/klass'
 
 
@@ -36,9 +37,19 @@ module API
     ffi_lib "cuda"
 
     class Enum
+        extend SGC::Helper::IEnum
+        extend SGC::Helper::FlagsValue
+
         def self.inherited(subclass)
-            subclass.extend(SGC::Helper::IEnum)
-            SGC::Helper::IEnum.forward(subclass, "SGC::CU::API::#{SGC::Helper.classname(subclass)}")
+            subclass.instance_eval %{
+                def symbols
+                    SGC::CU::API::#{SGC::Helper.classname(subclass)}.symbols
+                end
+
+                def [](*args)
+                    SGC::CU::API::#{SGC::Helper.classname(subclass)}[*args]
+                end
+            }
         end
     end
 
