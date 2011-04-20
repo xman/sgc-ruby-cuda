@@ -18,6 +18,10 @@ class PrettyStruct < FFI::Struct
         super
     end
 
+    def members
+        layout.members
+    end
+
     def inspect
         kvs = members.zip(values)
         kvs.map!{|key, value| "%s=%s" % [key, value.inspect] }
