@@ -109,11 +109,9 @@ class CUContext
 
     # Set the current CUDA context to _context_.
     # @param [CUContext] The CUDA context to set as the current CUDA context.
-    # @return [CUContext] The CUDA context _context_.
     def self.current=(context)
         status = API::cuCtxSetCurrent(context.to_api)
         Pvt::handle_error(status, "Failed to set the current CUDA context.")
-        context
     end
 
 
@@ -169,7 +167,6 @@ class CUContext
     # Set the limit _lim_ (CULimit) of the current CUDA context to _value_.
     # @param [CULimit] lim The particular limit attribute to set.
     # @param [Integer] value The value to set the limit to.
-    # @return [Array(CULimit, Integer)] The array [_lim_, _value_].
     #
     # @example Set the stack size limit.
     #     CUContext.limit = [:STACK_SIZE, 8192]    #=> [:STACK_SIZE, 8192]
@@ -179,7 +176,6 @@ class CUContext
         lim != nil && val != nil or raise ArgumentError, "Invalid limit and value pair given: limit = #{lim}, value = #{val}."
         status = API::cuCtxSetLimit(lim, val)
         Pvt::handle_error(status, "Failed to set the current CUDA context limit: limit = #{lim}, value = #{val}")
-        lim_val_pair
     end
 
 
@@ -196,14 +192,12 @@ class CUContext
 
 
     # Set the cache to _conf_ (CUFunctionCache) for the current CUDA context.
-    # @return [CUFunctionCache] The cache config _conf_.
     #
     # @example Set the cache config to prefer shared.
     #     CUContext.cache_config = :PREFER_SHARED    #=> :PREFER_SHARED
     def self.cache_config=(conf)
         status = API::cuCtxSetCacheConfig(conf)
         Pvt::handle_error(status, "Failed to set the current CUDA context cache config: config = #{conf}")
-        conf
     end
 
 

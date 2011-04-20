@@ -106,8 +106,7 @@ class TestRubyCU < Test::Unit::TestCase
     def test_context_current
         c = CUContext.current
         assert_instance_of(CUContext, c)
-        d = CUContext.current = c
-        assert_instance_of(CUContext, d)
+        CUContext.current = c
     end
 
     def test_context_attach_detach
@@ -151,12 +150,15 @@ class TestRubyCU < Test::Unit::TestCase
             assert_kind_of(Integer, fifo_size)
             heap_size = CUContext.limit(:MALLOC_HEAP_SIZE)
             assert_kind_of(Integer, heap_size)
-            s1 = CUContext.limit = [:STACK_SIZE, stack_size]
-            assert_equal([:STACK_SIZE, stack_size], s1)
-            s2 = CUContext.limit = [:PRINTF_FIFO_SIZE, fifo_size]
-            assert_equal([:PRINTF_FIFO_SIZE, fifo_size], s2)
-            s3 = (CUContext.limit = :MALLOC_HEAP_SIZE, heap_size)
-            assert_equal([:MALLOC_HEAP_SIZE, heap_size], s3)
+            CUContext.limit = [:STACK_SIZE, stack_size]
+            s = CUContext.limit(:STACK_SIZE)
+            assert_equal(stack_size, s)
+            CUContext.limit = [:PRINTF_FIFO_SIZE, fifo_size]
+            s = CUContext.limit(:PRINTF_FIFO_SIZE)
+            assert_equal(fifo_size, s)
+            CUContext.limit = :MALLOC_HEAP_SIZE, heap_size
+            s = CUContext.limit(:MALLOC_HEAP_SIZE)
+            assert_equal(heap_size, s)
         end
     end
 
@@ -164,13 +166,15 @@ class TestRubyCU < Test::Unit::TestCase
         if @dev.compute_capability[:major] >= 2
             config = CUContext.cache_config
             assert_not_nil(CUFunctionCache[config])
-            s = CUContext.cache_config = config
-            assert_equal(config, s)
+            CUContext.cache_config = config
+            c = CUContext.cache_config
+            assert_equal(config, c)
         else
             config = CUContext.cache_config
             assert_equal(:PREFER_NONE, config)
-            s = CUContext.cache_config = config
-            assert_equal(config, s)
+            CUContext.cache_config = config
+            c = CUContext.cache_config
+            assert_equal(:PREFER_NONE, c)
         end
     end
 
@@ -290,9 +294,8 @@ class TestRubyCU < Test::Unit::TestCase
         da = CUDevice.malloc(1024)
         db = CUDevice.malloc(1024)
         dc = CUDevice.malloc(1024)
-        r = @func.param = []
-        r = @func.param = [da, db, dc, 10]
-        assert_equal([da, db, dc, 10], r)
+        @func.param = []
+        @func.param = [da, db, dc, 10]
 
         f = @func.param_setf(0, 2.5)
         assert_instance_of(CUFunction, f)
@@ -310,19 +313,14 @@ class TestRubyCU < Test::Unit::TestCase
     end
 
     def test_function_set_block_shape
-        r = @func.block_shape = 2
-        assert_equal(2, r)
-        r = @func.block_shape = [2, 3]
-        assert_equal([2, 3], r)
-        r = (@func.block_shape = 2, 3, 4)
-        assert_equal([2, 3, 4], r)
+        @func.block_shape = 2
+        @func.block_shape = [2, 3]
+        @func.block_shape = 2, 3, 4
     end
 
     def test_function_set_shared_size
-        r = @func.shared_size = 0
-        assert_equal(0, r)
-        r = @func.shared_size = 1024
-        assert_equal(1024, r)
+        @func.shared_size = 0
+        @func.shared_size = 1024
     end
 
     def test_function_launch
@@ -378,8 +376,7 @@ class TestRubyCU < Test::Unit::TestCase
 
     def test_function_set_cache_config
         CUFunctionCache.symbols.each do |k|
-            f = @func.cache_config = k
-            assert_equal(k, f)
+            @func.cache_config = k
         end
     end
 

@@ -35,7 +35,6 @@ class CUFunction
     #
     # Set the argument list of subsequent function call to _arg1_, _arg2_, *other_args.
     # @param *args The list of arguments to pass to the kernel function.
-    # @return The argument list _args_.
     def param=(*args)
         offset = 0
         args.flatten.each do |x|
@@ -63,7 +62,6 @@ class CUFunction
 
         status = API::cuParamSetSize(self.to_api, offset)
         Pvt::handle_error(status, "Failed to set function parameter size: size = #{offset}.")
-        args
     end
 
 
@@ -135,14 +133,12 @@ class CUFunction
     # @param [Integer] xdim The size of the x dimension.
     # @param [Integer] ydim The size of the y dimension. Defaults to 1.
     # @param [Integer] zdim The size of the z dimension. Defaults to 1.
-    # @return The argument list.
     def block_shape=(*args)
         xdim, ydim, zdim = args.flatten
         ydim = 1 if ydim.nil?
         zdim = 1 if zdim.nil?
         status = API::cuFuncSetBlockShape(self.to_api, xdim, ydim, zdim)
         Pvt::handle_error(status, "Failed to set function block shape: (x,y,z) = (#{xdim},#{ydim},#{zdim}).")
-        args
     end
 
 
@@ -150,11 +146,9 @@ class CUFunction
     #
     # Set the dynamic shared-memory size to use for next launch.
     # @param [Integer] nbytes Number of bytes.
-    # @return [Integer] The number of bytes.
     def shared_size=(nbytes)
         status = API::cuFuncSetSharedSize(self.to_api, nbytes)
         Pvt::handle_error(status, "Failed to set function shared memory size: #{nbytes}.")
-        nbytes
     end
 
 
@@ -217,11 +211,9 @@ class CUFunction
 
     # Set the preferred cache configuration (CUFunctionCache) to use for next launch.
     # @param [CUFunctionCache] conf The preferred cache configuration.
-    # @return [CUFunction] This function.
     def cache_config=(conf)
         status = API::cuFuncSetCacheConfig(self.to_api, conf)
         Pvt::handle_error(status, "Failed to set function cache config: config = #{conf}.")
-        self
     end
 
     # Launch this kernel function with full configuration parameters and function parameters
