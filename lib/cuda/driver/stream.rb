@@ -87,13 +87,13 @@ class CUStream
     end
 
 
-    # Let all future operations submitted to stream 0 (NULL stream) wait until _event_ (CUEvent) complete before beginning execution.
+    # Let all future operations submitted to any stream in this context wait until _event_ (CUEvent) complete before beginning execution.
     # @overload wait_event(event)
     # @overload wait_event(event, flags)
     # @param (see CUStream#wait_event)
     def self.wait_event(event, flags = 0)
         status = API::cuStreamWaitEvent(nil, event.to_api, flags)
-        Pvt::handle_error(status, "Failed to make current stream's future operations to wait event: flags = #{flags}.")
+        Pvt::handle_error(status, "Failed to make any stream's future operations to wait event: flags = #{flags}.")
         nil
     end
 
