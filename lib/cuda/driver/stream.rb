@@ -60,7 +60,7 @@ class CUStream
         elsif status == Pvt::CUDA_ERROR_NOT_READY
             return false
         end
-        Pvt::hanld_error(status, "Failed to query stream.")
+        Pvt::handle_error(status, "Failed to query stream.")
         raise CUStandardError, "Error handling fails to catch this error."
     end
 
