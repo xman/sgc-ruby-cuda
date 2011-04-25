@@ -76,7 +76,7 @@ class CUEvent
 
     # Record this event asynchronously on _stream_.
     # @param [Integer, CUStream] stream The CUDA stream to record this event on.
-    #     Setting _stream_ to anything other than an instance of CUStream will record on the default stream 0.
+    #     Setting _stream_ to anything other than an instance of CUStream will record on any stream.
     # @return [CUEvent] This event.
     def record(stream = 0)
         s = Pvt::parse_stream(stream)
