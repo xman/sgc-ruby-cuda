@@ -56,7 +56,7 @@ desc 'Generate SGC Ruby CUDA documentation with YARD.'
 task :yard
 YARD::Rake::YardocTask.new do |t|
     t.files = FileList['lib/**/*.rb'].to_a
-    t.options += ['--no-private', '-o', "#{HTML_OUTPUT_PATH}", '--files', "#{DOC_PATH}/**/*.rdoc"]
+    t.options += ['--no-private', '-o', "#{HTML_OUTPUT_PATH}"]
 end
 
 
