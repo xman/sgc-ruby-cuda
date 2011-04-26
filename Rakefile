@@ -10,7 +10,7 @@ CUDA_PATH         = "lib/cuda"
 CUDA_DRIVER_PATH  = "#{CUDA_PATH}/driver"
 CUDA_RUNTIME_PATH = "#{CUDA_PATH}/runtime"
 DOC_PATH          = "doc"
-HTML_OUTPUT_PATH   = "html"
+HTML_OUTPUT_PATH  = "html"
 
 
 task :default => []
