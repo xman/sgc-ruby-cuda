@@ -31,62 +31,81 @@ module Cuda
 
 class CudaStream
 
-    def initialize
-        @p = FFI::MemoryPointer.new(:pointer)
+    # Create and return a CUDA stream.
+    # @return [CudaStream] A CUDA stream.
+    def self.create
+        p = FFI::MemoryPointer.new(:CudaStream)
+        status = API::cudaStreamCreate(p)
+        Pvt::handle_error(status, "Failed to create CUDA stream.")
+        new(p)
     end
 
 
-    def create
-        status = API::cudaStreamCreate(@p)
-        Pvt::handle_error(status)
-        self
-    end
-
-
+    # Destroy this CUDA stream.
     def destroy
-        status = API::cudaStreamDestroy(@p.read_pointer)
-        Pvt::handle_error(status)
-        @p.write_pointer(0)
+        status = API::cudaStreamDestroy(self.to_api)
+        Pvt::handle_error(status, "Failed to destroy this CUDA stream.")
+        API::write_cudastream(@pstream, 0)
         nil
     end
 
 
+    # @return [Boolean] Return true if all operations in this CUDA stream have completed. Otherwise, return false.
     def query
-        status = API::cudaStreamQuery(@p.read_pointer)
+        status = API::cudaStreamQuery(self.to_api)
         if status == Pvt::CUDA_SUCCESS
             return true
         elsif status == Pvt::CUDA_ERROR_NOT_READY
             return false
         end
-        Pvt::hanld_error(status)
-        self
+        Pvt::handle_error(status, "Failed to query stream.")
+        raise CudaStandardError, "Error handling fails to catch this error."
     end
 
 
+    # Block the calling CPU thread until all operations in this CUDA stream complete.
+    # @return [CudaStream] This CUDA stream.
     def synchronize
-        status = API::cudaStreamSynchronize(@p.read_pointer)
+        status = API::cudaStreamSynchronize(self.to_api)
         Pvt::handle_error(status)
         self
     end
 
 
+    # Let all future operations submitted to this CUDA stream wait until _event_ complete before beginning execution.
+    # @overload wait_event(event)
+    # @overload wait_event(event, flags)
+    # @param [CudaEvent] event The event to wait for.
+    # @param [Integer] flags Currently _flags_ must be set to zero.
+    # @return [CudaStream] This CUDA stream.
     def wait_event(event, flags = 0)
-        status = API::cudaStreamWaitEvent(@p.read_pointer, event, flags)
-        Pvt::handle_error(status)
+        status = API::cudaStreamWaitEvent(self.to_api, event.to_api, flags)
+        Pvt::handle_error(status, "Failed to make this CUDA stream's future operations to wait event: flags = #{flags}.")
         self
     end
 
 
+    # Let all future operations submitted to any CUDA stream wait until _event_ complete before beginning execution.
+    # @overload wait_event(event)                      
+    # @overload wait_event(event, flags)               
+    # @param (see CudaStream#wait_event) 
     def self.wait_event(event, flags = 0)
-        p = FFI::MemoryPointer.new(:pointer)
-        p.write_pointer(0)
-        status = API::cudaStreamWaitEvent(p.read_pointer, event, flags)
-        Pvt::handle_error(status)
-        self
+        status = API::cudaStreamWaitEvent(nil, event.to_api, flags)
+        Pvt::handle_error(status, "Failed to make any CUDA stream's future operations to wait event: flags = #{flags}.")
+        nil
     end
 
-    def to_ptr
-        @p.read_pointer
+
+    # @private
+    def initialize(ptr)
+        @pstream = ptr
+    end
+    private_class_method :new
+
+
+    # @private
+    def to_api
+        API::read_cudastream(@pstream)
     end
 
 end
