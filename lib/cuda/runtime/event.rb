@@ -31,78 +31,85 @@ module Cuda
 
 class CudaEvent
 
-    def initialize
-        @p = FFI::MemoryPointer.new(:pointer)
+    # Create and return an event with _flags_.
+    # @overload create
+    # @overload create(flags)
+    # @return [CudaEvent] An event created with _flags_.
+    def self.create(*flags)
+        flags.empty? == false or flags = :DEFAULT
+        p = FFI::MemoryPointer.new(:CudaEvent)
+        f = CudaEventFlags.value(flags)
+        status = API::cudaEventCreateWithFlags(p, f)
+        Pvt::handle_error(status, "Failed to create event: flags = #{flags}")
+        new(p)
     end
 
 
-    def create(flags = CUDA_EVENT_DEFAULT)
-        if flags == CUDA_EVENT_DEFAULT
-            status = API::cudaEventCreate(@p)
-        else
-            flags = CudaEventFlags[flags] if flags.is_a?(Symbol)
-            status = API::cudaEventCreateWithFlags(@p, flags)
-        end
-        Pvt::handle_error(status)
-        self
-    end
-
-
+    # Destroy this event.
     def destroy
-        status = API::cudaEventDestroy(@p.read_pointer)
-        Pvt::handle_error(status)
-        @p.write_pointer(0)
+        status = API::cudaEventDestroy(self.to_api)
+        Pvt::handle_error(status, "Failed to destroy event.")
+        API::write_cudaevent(@pevent, 0)
         nil
     end
 
 
+    # @return [Boolean] Return true if this event has been recorded. Otherwise, return false.
     def query
-        status = API::cudaEventQuery(@p.read_pointer)
+        status = API::cudaEventQuery(self.to_api)
         if status == Pvt::CUDA_SUCCESS
             return true
         elsif status == Pvt::CUDA_ERROR_NOT_READY
             return false
         end
-        Pvt::handle_error(status)
-        self
+        Pvt::handle_error(status, "Failed to query event.")
+        raise CudaStandardError, "Error handling fails to catch this error."
     end
 
 
+    # Record this event asynchronously on _stream_.
+    # @param [Integer, CudaStream] stream The CUDA stream to record this event on.
+    #     Setting _stream_ on anything other than an instance of CudaStream will record on any stream.
+    # @return [CudaEvent] This event.
     def record(stream = 0)
-        if stream == 0
-            p = FFI::MemoryPointer.new(:pointer)
-            p.write_pointer(0)
-            stream = p.read_pointer
-        else
-            stream = stream.to_ptr
-        end
-        status = API::cudaEventRecord(@p.read_pointer, stream)
-        Pvt::handle_error(status)
+        s = Pvt::parse_stream(stream)
+        status = API::cudaEventRecord(self.to_api, s)
+        Pvt::handle_error(status, "Failed to record event.")
         self
     end
 
 
+    # Block the calling CPU thread until this event has been recorded.
+    # @return [CudaEvent] This event.
     def synchronize
-        status = API::cudaEventSynchronize(@p.read_pointer)
+        status = API::cudaEventSynchronize(self.to_api)
         Pvt::handle_error(status)
         self
     end
 
 
-    def to_ptr
-        @p.read_pointer
-    end
-
-
+    # Compute the elapsed time (ms) from _event_start_ to _event_end_.
+    # @param [CudaEvent] event_start The event corresponds to the start time.
+    # @param [CudaEvent] event_end The event corresponds to the end time.
+    # @return [Numeric] The elapsed time in ms.
     def self.elapsed_time(event_start, event_end)
         t = FFI::MemoryPointer.new(:float)
-        API::cudaEventElapsedTime(t, event_start.to_ptr, event_end.to_ptr)
+        API::cudaEventElapsedTime(t, event_start.to_api, event_end.to_api)
         t.read_float
     end
 
-protected
 
-    CUDA_EVENT_DEFAULT = CudaEventFlags[:cudaEventDefault]
+    # @private
+    def initialize(ptr)
+        @pevent = ptr
+    end
+    private_class_method :new
+
+
+    # @private
+    def to_api
+        API::read_cudaevent(@pevent)
+    end
 
 end
 
