@@ -28,65 +28,69 @@ require 'cuda/runtime/ffi-cuda'
 module SGC
 module Cuda
 
-    class CudaStandardError < RuntimeError; end
-    class CudaMissingConfigurationError < CudaStandardError; end
-    class CudaMemoryAllocationError < CudaStandardError; end
-    class CudaInitializationError < CudaStandardError; end
-    class CudaLaunchFailureError < CudaStandardError; end
-    class CudaPriorLaunchFailureError < CudaStandardError; end # @deprecated
-    class CudaLaunchTimeoutError < CudaStandardError; end
-    class CudaLaunchOutOfResourcesError < CudaStandardError; end
-    class CudaInvalidDeviceFunctionError < CudaStandardError; end
-    class CudaInvalidConfigurationError < CudaStandardError; end
-    class CudaInvalidDeviceError < CudaStandardError; end
-    class CudaInvalidValueError < CudaStandardError; end
-    class CudaInvalidPitchValueError < CudaStandardError; end
-    class CudaInvalidSymbolError < CudaStandardError; end
-    class CudaMapBufferObjectFailedError < CudaStandardError; end
-    class CudaUnmapBufferObjectFailedError < CudaStandardError; end
-    class CudaInvalidHostPointerError < CudaStandardError; end
-    class CudaInvalidDevicePointerError < CudaStandardError; end
-    class CudaInvalidTextureError < CudaStandardError; end
-    class CudaInvalidTextureBindingError < CudaStandardError; end
-    class CudaInvalidChannelDescriptorError < CudaStandardError; end
-    class CudaInvalidMemcpyDirectionError < CudaStandardError; end
-    class CudaAddressOfConstantError < CudaStandardError; end # @deprecated
-    class CudaTextureFetchFailedError  < CudaStandardError; end  # @deprecated
-    class CudaTextureNotFoundError < CudaStandardError; end # @deprecated
-    class CudaSynchronizationError < CudaStandardError; end # @deprecated
-    class CudaInvalidFilterSettingError < CudaStandardError; end
-    class CudaInvalidNormSettingError < CudaStandardError; end
-    class CudaMixedDeviceExecutionError < CudaStandardError; end # @deprecated
-    class CudaCudartUnloadingError < CudaStandardError; end # @deprecated
-    class CudaUnknownError < CudaStandardError; end
-    class CudaNotYetImplementedError < CudaStandardError; end
-    class CudaMemoryValueTooLargeError < CudaStandardError; end # @deprecated
-    class CudaInvalidResourceHandleError < CudaStandardError; end
-    class CudaNotReadyError < CudaStandardError; end
-    class CudaInsufficientDriverError < CudaStandardError; end
-    class CudaSetOnActiveProcessError < CudaStandardError; end
-    class CudaInvalidSurfaceError < CudaStandardError; end
-    class CudaNoDeviceError < CudaStandardError; end
-    class CudaECCUncorrectableError < CudaStandardError; end
-    class CudaSharedObjectSymbolNotFoundError < CudaStandardError; end
-    class CudaSharedObjectInitFailedError < CudaStandardError; end
-    class CudaUnsupportedLimitError < CudaStandardError; end
-    class CudaDuplicateVariableNameError < CudaStandardError; end
-    class CudaDuplicateTextureNameError < CudaStandardError; end
-    class CudaDuplicateSurfaceNameError < CudaStandardError; end
-    class CudaDevicesUnavailableError < CudaStandardError; end
-    class CudaInvalidKernelImageError < CudaStandardError; end
-    class CudaNoKernelImageForDeviceError < CudaStandardError; end
-    class CudaIncompatibleDriverContextError < CudaStandardError; end
-    class CudaPeerAccessAlreadyEnabledError < CudaStandardError; end
-    class CudaPeerAccessNotEnabledError < CudaStandardError; end
-    class CudaDeviceAlreadyInUseError < CudaStandardError; end
-    class CudaProfilerDisabledError < CudaStandardError; end
-    class CudaProfilerNotInitializedError < CudaStandardError; end
-    class CudaProfilerAlreadyStartedError < CudaStandardError; end
-    class CudaProfilerAlreadyStoppedError < CudaStandardError; end
-    class CudaStartupFailureError < CudaStandardError; end
-    class CudaAPIFailureBaseError < CudaStandardError; end
+    module Error
+
+        class CudaStandardError < RuntimeError; end
+        class CudaMissingConfigurationError < CudaStandardError; end
+        class CudaMemoryAllocationError < CudaStandardError; end
+        class CudaInitializationError < CudaStandardError; end
+        class CudaLaunchFailureError < CudaStandardError; end
+        class CudaPriorLaunchFailureError < CudaStandardError; end # @deprecated
+        class CudaLaunchTimeoutError < CudaStandardError; end
+        class CudaLaunchOutOfResourcesError < CudaStandardError; end
+        class CudaInvalidDeviceFunctionError < CudaStandardError; end
+        class CudaInvalidConfigurationError < CudaStandardError; end
+        class CudaInvalidDeviceError < CudaStandardError; end
+        class CudaInvalidValueError < CudaStandardError; end
+        class CudaInvalidPitchValueError < CudaStandardError; end
+        class CudaInvalidSymbolError < CudaStandardError; end
+        class CudaMapBufferObjectFailedError < CudaStandardError; end
+        class CudaUnmapBufferObjectFailedError < CudaStandardError; end
+        class CudaInvalidHostPointerError < CudaStandardError; end
+        class CudaInvalidDevicePointerError < CudaStandardError; end
+        class CudaInvalidTextureError < CudaStandardError; end
+        class CudaInvalidTextureBindingError < CudaStandardError; end
+        class CudaInvalidChannelDescriptorError < CudaStandardError; end
+        class CudaInvalidMemcpyDirectionError < CudaStandardError; end
+        class CudaAddressOfConstantError < CudaStandardError; end # @deprecated
+        class CudaTextureFetchFailedError  < CudaStandardError; end  # @deprecated
+        class CudaTextureNotFoundError < CudaStandardError; end # @deprecated
+        class CudaSynchronizationError < CudaStandardError; end # @deprecated
+        class CudaInvalidFilterSettingError < CudaStandardError; end
+        class CudaInvalidNormSettingError < CudaStandardError; end
+        class CudaMixedDeviceExecutionError < CudaStandardError; end # @deprecated
+        class CudaCudartUnloadingError < CudaStandardError; end # @deprecated
+        class CudaUnknownError < CudaStandardError; end
+        class CudaNotYetImplementedError < CudaStandardError; end
+        class CudaMemoryValueTooLargeError < CudaStandardError; end # @deprecated
+        class CudaInvalidResourceHandleError < CudaStandardError; end
+        class CudaNotReadyError < CudaStandardError; end
+        class CudaInsufficientDriverError < CudaStandardError; end
+        class CudaSetOnActiveProcessError < CudaStandardError; end
+        class CudaInvalidSurfaceError < CudaStandardError; end
+        class CudaNoDeviceError < CudaStandardError; end
+        class CudaECCUncorrectableError < CudaStandardError; end
+        class CudaSharedObjectSymbolNotFoundError < CudaStandardError; end
+        class CudaSharedObjectInitFailedError < CudaStandardError; end
+        class CudaUnsupportedLimitError < CudaStandardError; end
+        class CudaDuplicateVariableNameError < CudaStandardError; end
+        class CudaDuplicateTextureNameError < CudaStandardError; end
+        class CudaDuplicateSurfaceNameError < CudaStandardError; end
+        class CudaDevicesUnavailableError < CudaStandardError; end
+        class CudaInvalidKernelImageError < CudaStandardError; end
+        class CudaNoKernelImageForDeviceError < CudaStandardError; end
+        class CudaIncompatibleDriverContextError < CudaStandardError; end
+        class CudaPeerAccessAlreadyEnabledError < CudaStandardError; end
+        class CudaPeerAccessNotEnabledError < CudaStandardError; end
+        class CudaDeviceAlreadyInUseError < CudaStandardError; end
+        class CudaProfilerDisabledError < CudaStandardError; end
+        class CudaProfilerNotInitializedError < CudaStandardError; end
+        class CudaProfilerAlreadyStartedError < CudaStandardError; end
+        class CudaProfilerAlreadyStoppedError < CudaStandardError; end
+        class CudaStartupFailureError < CudaStandardError; end
+        class CudaAPIFailureBaseError < CudaStandardError; end
+
+    end
 
 
     # @param [Integer, CudaError] e A CUDA error value or label.
@@ -113,6 +117,9 @@ module Cuda
 
     # @private
     module Pvt
+
+        include Error
+
 
         def self.handle_error(status, msg = nil)
             status == CUDA_SUCCESS or raise @error_class_by_enum[API::CudaError[status]], API::cudaGetErrorString(status) + " : #{msg}"

@@ -28,80 +28,86 @@ require 'cuda/driver/ffi-cu'
 module SGC
 module CU
 
-    class CUStandardError < RuntimeError; end
+    module Error
 
-    class CUDeviceError < CUStandardError; end
-    class CUDeviceNotInitializedError < CUDeviceError; end
-    class CUDeviceDeinitializedError < CUDeviceError; end
-    class CUNoDeviceError < CUDeviceError; end
-    class CUInvalidDeviceError < CUDeviceError; end
+        class CUStandardError < RuntimeError; end
 
-    class CUMapError < CUStandardError; end
-    class CUMapFailedError < CUMapError; end
-    class CUUnMapFailedError < CUMapError; end
-    class CUArrayIsMappedError < CUMapError; end
-    class CUAlreadyMappedError < CUMapError; end
-    class CUNotMappedError < CUMapError; end
-    class CUNotMappedAsArrayError < CUMapError; end
-    class CUNotMappedAsPointerError < CUMapError; end
+        class CUDeviceError < CUStandardError; end
+        class CUDeviceNotInitializedError < CUDeviceError; end
+        class CUDeviceDeinitializedError < CUDeviceError; end
+        class CUNoDeviceError < CUDeviceError; end
+        class CUInvalidDeviceError < CUDeviceError; end
 
-    class CUContextError < CUStandardError; end
-    class CUInvalidContextError < CUContextError; end
-    class CUContextAlreadyCurrentError < CUContextError; end # @deprecated
-    class CUContextAlreadyInUseError < CUContextError; end
-    class CUUnsupportedLimitError < CUContextError; end
-    class CUPrimaryContextActiveError < CUContextError; end
-    class CUContextIsDestroyedError < CUContextError; end
+        class CUMapError < CUStandardError; end
+        class CUMapFailedError < CUMapError; end
+        class CUUnMapFailedError < CUMapError; end
+        class CUArrayIsMappedError < CUMapError; end
+        class CUAlreadyMappedError < CUMapError; end
+        class CUNotMappedError < CUMapError; end
+        class CUNotMappedAsArrayError < CUMapError; end
+        class CUNotMappedAsPointerError < CUMapError; end
 
-    class CULaunchError < CUStandardError; end
-    class CULaunchFailedError < CULaunchError; end
-    class CULaunchOutOfResourcesError < CULaunchError; end
-    class CULaunchTimeoutError < CULaunchError; end
-    class CULaunchIncompatibleTexturingError < CULaunchError; end
+        class CUContextError < CUStandardError; end
+        class CUInvalidContextError < CUContextError; end
+        class CUContextAlreadyCurrentError < CUContextError; end # @deprecated
+        class CUContextAlreadyInUseError < CUContextError; end
+        class CUUnsupportedLimitError < CUContextError; end
+        class CUPrimaryContextActiveError < CUContextError; end
+        class CUContextIsDestroyedError < CUContextError; end
 
-    class CUParameterError < CUStandardError; end
-    class CUInvalidValueError < CUParameterError; end
-    class CUInvalidHandleError < CUParameterError; end
+        class CULaunchError < CUStandardError; end
+        class CULaunchFailedError < CULaunchError; end
+        class CULaunchOutOfResourcesError < CULaunchError; end
+        class CULaunchTimeoutError < CULaunchError; end
+        class CULaunchIncompatibleTexturingError < CULaunchError; end
 
-    class CUMemoryError < CUStandardError; end
-    class CUOutOfMemoryError < CUMemoryError; end
+        class CUParameterError < CUStandardError; end
+        class CUInvalidValueError < CUParameterError; end
+        class CUInvalidHandleError < CUParameterError; end
 
-    class CUPeerAccessError < CUStandardError; end
-    class CUPeerAccessAlreadyEnabledError < CUPeerAccessError; end
-    class CUPeerAccessNotEnabledError < CUPeerAccessError; end
+        class CUMemoryError < CUStandardError; end
+        class CUOutOfMemoryError < CUMemoryError; end
 
-    class CULibraryError < CUStandardError; end
-    class CUSharedObjectSymbolNotFoundError < CULibraryError; end
-    class CUSharedObjectInitFailedError < CULibraryError; end
+        class CUPeerAccessError < CUStandardError; end
+        class CUPeerAccessAlreadyEnabledError < CUPeerAccessError; end
+        class CUPeerAccessNotEnabledError < CUPeerAccessError; end
 
-    class CUHardwareError < CUStandardError; end
-    class CUECCUncorrectableError < CUHardwareError; end
+        class CULibraryError < CUStandardError; end
+        class CUSharedObjectSymbolNotFoundError < CULibraryError; end
+        class CUSharedObjectInitFailedError < CULibraryError; end
 
-    class CUFileError < CUStandardError; end
-    class CUNoBinaryForGPUError < CUFileError; end
-    class CUFileNotFoundError < CUFileError; end
-    class CUInvalidSourceError < CUFileError; end
-    class CUInvalidImageError < CUFileError; end
+        class CUHardwareError < CUStandardError; end
+        class CUECCUncorrectableError < CUHardwareError; end
 
-    class CUReferenceError < CUStandardError; end
-    class CUReferenceNotFoundError < CUReferenceError; end
+        class CUFileError < CUStandardError; end
+        class CUNoBinaryForGPUError < CUFileError; end
+        class CUFileNotFoundError < CUFileError; end
+        class CUInvalidSourceError < CUFileError; end
+        class CUInvalidImageError < CUFileError; end
 
-    class CUProfilerError < CUStandardError; end
-    class CUProfilerDisabledError < CUProfilerError; end
-    class CUProfilerNotInitializedError < CUProfilerError; end
-    class CUProfilerAlreadyStartedError < CUProfilerError; end
-    class CUProfilerAlreadyStoppedError < CUProfilerError; end
+        class CUReferenceError < CUStandardError; end
+        class CUReferenceNotFoundError < CUReferenceError; end
 
-    class CUOtherError < CUStandardError; end
-    class CUAlreadyAcquiredError < CUOtherError; end
-    class CUNotReadyError < CUOtherError; end
-    class CUOperatingSystemError < CUOtherError; end
+        class CUProfilerError < CUStandardError; end
+        class CUProfilerDisabledError < CUProfilerError; end
+        class CUProfilerNotInitializedError < CUProfilerError; end
+        class CUProfilerAlreadyStartedError < CUProfilerError; end
+        class CUProfilerAlreadyStoppedError < CUProfilerError; end
 
-    class CUUnknownError < CUStandardError; end
+        class CUOtherError < CUStandardError; end
+        class CUAlreadyAcquiredError < CUOtherError; end
+        class CUNotReadyError < CUOtherError; end
+        class CUOperatingSystemError < CUOtherError; end
+
+        class CUUnknownError < CUStandardError; end
+
+    end
 
 
     # @private
     module Pvt
+
+        include Error
 
         def self.handle_error(status, msg = nil)
             status == CUDA_SUCCESS or raise @error_class_by_enum[API::CUResult[status]], msg

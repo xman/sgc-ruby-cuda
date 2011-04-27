@@ -27,6 +27,7 @@ require 'rubycu'
 require 'memory/pointer'
 
 include SGC::CU
+include SGC::CU::Error
 
 CUInit.init
 

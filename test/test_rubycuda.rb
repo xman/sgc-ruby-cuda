@@ -28,6 +28,7 @@ require 'rubycuda'
 require 'memory/pointer'
 
 include SGC::Cuda
+include SGC::Cuda::Error
 
 
 class TestRubyCuda < Test::Unit::TestCase
