@@ -28,19 +28,21 @@ require 'cuda/runtime/ffi-cuda'
 module SGC
 module Cuda
 
+# @return [Integer] The CUDA driver version.
 def driver_version
     p = FFI::MemoryPointer.new(:int)
     status = API::cudaDriverGetVersion(p)
-    Pvt::handle_error(status)
+    Pvt::handle_error(status, "Failed to query the CUDA driver version.")
     p.read_int
 end
 module_function :driver_version
 
 
+# @return [Integer] The CUDA Runtime version.
 def runtime_version
     p = FFI::MemoryPointer.new(:int)
     status = API::cudaRuntimeGetVersion(p)
-    Pvt::handle_error(status)
+    Pvt::handle_error(status, "Failed to query the CUDA Runtime version.")
     p.read_int
 end
 module_function :runtime_version
