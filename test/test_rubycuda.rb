@@ -80,8 +80,7 @@ class TestRubyCuda < Test::Unit::TestCase
 
         count = CudaDevice.count
         (0...count).each do |devid|
-            r = CudaDevice.current = devid
-            assert_equal(devid, r)
+            CudaDevice.current = devid
             d = CudaDevice.current
             assert_equal(devid, d)
         end
@@ -102,10 +101,7 @@ class TestRubyCuda < Test::Unit::TestCase
 
     def test_device_flags
         CudaDeviceFlags.symbols.each do |k|
-            r = CudaDevice.flags = k
-            assert_equal(k, r)
-            r = CudaDevice.flags = CudaDeviceFlags[k]
-            assert_equal(CudaDeviceFlags[k], r)
+            CudaDevice.flags = k
         end
     end
 
@@ -115,8 +111,39 @@ class TestRubyCuda < Test::Unit::TestCase
         (0...count).each do |devid|
             devs << devid
         end
-        r = CudaDevice.valid_devices = devs
-        assert_equal(devs, r)
+        CudaDevice.valid_devices = devs
+    end
+
+    def test_device_cache_config
+        if CudaDevice.properties.major >= 2
+            CudaFunctionCache.symbols.each do |k|
+                CudaDevice.cache_config = k
+                c = CudaDevice.cache_config
+                assert_equal(k, c)
+            end
+        end
+    end
+
+    def test_device_limit
+        CudaLimit.symbols.each do |k|
+            begin
+                u = CudaDevice.limit(k)
+                CudaDevice.limit = [k, u]
+                v = CudaDevice.limit(k)
+                assert_equal(u, v)
+            rescue CudaUnsupportedLimitError
+            end
+        end
+    end
+
+    def test_device_reset
+        r = CudaDevice.reset
+        assert_equal(CudaDevice, r)
+    end
+
+    def test_device_synchronize
+        r = CudaDevice.synchronize
+        assert_equal(CudaDevice, r)
     end
 
     def test_thread_exit
@@ -125,20 +152,24 @@ class TestRubyCuda < Test::Unit::TestCase
     end
 
     def test_thread_cache_config
-        CudaFuncCache.symbols.each do |k|
-            r = CudaThread.cache_config = k
-            assert_equal(k, r)
-            c = CudaThread.cache_config
-            assert_equal(k, c)
+        if CudaDevice.properties.major >= 2
+            CudaFunctionCache.symbols.each do |k|
+                CudaThread.cache_config = k
+                c = CudaThread.cache_config
+                assert_equal(k, c)
+            end
         end
     end
 
     def test_thread_limit
         CudaLimit.symbols.each do |k|
-            v = CudaThread.limit(k)
-            assert_kind_of(Integer, v)
-            r = CudaThread.limit = [k, v]
-            assert_equal([k, v], r)
+            begin
+                u = CudaThread.limit(k)
+                CudaThread.limit = [k, u]
+                v = CudaThread.limit(k)
+                assert_equal(u, v)
+            rescue CudaUnsupportedLimitError
+            end
         end
     end
 
@@ -205,6 +236,11 @@ class TestRubyCuda < Test::Unit::TestCase
         assert_instance_of(SGC::Memory::MemoryPointer, p)
         r = CudaDeviceMemory.free(p)
         assert_nil(r)
+
+        p = CudaDeviceMemory.malloc(1024)
+        assert_instance_of(SGC::Memory::MemoryPointer, p)
+        r = p.free
+        assert_nil(r)
     end
 
     def test_memory_copy
@@ -260,7 +296,7 @@ class TestRubyCuda < Test::Unit::TestCase
         CudaFunction.load_lib_file(path)
         f = CudaFunction.new("vadd")
         a = f.attributes
-        assert_instance_of(CudaFuncAttributes, a)
+        assert_instance_of(CudaFunctionAttributes, a)
         CudaFunction.unload_all_libs
     end
 
@@ -268,7 +304,7 @@ class TestRubyCuda < Test::Unit::TestCase
         path = prepare_kernel_lib
         CudaFunction.load_lib_file(path)
         f = CudaFunction.new("vadd")
-        CudaFuncCache.symbols.each do |k|
+        CudaFunctionCache.symbols.each do |k|
             f.cache_config = k
         end
         CudaFunction.unload_all_libs
@@ -320,50 +356,59 @@ class TestRubyCuda < Test::Unit::TestCase
     end
 
     def test_stream_create_destroy
-        s = CudaStream.new.create
+        s = CudaStream.create
         assert_instance_of(CudaStream, s)
         r = s.destroy
         assert_nil(r)
     end
 
     def test_stream_query
-        s = CudaStream.new.create
+        s = CudaStream.create
         b = s.query
         assert(b)
         s.destroy
     end
 
     def test_stream_synchronize
-        s = CudaStream.new.create
+        s = CudaStream.create
         r = s.synchronize
         assert_instance_of(CudaStream, r)
         s.destroy
     end
 
     def test_stream_wait_event
-        s = CudaStream.new.create
+        s = CudaStream.create
+        e = CudaEvent.create
+        s = s.wait_event(e)
+        assert_instance_of(CudaStream, s)
+        s = s.wait_event(e, 0)
+        assert_instance_of(CudaStream, s)
         s.destroy
+        s = CudaStream.wait_event(e)
+        assert_nil(s)
+        s = CudaStream.wait_event(e, 0)
+        assert_nil(s)
     end
 
     def test_event_create_destroy
-        e = CudaEvent.new.create
+        e = CudaEvent.create
         assert_instance_of(CudaEvent, e)
         r = e.destroy
         assert_nil(r)
 
-        e = CudaEvent.new.create(CudaEventFlags[:cudaEventDefault] | CudaEventFlags[:cudaEventBlockingSync])
+        e = CudaEvent.create(CudaEventFlags.value(:DEFAULT, :BLOCKING_SYNC))
         assert_instance_of(CudaEvent, e)
         r = e.destroy
         assert_nil(r)
 
-        e = CudaEvent.new.create(:cudaEventDefault)
+        e = CudaEvent.create(:DEFAULT, :BLOCKING_SYNC)
         assert_instance_of(CudaEvent, e)
         r = e.destroy
         assert_nil(r)
     end
 
     def test_event_record_synchronize_query
-        e = CudaEvent.new.create
+        e = CudaEvent.create
         e = e.record
         assert_instance_of(CudaEvent, e)
         e = e.synchronize
@@ -374,8 +419,8 @@ class TestRubyCuda < Test::Unit::TestCase
     end
 
     def test_event_elapsed_time
-        e1 = CudaEvent.new.create
-        e2 = CudaEvent.new.create
+        e1 = CudaEvent.create
+        e2 = CudaEvent.create
 
         e1.record
         e2.record
