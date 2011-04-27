@@ -1,1 +1,2 @@
 --files doc/**/*.rdoc
+--no-private
