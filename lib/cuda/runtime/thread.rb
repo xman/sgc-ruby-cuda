@@ -51,7 +51,6 @@ class CudaThread
     def self.cache_config=(config)
         status = API::cudaThreadSetCacheConfig(config)
         Pvt::handle_error(status)
-        config
     end
 
 
@@ -67,7 +66,6 @@ class CudaThread
         limit, value = limit_value_pair.flatten
         status = API::cudaThreadSetLimit(limit, value)
         Pvt::handle_error(status)
-        limit_value_pair
     end
 
 
