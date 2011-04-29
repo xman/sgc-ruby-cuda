@@ -20,7 +20,7 @@ task :all => [:package, :yard]
 
 
 spec = Gem::Specification.new do |s|
-    s.platform    = Gem::Platform::CURRENT
+    s.platform    = Gem::Platform::RUBY
     s.name        = 'sgc-ruby-cuda'
     s.version     = SGC_RUBY_CUDA_VERSION
     s.summary     = 'Ruby bindings for using Nvidia CUDA.'
@@ -37,7 +37,8 @@ spec = Gem::Specification.new do |s|
 
     s.files  = FileList['lib/**/*.rb', "#{DOC_PATH}/**/*.rdoc"].to_a
     s.files += ['Rakefile', 'version.rb', 'README.rdoc', 'COPYING']
-    s.test_files = FileList['test/{**/test_*.rb,vadd.cu,bad.ptx}'].to_a
+    s.files += ['.yardopts']
+    s.test_files = FileList['test/{**/*.rb,vadd.cu,bad.ptx}'].to_a
 
     s.add_dependency 'ffi', '>= 1.0.7'
     s.add_dependency 'yard', '>= 0.6.7'
