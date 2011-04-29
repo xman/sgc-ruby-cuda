@@ -20,7 +20,6 @@ consistently and catching up the development of Nvidia CUDA SDK.
 == Creating Ruby bindings for using CUDA Driver API on Mac Platform
 
 === On-going
-* Porting Ruby CUDA to run on Mac OSX.
 
 === Todo
 
@@ -47,7 +46,6 @@ consistently and catching up the development of Nvidia CUDA SDK.
 == Creating Ruby bindings for using CUDA Runtime API on Mac Platform
 
 === On-going
-* Porting Ruby CUDA to run on Mac OSX.
 
 === Todo
 
