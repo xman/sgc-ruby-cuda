@@ -1,0 +1,20 @@
+Release Notes for v0.1.0:
+
+GPU has a huge potential to compute intensive applications as CPU is getting
+limited by the power wall and memory wall. Programming GPU has been difficult
+in the past with OpenGL. With the emerge of CUDA C API, GPU programming becomes
+much more accessible for generic applications.
+
+Although CUDA C API has been available for several years, its supports for Ruby
+bindings have not been established. As Ruby programming is becoming more
+popular, it would be nice to have access to the CUDA C API from a Ruby program.
+
+This is the first release of SGC Ruby CUDA supporting basic CUDA Driver and
+Runtime API. It re-organizes CUDA C API functions into Object-Oriented API. It
+uses exception classes to simplify error detection and handling. The class names
+and method names are kept close to the original naming in CUDA C SDK so anyone
+familiar with CUDA C API can pick up SGC Ruby CUDA without much effort.
+
+We hope this release could trigger the interest of all Rubyists to check out GPU
+programming as well as the interest of all HPC developers to explore using Ruby
+for HPC applications.
