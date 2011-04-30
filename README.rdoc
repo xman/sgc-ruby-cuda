@@ -76,10 +76,16 @@ minimize unnecessary fixing commits.
     # Setup the environment. Assuming the CUDA Toolkit is installed in
     # the default path /usr/local/cuda.
 
-    # For 64bit Linux:
+    # For 64bit Linux only:
     export CPATH="/usr/local/cuda/include"
     export LIBRARY_PATH="/usr/local/cuda/lib64"
     export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+    export PATH="/usr/local/cuda/bin:$PATH"
+
+    # For Mac OSX only:
+    export CPATH="/usr/local/cuda/include"
+    export LIBRARY_PATH="/usr/local/cuda/lib"
+    export DYLD_LIBRARY_PATH="/usr/local/cuda/lib:$DYLD_LIBRARY_PATH"
     export PATH="/usr/local/cuda/bin:$PATH"
 
     gem install ffi
