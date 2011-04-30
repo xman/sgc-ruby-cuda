@@ -54,6 +54,20 @@ interpretors.
 
 == How to get SGC-Ruby-CUDA
 
+The SGC-Ruby-CUDA Ruby gem is available at rubygems.org and rubyforge.org:
+
+    # Install the gem with the following command.
+    $ gem install sgc-ruby-cuda
+
+        or
+
+    # Download the gem from the following URL and install.
+    http://rubyforge.org/frs/?group_id=9719
+
+The online documentations are available at the following:
+
+    http://rubydoc.info/github/xman/sgc-ruby-cuda/master/frames
+
 The SGC-Ruby-CUDA git repository can be found in the following:
 
     http://github.com/xman/sgc-ruby-cuda
