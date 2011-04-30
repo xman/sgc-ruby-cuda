@@ -113,6 +113,31 @@ minimize unnecessary fixing commits.
     # Check out the generated documentations in html/index.html with a browser.
 
 
+== How to contribute
+
+1. Create an account in github http://github.com
+2. Fork this project SGC-Ruby-CUDA at http://github.com/xman/sgc-ruby-cuda
+3. Make changes and submit commits to your local repository.
+4. At your local repository, setup and send a pull request.
+
+Ideally, a commit should do only one task. We like clean commits.
+Commits should be applied to the master branch.
+
+
+== How to file a bug report
+
+Submit new issues at https://github.com/xman/sgc-ruby-cuda/issues
+
+Please provide information on the SGC-Ruby-CUDA version or the commit hash,
+OS platform, Ruby version, FFI version, how to reproduce the issue, the error
+messages.
+
+
+== Mailing list
+
+http://groups.google.com/group/sgc-ruby-cuda
+
+
 == License
 
 SGC-Ruby-CUDA is released under the GNU GPLv3. See the file COPYING.
