@@ -122,4 +122,35 @@ class TestCudaDevice < Test::Unit::TestCase
         assert_equal(CudaDevice, r)
     end
 
+
+    def test_device_can_access_peer
+        current_devid = CudaDevice.get
+        count = CudaDevice.count
+        (0...count).each do |devid|
+            CudaDevice.can_access_peer?(devid)
+            CudaDevice.can_access_peer?(current_devid, devid)
+        end
+    end
+
+
+    def test_device_enable_disable_peer_access
+        current_devid = CudaDevice.get
+        count = CudaDevice.count
+        (0...count).each do |devid|
+            if CudaDevice.can_access_peer?(devid)
+                assert_nothing_raised do
+                    CudaDevice.enable_peer_access(devid)
+                    CudaDevice.disable_peer_access(devid)
+                end
+            else
+                assert_raise(CudaInvalidDeviceError) do
+                    CudaDevice.enable_peer_access(devid)
+                end
+                assert_raise(CudaPeerAccessNotEnabledError) do
+                    CudaDevice.disable_peer_access(devid)
+                end
+            end
+        end
+    end
+
 end
