@@ -169,6 +169,44 @@ class CudaDevice
         self
     end
 
+
+    # @param [Integer] devid The device's ID which is to access the memory of the device _peer_devid_.
+    # @param [Integer] peer_devid The device's ID which its memory is to be accessed by the device _devid_.
+    # @return [Boolean] True if device _devid_ is capable of directly accessing memory from device _peer_devid_.
+    #
+    # @since CUDA 4.0
+    def self.can_access_peer?(devid = self.get, peer_devid)
+        b = FFI::MemoryPointer.new(:int)
+        status = API::cudaDeviceCanAccessPeer(b, devid, peer_devid)
+        Pvt::handle_error(status, "Failed to query can access peer: devid = #{devid}, peer_devid = #{peer_devid}.")
+        b.read_int == 1 ? true : false
+    end
+
+
+    # Enable the current device to access the memory of the peer device.
+    # @param [Integer] peer_devid The peer device's ID.
+    # @param [Integer] flags Currently flags must be set to zero.
+    # @return [Class] This class.
+    #
+    # @since CUDA 4.0
+    def self.enable_peer_access(peer_devid, flags = 0)
+        status = API::cudaDeviceEnablePeerAccess(peer_devid, flags)
+        Pvt::handle_error(status, "Failed to enable peer access: peer_devid = #{peer_devid}, flags = #{flags}.")
+        self
+    end
+
+
+    # Disable the current device from accessing the memory of the peer device.
+    # @param [Integer] peer_devid The peer device's ID.
+    # @return [Class] This class.
+    #
+    # @since CUDA 4.0
+    def self.disable_peer_access(peer_devid)
+        status = API::cudaDeviceDisablePeerAccess(peer_devid)
+        Pvt::handle_error(status, "Failed to disable peer access: peer_devid = #{peer_devid}.")
+        self
+    end
+
 end
 
 end # module
