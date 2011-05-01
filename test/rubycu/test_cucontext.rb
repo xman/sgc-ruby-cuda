@@ -145,4 +145,28 @@ class TestCUContext < Test::Unit::TestCase
         assert_nil(s)
     end
 
+
+    def test_context_enable_disable_peer_access
+        current_dev = CUContext.device
+        count = CUDevice.count
+        (0...count).each do |devid|
+            dev = CUDevice.get(devid)
+            ctx = CUContext.create(dev)
+            if CUDevice.can_access_peer?(current_dev, dev)
+                assert_nothing_raised do
+                    CUContext.enable_peer_access(ctx)
+                    CUContext.disable_peer_access(ctx)
+                end
+            else
+                assert_raise(CUInvalidDeviceError) do
+                    CUContext.enable_peer_access(ctx)
+                end
+                assert_raise(CUPeerAccessNotEnabledError) do
+                    CUContext.disable_peer_access(ctx)
+                end
+            end
+            ctx.destroy
+        end
+    end
+
 end

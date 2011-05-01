@@ -66,4 +66,15 @@ class TestCUDevice < Test::Unit::TestCase
         end
     end
 
+
+    def test_device_can_access_peer
+        current_dev = CUContext.device
+        count = CUDevice.count
+        (0...count).each do |devid|
+            dev = CUDevice.get(devid)
+            CUDevice.can_access_peer?(dev)
+            CUDevice.can_access_peer?(current_dev, dev)
+        end
+    end
+
 end
