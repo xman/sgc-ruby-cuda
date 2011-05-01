@@ -72,7 +72,7 @@ class CudaDevice
 
 
     # @param [Integer] devid The index of the device to query.
-    # @return [CUDeviceProp] The properties of the device _devid_.
+    # @return [CudaDeviceProp] The properties of the device _devid_.
     def self.properties(devid = self.get)
         prop = CudaDeviceProp.new
         status = API::cudaGetDeviceProperties(prop.to_ptr, devid)
