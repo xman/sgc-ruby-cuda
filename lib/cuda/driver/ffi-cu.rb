@@ -548,7 +548,7 @@ module API
 
     # CU Peer Context Memory Access.
     attach_function :cuCtxDisablePeerAccess, [:CUContext], :enum
-    attach_function :cuCtxEnablePeerAccess, [:CUContext], :enum
+    attach_function :cuCtxEnablePeerAccess, [:CUContext, :uint], :enum
     attach_function :cuDeviceCanAccessPeer, [:pointer, :CUDevice, :CUDevice], :enum
 
     # CU Module Management.
