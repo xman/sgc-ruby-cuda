@@ -99,7 +99,7 @@ class CUDevice
     #     * :texture_align
     #     * :total_constant_memory
     def properties
-        prop = CUDevProp.new
+        prop = API::CUDevProp.new
         status = API::cuDeviceGetProperties(prop.to_ptr, self.to_api)
         Pvt::handle_error(status, "Failed to get device properties.")
         h = {}
