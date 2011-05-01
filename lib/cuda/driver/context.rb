@@ -218,6 +218,31 @@ class CUContext
     end
 
 
+    # Enable the current context to access the memory of the peer context.
+    # @param [CUContext] peer_context The peer context's memory to be accessed.
+    # @param [Integer] flags Currently flags must be set to zero.
+    # @return [Class] This class.
+    #
+    # @since CUDA 4.0
+    def self.enable_peer_access(peer_context, flags = 0)
+        status = API::cuCtxEnablePeerAccess(peer_context.to_api, flags)
+        Pvt::handle_error(status, "Failed to enable peer access: flags = #{flags}.")
+        self
+    end
+
+
+    # Disable the current context from accessing the memory of the peer context.
+    # @param [CUContext] peer_context The peer context.
+    # @return [Class] This class.
+    #
+    # @since CUDA 4.0
+    def self.disable_peer_access(peer_context)
+        status = API::cuCtxDisablePeerAccess(peer_context.to_api)
+        Pvt::handle_error(status, "Failed to disable peer access.")
+        self
+    end
+
+
     # @private
     def initialize(ptr)
         @pcontext = ptr

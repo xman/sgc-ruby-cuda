@@ -25,6 +25,7 @@
 require 'cuda/driver/ffi-cu'
 require 'cuda/driver/cu'
 require 'cuda/driver/error'
+require 'cuda/driver/context'
 
 
 module SGC
@@ -134,6 +135,19 @@ class CUDevice
         status = API::cuMemAlloc(p, nbytes)
         Pvt::handle_error(status, "Failed to allocate device memory: size = #{nbytes}.")
         CUDevicePtr.send(:new, p)
+    end
+
+
+    # @param [CUDevice] dev The device which is to access the memory of the device _peer_dev_.
+    # @param [CUDevice] peer_dev The device which its memory is to be accessed by the device _dev_.
+    # @return [Boolean] True if device _dev_ may directly access the memory of device _peer_dev_.
+    #
+    # @since CUDA 4.0
+    def self.can_access_peer?(dev = CUContext.device, peer_dev)
+        b = FFI::MemoryPointer.new(:int)
+        status = API::cuDeviceCanAccessPeer(b, dev.to_api, peer_dev.to_api)
+        Pvt::handle_error(status, "Failed to query can access peer.")
+        b.read_int == 1 ? true : false
     end
 
 
