@@ -91,7 +91,7 @@ class Buffer
 
     # @private
     def to_api
-        @ptr
+        @ptr.to_i
     end
 
 

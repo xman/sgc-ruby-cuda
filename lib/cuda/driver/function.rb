@@ -49,7 +49,7 @@ class CUFunction
                     size = 4
                 when CUDevicePtr
                     p = FFI::MemoryPointer.new(:CUDevicePtr)
-                    API::write_cudeviceptr(p, x.to_api.address)
+                    API::write_cudeviceptr(p, x.to_api)
                     size = p.size
                 else
                     raise TypeError, "Invalid type of argument #{x.to_s}."
@@ -99,7 +99,9 @@ class CUFunction
     # @param [Integer] nbytes The size of the arbitrary data in bytes.
     # @return [CUFunction] This function.
     def param_setv(offset, ptr, nbytes)
-        status = API::cuParamSetv(self.to_api, offset, ptr.to_api, nbytes)
+        p = FFI::MemoryPointer.new(:pointer)
+        API::write_size_t(p, ptr.to_api.to_i) # Workaround broken p.write_pointer() on 64bit pointer.
+        status = API::cuParamSetv(self.to_api, offset, p, nbytes)
         Pvt::handle_error(status, "Failed to set function arbitrary parameter: offset = #{offset}, size = #{nbytes}.")
         self
     end
@@ -272,7 +274,7 @@ private
                     FFI::MemoryPointer.new(:float).write_float(x)
                 when CUDevicePtr
                     ptr = FFI::MemoryPointer.new(:CUDevicePtr)
-                    API::write_cudeviceptr(ptr, x.to_api.address)
+                    API::write_cudeviceptr(ptr, x.to_api)
                     ptr
                 else
                     raise TypeError, "Invalid type of kernel parameter #{x.to_s}."

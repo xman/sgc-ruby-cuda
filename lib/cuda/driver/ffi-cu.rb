@@ -268,7 +268,7 @@ module API
 
     FFI::typedef :int, :enum
     FFI::typedef :int, :CUDevice
-    FFI::typedef :pointer, :CUDevicePtr
+    FFI::typedef :ulong_long, :CUDevicePtr
     FFI::typedef :pointer, :CUContext
     FFI::typedef :pointer, :CUModule
     FFI::typedef :pointer, :CUFunction
@@ -280,16 +280,18 @@ module API
 
     def read_int(ptr); ptr.read_int; end
     def read_long(ptr); ptr.read_long; end
+    def read_ulong_long(ptr); ptr.read_ulong_long; end
     def read_pointer(ptr); ptr.read_pointer; end
 
     def write_int(ptr, value); ptr.write_int(value); end
     def write_long(ptr, value); ptr.write_long(value); end
+    def write_ulong_long(ptr, value); ptr.write_ulong_long(value); end
     def write_pointer(ptr, value); ptr.write_pointer(value); end
 
     alias read_size_t read_long
     alias read_enum read_int
     alias read_cudevice read_int
-    alias read_cudeviceptr read_pointer
+    alias read_cudeviceptr read_ulong_long
     alias read_cucontext read_pointer
     alias read_cumodule read_pointer
     alias read_cufunction read_pointer
@@ -302,7 +304,7 @@ module API
     alias write_size_t write_long
     alias write_enum write_int
     alias write_cudevice write_int
-    alias write_cudeviceptr write_pointer
+    alias write_cudeviceptr write_ulong_long
     alias write_cucontext write_pointer
     alias write_cumodule write_pointer
     alias write_cufunction write_pointer
