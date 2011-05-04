@@ -82,7 +82,6 @@ class TestCUMemory < Test::Unit::TestCase
             assert_equal(b[i], e[i])
         end
 
-        if false    # FIXME: The memcpy is not working.
         if @dev.attribute(:UNIFIED_ADDRESSING) > 0
             (0...size).each do |i|
                 b[i] = i
@@ -95,7 +94,6 @@ class TestCUMemory < Test::Unit::TestCase
             (0...size).each do |i|
                 assert_equal(b[i], c[i])
             end
-        end
         end
 
         p.free
