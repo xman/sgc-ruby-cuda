@@ -282,8 +282,8 @@ module API
     def read_long(ptr); ptr.read_long; end
     def read_pointer(ptr); ptr.read_pointer; end
 
-    def write_int(ptr); ptr.write_int; end
-    def write_long(ptr); ptr.write_long; end
+    def write_int(ptr, value); ptr.write_int(value); end
+    def write_long(ptr, value); ptr.write_long(value); end
     def write_pointer(ptr, value); ptr.write_pointer(value); end
 
     alias read_size_t read_long
