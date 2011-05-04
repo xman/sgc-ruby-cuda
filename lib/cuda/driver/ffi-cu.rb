@@ -468,80 +468,120 @@ module API
     attach_function :cuDeviceGetCount, [:pointer], :enum
     attach_function :cuDeviceGetName, [:pointer, :int, :CUDevice], :enum
     attach_function :cuDeviceGetProperties, [:pointer, :CUDevice], :enum
-    attach_function :cuDeviceTotalMem, [:pointer, :CUDevice], :enum
+    attach_function :cuDeviceTotalMem_v2, [:pointer, :CUDevice], :enum
+    class << self; alias_method :cuDeviceTotalMem, :cuDeviceTotalMem_v2; end
 
     # CU Context Management.
-    attach_function :cuCtxCreate, [:pointer, :uint, :CUDevice], :enum
-    attach_function :cuCtxDestroy, [:CUContext], :enum
+    attach_function :cuCtxCreate_v2, [:pointer, :uint, :CUDevice], :enum
+    attach_function :cuCtxDestroy_v2, [:CUContext], :enum
     attach_function :cuCtxGetApiVersion, [:CUContext, :pointer], :enum
     attach_function :cuCtxGetCacheConfig, [:pointer], :enum
     attach_function :cuCtxGetCurrent, [:pointer], :enum
     attach_function :cuCtxGetDevice, [:pointer], :enum
     attach_function :cuCtxGetLimit, [:pointer, CULimit], :enum
-    attach_function :cuCtxPopCurrent, [:pointer], :enum
-    attach_function :cuCtxPushCurrent, [:CUContext], :enum
+    attach_function :cuCtxPopCurrent_v2, [:pointer], :enum
+    attach_function :cuCtxPushCurrent_v2, [:CUContext], :enum
     attach_function :cuCtxSetCacheConfig, [CUFunctionCache], :enum
     attach_function :cuCtxSetCurrent, [:CUContext], :enum
     attach_function :cuCtxSetLimit, [CULimit, :size_t], :enum
     attach_function :cuCtxSynchronize, [], :enum
+    class << self; alias_method :cuCtxDestroy, :cuCtxDestroy_v2; end
+    class << self; alias_method :cuCtxCreate, :cuCtxCreate_v2; end
+    class << self; alias_method :cuCtxPopCurrent, :cuCtxPopCurrent_v2; end
+    class << self; alias_method :cuCtxPushCurrent, :cuCtxPushCurrent_v2; end
     # Deprecated.
     attach_function :cuCtxAttach, [:pointer, :uint], :enum
     attach_function :cuCtxDetach, [:CUContext], :enum
 
     # CU Memory Management.
-    attach_function :cuArray3DCreate, [:pointer, :pointer], :enum
-    attach_function :cuArray3DGetDescriptor, [:pointer, :CUArray], :enum
-    attach_function :cuArrayCreate, [:pointer, :pointer], :enum
+    attach_function :cuArray3DCreate_v2, [:pointer, :pointer], :enum
+    attach_function :cuArray3DGetDescriptor_v2, [:pointer, :CUArray], :enum
+    attach_function :cuArrayCreate_v2, [:pointer, :pointer], :enum
     attach_function :cuArrayDestroy, [:CUArray], :enum
-    attach_function :cuArrayGetDescriptor, [:pointer, :CUArray], :enum
-    attach_function :cuMemAlloc, [:pointer, :size_t], :enum
-    attach_function :cuMemAllocHost, [:pointer, :size_t], :enum
-    attach_function :cuMemAllocPitch, [:pointer, :pointer, :size_t, :size_t, :uint], :enum
+    attach_function :cuArrayGetDescriptor_v2, [:pointer, :CUArray], :enum
+    attach_function :cuMemAlloc_v2, [:pointer, :size_t], :enum
+    attach_function :cuMemAllocHost_v2, [:pointer, :size_t], :enum
+    attach_function :cuMemAllocPitch_v2, [:pointer, :pointer, :size_t, :size_t, :uint], :enum
     attach_function :cuMemcpy, [:CUDevicePtr, :CUDevicePtr, :size_t], :enum
-    attach_function :cuMemcpy2D, [:pointer], :enum
-    attach_function :cuMemcpy2DAsync, [:pointer, :CUStream], :enum
-    attach_function :cuMemcpy2DUnaligned, [:pointer], :enum
-    attach_function :cuMemcpy3D, [:pointer], :enum
-    attach_function :cuMemcpy3DAsync, [:pointer, :CUStream], :enum
+    attach_function :cuMemcpy2D_v2, [:pointer], :enum
+    attach_function :cuMemcpy2DAsync_v2, [:pointer, :CUStream], :enum
+    attach_function :cuMemcpy2DUnaligned_v2, [:pointer], :enum
+    attach_function :cuMemcpy3D_v2, [:pointer], :enum
+    attach_function :cuMemcpy3DAsync_v2, [:pointer, :CUStream], :enum
     attach_function :cuMemcpy3DPeer, [:pointer], :enum
     attach_function :cuMemcpy3DPeerAsync, [:pointer, :CUStream], :enum
     attach_function :cuMemcpyAsync, [:CUDevicePtr, :CUDevicePtr, :size_t, :CUStream], :enum
-    attach_function :cuMemcpyAtoA, [:CUArray, :size_t, :CUArray, :size_t, :size_t], :enum
-    attach_function :cuMemcpyAtoD, [:CUDevicePtr, :CUArray, :size_t, :size_t], :enum
-    attach_function :cuMemcpyAtoH, [:pointer, :CUArray, :size_t, :size_t], :enum
-    attach_function :cuMemcpyAtoHAsync, [:pointer, :CUArray, :size_t, :size_t, :CUStream], :enum
-    attach_function :cuMemcpyDtoA, [:CUArray, :size_t, :CUDevicePtr, :size_t], :enum
-    attach_function :cuMemcpyDtoD, [:CUDevicePtr, :CUDevicePtr, :size_t], :enum
-    attach_function :cuMemcpyDtoDAsync, [:CUDevicePtr, :CUDevicePtr, :size_t, :CUStream], :enum
-    attach_function :cuMemcpyDtoH, [:pointer, :CUDevicePtr, :size_t], :enum
-    attach_function :cuMemcpyDtoHAsync, [:pointer, :CUDevicePtr, :size_t, :CUStream], :enum
-    attach_function :cuMemcpyHtoA, [:CUArray, :size_t, :pointer, :size_t], :enum
-    attach_function :cuMemcpyHtoAAsync, [:CUArray, :size_t, :pointer, :size_t, :CUStream], :enum
-    attach_function :cuMemcpyHtoD, [:CUDevicePtr, :pointer, :size_t], :enum
-    attach_function :cuMemcpyHtoDAsync, [:CUDevicePtr, :pointer, :size_t, :CUStream], :enum
+    attach_function :cuMemcpyAtoA_v2, [:CUArray, :size_t, :CUArray, :size_t, :size_t], :enum
+    attach_function :cuMemcpyAtoD_v2, [:CUDevicePtr, :CUArray, :size_t, :size_t], :enum
+    attach_function :cuMemcpyAtoH_v2, [:pointer, :CUArray, :size_t, :size_t], :enum
+    attach_function :cuMemcpyAtoHAsync_v2, [:pointer, :CUArray, :size_t, :size_t, :CUStream], :enum
+    attach_function :cuMemcpyDtoA_v2, [:CUArray, :size_t, :CUDevicePtr, :size_t], :enum
+    attach_function :cuMemcpyDtoD_v2, [:CUDevicePtr, :CUDevicePtr, :size_t], :enum
+    attach_function :cuMemcpyDtoDAsync_v2, [:CUDevicePtr, :CUDevicePtr, :size_t, :CUStream], :enum
+    attach_function :cuMemcpyDtoH_v2, [:pointer, :CUDevicePtr, :size_t], :enum
+    attach_function :cuMemcpyDtoHAsync_v2, [:pointer, :CUDevicePtr, :size_t, :CUStream], :enum
+    attach_function :cuMemcpyHtoA_v2, [:CUArray, :size_t, :pointer, :size_t], :enum
+    attach_function :cuMemcpyHtoAAsync_v2, [:CUArray, :size_t, :pointer, :size_t, :CUStream], :enum
+    attach_function :cuMemcpyHtoD_v2, [:CUDevicePtr, :pointer, :size_t], :enum
+    attach_function :cuMemcpyHtoDAsync_v2, [:CUDevicePtr, :pointer, :size_t, :CUStream], :enum
     attach_function :cuMemcpyPeer, [:CUDevicePtr, :CUContext, :CUDevicePtr, :CUContext, :size_t], :enum
     attach_function :cuMemcpyPeerAsync, [:CUDevicePtr, :CUContext, :CUDevicePtr, :CUContext, :size_t, :CUStream], :enum
-    attach_function :cuMemFree, [:CUDevicePtr], :enum
+    attach_function :cuMemFree_v2, [:CUDevicePtr], :enum
     attach_function :cuMemFreeHost, [:pointer], :enum
-    attach_function :cuMemGetAddressRange, [:pointer, :pointer, :CUDevicePtr], :enum
-    attach_function :cuMemGetInfo, [:pointer, :pointer], :enum
+    attach_function :cuMemGetAddressRange_v2, [:pointer, :pointer, :CUDevicePtr], :enum
+    attach_function :cuMemGetInfo_v2, [:pointer, :pointer], :enum
     attach_function :cuMemHostAlloc, [:pointer, :size_t, :uint], :enum
-    attach_function :cuMemHostGetDevicePointer, [:pointer, :pointer, :uint], :enum
+    attach_function :cuMemHostGetDevicePointer_v2, [:pointer, :pointer, :uint], :enum
     attach_function :cuMemHostGetFlags, [:pointer, :pointer], :enum
     attach_function :cuMemHostRegister, [:pointer, :size_t, :uint], :enum
     attach_function :cuMemHostUnregister, [:pointer], :enum
-    attach_function :cuMemsetD16, [:CUDevicePtr, :ushort, :size_t], :enum
+    attach_function :cuMemsetD16_v2, [:CUDevicePtr, :ushort, :size_t], :enum
     attach_function :cuMemsetD16Async, [:CUDevicePtr, :ushort, :size_t, :CUStream], :enum
-    attach_function :cuMemsetD2D16, [:CUDevicePtr, :size_t, :ushort, :size_t, :size_t], :enum
+    attach_function :cuMemsetD2D16_v2, [:CUDevicePtr, :size_t, :ushort, :size_t, :size_t], :enum
     attach_function :cuMemsetD2D16Async, [:CUDevicePtr, :size_t, :ushort, :size_t, :size_t, :CUStream], :enum
-    attach_function :cuMemsetD2D32, [:CUDevicePtr, :size_t, :uint, :size_t, :size_t], :enum
+    attach_function :cuMemsetD2D32_v2, [:CUDevicePtr, :size_t, :uint, :size_t, :size_t], :enum
     attach_function :cuMemsetD2D32Async, [:CUDevicePtr, :size_t, :uint, :size_t, :size_t, :CUStream], :enum
-    attach_function :cuMemsetD2D8, [:CUDevicePtr, :size_t, :uchar, :size_t, :size_t], :enum
+    attach_function :cuMemsetD2D8_v2, [:CUDevicePtr, :size_t, :uchar, :size_t, :size_t], :enum
     attach_function :cuMemsetD2D8Async, [:CUDevicePtr, :size_t, :uchar, :size_t, :size_t, :CUStream], :enum
-    attach_function :cuMemsetD32, [:CUDevicePtr, :uint, :size_t], :enum
+    attach_function :cuMemsetD32_v2, [:CUDevicePtr, :uint, :size_t], :enum
     attach_function :cuMemsetD32Async, [:CUDevicePtr, :uint, :size_t, :CUStream], :enum
-    attach_function :cuMemsetD8, [:CUDevicePtr, :uchar, :size_t], :enum
+    attach_function :cuMemsetD8_v2, [:CUDevicePtr, :uchar, :size_t], :enum
     attach_function :cuMemsetD8Async, [:CUDevicePtr, :uchar, :size_t, :CUStream], :enum
+    class << self; alias_method :cuArray3DCreate, :cuArray3DCreate_v2; end
+    class << self; alias_method :cuArray3DGetDescriptor, :cuArray3DGetDescriptor_v2; end
+    class << self; alias_method :cuArrayCreate, :cuArrayCreate_v2; end
+    class << self; alias_method :cuArrayGetDescriptor, :cuArrayGetDescriptor_v2; end
+    class << self; alias_method :cuMemAlloc, :cuMemAlloc_v2; end
+    class << self; alias_method :cuMemAllocHost, :cuMemAllocHost_v2; end
+    class << self; alias_method :cuMemAllocPitch, :cuMemAllocPitch_v2; end
+    class << self; alias_method :cuMemcpy2D, :cuMemcpy2D_v2; end
+    class << self; alias_method :cuMemcpy2DAsync, :cuMemcpy2DAsync_v2 ; end
+    class << self; alias_method :cuMemcpy2DUnaligned, :cuMemcpy2DUnaligned_v2; end
+    class << self; alias_method :cuMemcpy3D, :cuMemcpy3D_v2; end
+    class << self; alias_method :cuMemcpy3DAsync, :cuMemcpy3DAsync_v2; end
+    class << self; alias_method :cuMemcpyAtoA, :cuMemcpyAtoA_v2; end
+    class << self; alias_method :cuMemcpyAtoD, :cuMemcpyAtoD_v2; end
+    class << self; alias_method :cuMemcpyAtoH, :cuMemcpyAtoH_v2; end
+    class << self; alias_method :cuMemcpyAtoHAsync, :cuMemcpyAtoHAsync_v2; end
+    class << self; alias_method :cuMemcpyDtoA, :cuMemcpyDtoA_v2; end
+    class << self; alias_method :cuMemcpyDtoD, :cuMemcpyDtoD_v2; end
+    class << self; alias_method :cuMemcpyDtoDAsync, :cuMemcpyDtoDAsync_v2; end
+    class << self; alias_method :cuMemcpyDtoH, :cuMemcpyDtoH_v2; end
+    class << self; alias_method :cuMemcpyDtoHAsync, :cuMemcpyDtoHAsync_v2; end
+    class << self; alias_method :cuMemcpyHtoA, :cuMemcpyHtoA_v2; end
+    class << self; alias_method :cuMemcpyHtoAAsync, :cuMemcpyHtoAAsync_v2; end
+    class << self; alias_method :cuMemcpyHtoD, :cuMemcpyHtoD_v2; end
+    class << self; alias_method :cuMemcpyHtoDAsync, :cuMemcpyHtoDAsync_v2; end
+    class << self; alias_method :cuMemFree, :cuMemFree_v2; end
+    class << self; alias_method :cuMemGetAddressRange, :cuMemGetAddressRange_v2; end
+    class << self; alias_method :cuMemGetInfo, :cuMemGetInfo_v2; end
+    class << self; alias_method :cuMemHostGetDevicePointer, :cuMemHostGetDevicePointer_v2; end
+    class << self; alias_method :cuMemsetD16, :cuMemsetD16_v2; end
+    class << self; alias_method :cuMemsetD2D16, :cuMemsetD2D16_v2; end
+    class << self; alias_method :cuMemsetD2D32, :cuMemsetD2D32_v2; end
+    class << self; alias_method :cuMemsetD2D8, :cuMemsetD2D8_v2; end
+    class << self; alias_method :cuMemsetD32, :cuMemsetD32_v2; end
+    class << self; alias_method :cuMemsetD8, :cuMemsetD8_v2; end
 
     # CU Unified Addressing.
     attach_function :cuPointerGetAttribute, [:pointer, CUPointerAttribute, :CUDevicePtr], :enum
@@ -553,7 +593,7 @@ module API
 
     # CU Module Management.
     attach_function :cuModuleGetFunction, [:pointer, :CUModule, :string], :enum
-    attach_function :cuModuleGetGlobal, [:pointer, :pointer, :CUModule, :string], :enum
+    attach_function :cuModuleGetGlobal_v2, [:pointer, :pointer, :CUModule, :string], :enum
     attach_function :cuModuleGetSurfRef, [:pointer, :CUModule, :string], :enum
     attach_function :cuModuleGetTexRef, [:pointer, :CUModule, :string], :enum
     attach_function :cuModuleLoad, [:pointer, :string], :enum
@@ -561,6 +601,7 @@ module API
     attach_function :cuModuleLoadDataEx, [:pointer, :pointer, :uint, :pointer, :pointer], :enum
     attach_function :cuModuleLoadFatBinary, [:pointer, :pointer], :enum
     attach_function :cuModuleUnload, [:CUModule], :enum
+    class << self; alias_method :cuModuleGetGlobal, :cuModuleGetGlobal_v2; end
 
     # CU Execution Control.
     attach_function :cuFuncGetAttribute, [:pointer, CUFunctionAttribute, :CUFunction], :enum
@@ -580,33 +621,38 @@ module API
 
     # CU Stream Management.
     attach_function :cuStreamCreate, [:pointer, :uint], :enum
-    attach_function :cuStreamDestroy, [:CUStream], :enum
+    attach_function :cuStreamDestroy_v2, [:CUStream], :enum
     attach_function :cuStreamQuery, [:CUStream], :enum
     attach_function :cuStreamSynchronize, [:CUStream], :enum
     attach_function :cuStreamWaitEvent, [:CUStream, :CUEvent, :uint], :enum
+    class << self; alias_method :cuStreamDestroy, :cuStreamDestroy_v2; end
 
     # CU Event Management.
     attach_function :cuEventCreate, [:pointer, :uint], :enum
-    attach_function :cuEventDestroy, [:CUEvent], :enum
+    attach_function :cuEventDestroy_v2, [:CUEvent], :enum
     attach_function :cuEventElapsedTime, [:pointer, :CUEvent, :CUEvent], :enum
     attach_function :cuEventQuery, [:CUEvent], :enum
     attach_function :cuEventRecord, [:CUEvent, :CUStream], :enum
     attach_function :cuEventSynchronize, [:CUEvent], :enum
+    class << self; alias_method :cuEventDestroy, :cuEventDestroy_v2; end
 
     # CU Texture Reference Management.
-    attach_function :cuTexRefGetAddress, [:pointer, :CUTexRef], :enum
+    attach_function :cuTexRefGetAddress_v2, [:pointer, :CUTexRef], :enum
     attach_function :cuTexRefGetAddressMode, [:pointer, :CUTexRef, :int], :enum
     attach_function :cuTexRefGetArray, [:pointer, :CUTexRef], :enum
     attach_function :cuTexRefGetFilterMode, [:pointer, :CUTexRef], :enum
     attach_function :cuTexRefGetFlags, [:pointer, :CUTexRef], :enum
     attach_function :cuTexRefGetFormat, [:pointer, :pointer, :CUTexRef], :enum
-    attach_function :cuTexRefSetAddress, [:pointer, :CUTexRef, :CUDevicePtr, :size_t], :enum
-    attach_function :cuTexRefSetAddress2D, [:CUTexRef, :pointer, :CUDevicePtr, :size_t], :enum
+    attach_function :cuTexRefSetAddress_v2, [:pointer, :CUTexRef, :CUDevicePtr, :size_t], :enum
+    attach_function :cuTexRefSetAddress2D_v2, [:CUTexRef, :pointer, :CUDevicePtr, :size_t], :enum
     attach_function :cuTexRefSetAddressMode, [:CUTexRef, :int, CUAddressMode], :enum
     attach_function :cuTexRefSetArray, [:CUTexRef, :CUArray, :uint], :enum
     attach_function :cuTexRefSetFilterMode, [:CUTexRef, CUFilterMode], :enum
     attach_function :cuTexRefSetFlags, [:CUTexRef, :uint], :enum
     attach_function :cuTexRefSetFormat, [:CUTexRef, CUArrayFormat, :int], :enum
+    class << self; alias_method :cuTexRefGetAddress, :cuTexRefGetAddress_v2; end
+    class << self; alias_method :cuTexRefSetAddress, :cuTexRefSetAddress_v2; end
+    class << self; alias_method :cuTexRefSetAddress2D, :cuTexRefSetAddress2D_v2; end
     # Deprecated.
     attach_function :cuTexRefCreate, [:pointer], :enum
     attach_function :cuTexRefDestroy, [:CUTexRef], :enum
