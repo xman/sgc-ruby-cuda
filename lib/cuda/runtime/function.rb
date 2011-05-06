@@ -105,7 +105,7 @@ class CudaFunction
                     size = 4
                 when SGC::Memory::MemoryPointer
                     p = x.ref
-                    size = FFI::MemoryPointer.size
+                    size = FFI::TypeDefs[:pointer].size
                 else
                     raise TypeError, "Invalid type of kernel parameters #{x}."
             end
