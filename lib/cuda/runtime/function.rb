@@ -81,7 +81,7 @@ class CudaFunction
     # @return [Class] This class.
     def self.configure(grid_dim, block_dim, shared_mem_size = 0, stream = 0)
         s = Pvt::parse_stream(stream)
-        status = API::cudaConfigureCall(grid_dim, block_dim, shared_mem_size, s)
+        status = API::cudaConfigureCall(grid_dim.to_api, block_dim.to_api, shared_mem_size, s)
         Pvt::handle_error(status, "Failed to configure kernel function launch settings.\n" +
             "* #{grid_dim.x} x #{grid_dim.y} x #{grid_dim.z} grid\n" +
             "* #{block_dim.x} x #{block_dim.y} x #{block_dim.z} blocks\n" +

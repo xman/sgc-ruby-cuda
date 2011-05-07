@@ -22,8 +22,10 @@
 # along with SGC-Ruby-CUDA.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+require 'delegate'
 require 'cuda/driver/ffi-cu'
 require 'memory/buffer'
+require 'helpers/struct'
 
 
 module SGC
@@ -49,12 +51,19 @@ module CU
     class CUJitFallBack < API::Enum; end # @see API::CUJitFallBack
     class CUJitTarget < API::Enum; end # @see API::CUJitTarget
 
-    class CUDevProp < API::CUDevProp; end
-    class CudaMemcpy2D < API::CudaMemcpy2D; end
-    class CudaMemcpy3D < API::CudaMemcpy3D; end
-    class CudaMemcpy3DPeer < API::CudaMemcpy3DPeer; end
-    class CudaArrayDescriptor < API::CudaArrayDescriptor; end
-    class CudaArray3DDescriptor < API::CudaArray3DDescriptor; end
+    class CUDevProp < DelegateClass(API::CUDevProp); end # See {file:lib/cuda/driver/ffi-cu.rb}
+    class CudaMemcpy2D < DelegateClass(API::CudaMemcpy2D); end # See {file:lib/cuda/driver/ffi-cu.rb}
+    class CudaMemcpy3D < DelegateClass(API::CudaMemcpy3D); end  # See {file:lib/cuda/driver/ffi-cu.rb}
+    class CudaMemcpy3DPeer < DelegateClass(API::CudaMemcpy3DPeer); end # See {file:lib/cuda/driver/ffi-cu.rb}
+    class CudaArrayDescriptor < DelegateClass(API::CudaArrayDescriptor); end # See {file:lib/cuda/driver/ffi-cu.rb}
+    class CudaArray3DDescriptor < DelegateClass(API::CudaArray3DDescriptor); end # See {file:lib/cuda/driver/ffi-cu.rb}
+
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CUDevProp, API::CUDevProp)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaMemcpy2D, API::CudaMemcpy2D)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaMemcpy3D, API::CudaMemcpy3D)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaMemcpy3DPeer, API::CudaMemcpy3DPeer)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaArrayDescriptor, API::CudaArrayDescriptor)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaArray3DDescriptor, API::CudaArray3DDescriptor)
 
 end # module
 end # module

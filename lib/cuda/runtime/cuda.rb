@@ -22,8 +22,10 @@
 # along with SGC-Ruby-CUDA.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+require 'delegate'
 require 'cuda/runtime/ffi-cuda'
 require 'memory/buffer'
+require 'helpers/struct'
 
 
 module SGC
@@ -50,16 +52,27 @@ module Cuda
     class CudaTextureFilterMode < API::Enum; end # @see API::CudaTextureFilterMode
     class CudaTextureReadMode < API::Enum; end # @see API::CudaTextureReadMode
 
-    class Dim3 < API::Dim3; end
-    class CudaDeviceProp < API::CudaDeviceProp; end
-    class CudaFunctionAttributes < API::CudaFunctionAttributes; end
-    class CudaChannelFormatDesc < API::CudaChannelFormatDesc; end
-    class CudaPitchedPtr < API::CudaPitchedPtr; end
-    class CudaPos < API::CudaPos; end
-    class CudaExtent < API::CudaExtent; end
-    class CudaMemcpy3DParms < API::CudaMemcpy3DParms; end
-    class TextureReference < API::TextureReference; end
-    class SurfaceReference < API::SurfaceReference; end
+    class Dim3 < DelegateClass(API::Dim3); end # See {file:lib/cuda/runtime/ffi-cuda.rb}
+    class CudaDeviceProp < DelegateClass(API::CudaDeviceProp); end # See {file:lib/cuda/runtime/ffi-cuda.rb}
+    class CudaFunctionAttributes < DelegateClass(API::CudaFunctionAttributes); end # See {file:lib/cuda/runtime/ffi-cuda.rb}
+    class CudaChannelFormatDesc < DelegateClass(API::CudaChannelFormatDesc); end # See {file:lib/cuda/runtime/ffi-cuda.rb}
+    class CudaPitchedPtr < DelegateClass(API::CudaPitchedPtr); end # See {file:lib/cuda/runtime/ffi-cuda.rb}
+    class CudaPos < DelegateClass(API::CudaPos); end # See {file:lib/cuda/runtime/ffi-cuda.rb}
+    class CudaExtent < DelegateClass(API::CudaExtent); end # See {file:lib/cuda/runtime/ffi-cuda.rb}
+    class CudaMemcpy3DParms < DelegateClass(API::CudaMemcpy3DParms); end # See {file:lib/cuda/runtime/ffi-cuda.rb}
+    class TextureReference < DelegateClass(API::TextureReference); end # See {file:lib/cuda/runtime/ffi-cuda.rb}
+    class SurfaceReference < DelegateClass(API::SurfaceReference); end  # See {file:lib/cuda/runtime/ffi-cuda.rb}
+
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(Dim3, API::Dim3)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaDeviceProp, API::CudaDeviceProp)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaFunctionAttributes, API::CudaFunctionAttributes)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaChannelFormatDesc, API::CudaChannelFormatDesc)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaPitchedPtr, API::CudaPitchedPtr)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaPos, API::CudaPos)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaExtent, API::CudaExtent)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(CudaMemcpy3DParms, API::CudaMemcpy3DParms)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(TextureReference, API::TextureReference)
+    SGC::Helper::Struct::Pvt::define_delegated_struct_methods(SurfaceReference, API::SurfaceReference)
 
 end # module
 end # module
