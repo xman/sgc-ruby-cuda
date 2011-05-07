@@ -37,6 +37,7 @@ spec = Gem::Specification.new do |s|
 
     s.files  = FileList['lib/**/*.rb', "#{DOC_PATH}/**/*.rdoc"].to_a
     s.files += ['Rakefile', 'version.rb', 'README.rdoc', 'COPYING']
+    s.files += ['ChangeLog.txt', 'RELEASE.txt']
     s.files += ['.yardopts']
     s.test_files = FileList['test/{**/*.rb,vadd.cu,bad.ptx}'].to_a
 
