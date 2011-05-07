@@ -29,6 +29,7 @@ module SGC
 module Memory
 
 # A memory pointer class.
+# TODO: To use #write_pointer() when FFI fix the use of FIX2INT().
 class MemoryPointer
 
     # @param [Integer] addr Memory address _addr_ to initialize to.
@@ -49,8 +50,7 @@ class MemoryPointer
     # @param [Integer] addr Memory address to set to.
     # @return _addr_.
     def ptr=(addr)
-        @p.write_pointer(addr)
-        addr
+        @p.write_long(addr.to_i)
     end
 
 

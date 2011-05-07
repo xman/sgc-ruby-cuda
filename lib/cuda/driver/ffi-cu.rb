@@ -287,7 +287,7 @@ module API
     def write_int(ptr, value); ptr.write_int(value); end
     def write_long(ptr, value); ptr.write_long(value); end
     def write_ulong_long(ptr, value); ptr.write_ulong_long(value); end
-    def write_pointer(ptr, value); ptr.write_pointer(value); end
+    def write_pointer(ptr, value); ptr.write_long(value.to_i); end
 
     alias read_size_t read_long
     alias read_enum read_int
