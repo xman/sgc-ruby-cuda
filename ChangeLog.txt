@@ -7,3 +7,17 @@ v0.1.0 - Sat, 30 Apr 2011:
     * Documented with YARD.
 
     63 files changed, 7196 insertions(+), 0 deletions(-)
+
+v0.1.1 - Sat, 7 May 2011:
+
+    * Provide information on how to contribute, file a bug report, join mailing list.
+    * Provide information on SGC Ruby CUDA gem, online documentations.
+    * Update information for getting started on Mac OSX.
+    * Support CUDA Peer Access API.
+    * Support JRuby 1.6.1.
+    * Fix the calls to CUDA driver functions.
+    * Fix the invalid context problem when using memcpy() of the CUDA driver.
+    * Fix the data type of device pointer.
+    * Fix positions of comments for correct detections by YARD.
+
+    20 files changed, 443 insertions(+), 90 deletions(-)

@@ -1,3 +1,19 @@
+Release Notes for v0.1.1:
+
+Ideally SGC Ruby CUDA should run on multiple Ruby platforms supported by FFI
+without changes. However, in practice, there are still minor differences in FFI
+on different Ruby implementations that are enough for you to workaround. It is
+easier to say than done.
+
+Fortunately, We are able to work through existing bugs in JRuby and differences
+between MRI Ruby and JRuby. I must admit that FFI has made supporting multiple
+Ruby platforms much easier. Applause for FFI authors.
+
+With SGC Ruby CUDA now available for JRuby users, we believe our user base will
+grow significantly as well. Moving forward, would MacRuby play nice with us?
+Let's see ...
+
+
 Release Notes for v0.1.0:
 
 GPU has a huge potential to compute intensive applications as CPU is getting
