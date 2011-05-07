@@ -143,7 +143,12 @@ class CUDevice
     # @return [Boolean] True if device _dev_ may directly access the memory of device _peer_dev_.
     #
     # @since CUDA 4.0
-    def self.can_access_peer?(dev = CUContext.device, peer_dev)
+    def self.can_access_peer?(dev, peer_dev = nil)
+        # TODO: Remove the following workaround for JRuby when the default argument bug is fixed.
+        if peer_dev.nil?
+            peer_dev = dev
+            dev = CUContext.device
+        end
         b = FFI::MemoryPointer.new(:int)
         status = API::cuDeviceCanAccessPeer(b, dev.to_api, peer_dev.to_api)
         Pvt::handle_error(status, "Failed to query can access peer.")
