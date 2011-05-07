@@ -39,7 +39,7 @@ module Cuda
     class CudaHostAllocFlags < API::Enum; end # @see API::CudaHostAllocFlags
     class CudaHostRegisterFlags < API::Enum; end # @see API::CudaHostRegisterFlags
     class CudaArrayFlags < API::Enum; end # @see API::CudaArrayFlags
-    class CudaMemoryType < API::Enum; end # @see API::CudaMemoryType
+    class CudaMemoryType < API::Enum; end  # @see API::CudaMemoryType
     class CudaMemcpyKind < API::Enum; end # @see API::CudaMemcpyKind
     class CudaChannelFormatKind < API::Enum; end # @see API::CudaChannelFormatKind
     class CudaFunctionCache < API::Enum; end # @see API::CudaFunctionCache

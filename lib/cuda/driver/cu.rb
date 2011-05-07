@@ -44,7 +44,7 @@ module CU
     class CUAddressMode < API::Enum; end # @see API::CUAddressMode
     class CUFilterMode < API::Enum; end # @see API::CUFilterMode
     class CUTexRefFlags < API::Enum; end # @see API::CUTexRefFlags
-    class CUArrayFormat < API::Enum; end # @see API::CUArrayFormat
+    class CUArrayFormat < API::Enum; end  # @see API::CUArrayFormat
     class CUMemoryType < API::Enum; end # @see API::CUMemoryType
     class CUPointerAttribute < API::Enum; end # @see API::CUPointerAttribute
     class CUJitOption < API::Enum; end # @see API::CUJitOption
