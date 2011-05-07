@@ -24,6 +24,7 @@
 
 require 'ffi'
 require 'ffi/prettystruct'
+require 'ffi/typedef'
 require 'helpers/interface/ienum'
 require 'helpers/flags'
 require 'helpers/klass'
