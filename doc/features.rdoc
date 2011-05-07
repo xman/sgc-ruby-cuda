@@ -12,7 +12,7 @@
     Module Management                   +
     Memory Management                   +
     Unified Addressing                  -
-    Peer Context Memory Access          -
+    Peer Context Memory Access          *
     Execution Control                   +
     Stream Management                   *
     Event Management                    *
@@ -40,7 +40,7 @@
     Thread Management                   *
     Memory Management                   +
     Unified Addressing                  -
-    Peer Device Memory Access           -
+    Peer Device Memory Access           *
     Execution Control                   +
     Stream Management                   *
     Event Management                    *
