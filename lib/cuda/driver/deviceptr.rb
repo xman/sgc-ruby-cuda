@@ -24,6 +24,8 @@
 
 require 'cuda/driver/ffi-cu'
 require 'cuda/driver/error'
+require 'cuda/driver/context'
+require 'memory/pointer'
 
 
 module SGC
@@ -48,6 +50,35 @@ class CUDevicePtr
         addr = API::read_cudeviceptr(@pdevptr).to_i + index
         API::write_cudeviceptr(p, addr)
         CUDevicePtr.send(:new, p)
+    end
+
+
+    def attribute(attrib)
+        case attrib
+        when :CONTEXT
+            p = FFI::MemoryPointer.new(:CUContext)
+            status = API::cuPointerGetAttribute(p, attrib, self.to_api)
+            Pvt::handle_error(status, "Failed to get pointer context.")
+            r = CUContext.send(:new, p)
+        when :MEMORY_TYPE
+            p = FFI::MemoryPointer.new(:uint)
+            status = API::cuPointerGetAttribute(p, attrib, self.to_api)
+            Pvt::handle_error(status, "Failed to get pointer memory type.")
+            r = CUMemoryType[p.read_uint]
+        when :DEVICE_POINTER
+            p = FFI::MemoryPointer.new(:CUDevicePtr)
+            status = API::cuPointerGetAttribute(p, attrib, self.to_api)
+            Pvt::handle_error(status, "Failed to get device pointer.")
+            r = CUDevicePtr.send(:new, p)
+        when :HOST_POINTER
+            p = FFI::MemoryPointer.new(:pointer)
+            status = API::cuPointerGetAttribute(p, attrib, self.to_api)
+            Pvt::handle_error(status, "Failed to get host pointer.")
+            r = SGC::Memory::MemoryPointer.new(p.read_pointer)
+        else
+            raise TypeError, "Expect _attrib_ one of #{CUPointerAttribute.symbols}, but we get #{attrib}."
+        end
+        r
     end
 
 
