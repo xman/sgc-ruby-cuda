@@ -1,13 +1,3 @@
-v0.1.0 - Sat, 30 Apr 2011:
-
-    * Basic CUDA Driver and Runtime API support on CUDA 4.0rc2 with unit tests.
-    * Object-Oriented API.
-    * Exception classes for CUDA errors.
-    * Support Linux and Mac OSX platforms.
-    * Documented with YARD.
-
-    63 files changed, 7196 insertions(+), 0 deletions(-)
-
 v0.1.1 - Sat, 7 May 2011:
 
     * Provide information on how to contribute, file a bug report, join mailing list.
@@ -21,3 +11,13 @@ v0.1.1 - Sat, 7 May 2011:
     * Fix positions of comments for correct detections by YARD.
 
     20 files changed, 443 insertions(+), 90 deletions(-)
+
+v0.1.0 - Sat, 30 Apr 2011:
+
+    * Basic CUDA Driver and Runtime API support on CUDA 4.0rc2 with unit tests.
+    * Object-Oriented API.
+    * Exception classes for CUDA errors.
+    * Support Linux and Mac OSX platforms.
+    * Documented with YARD.
+
+    63 files changed, 7196 insertions(+), 0 deletions(-)
