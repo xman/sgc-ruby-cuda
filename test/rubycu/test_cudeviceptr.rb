@@ -40,4 +40,32 @@ class TestCUDevicePtr < Test::Unit::TestCase
         devptr.free
     end
 
+
+    def test_device_ptr_get_attribute
+        if @dev.attribute(:UNIFIED_ADDRESSING) > 0
+            devptr = CUDevice.malloc(4096)
+
+            context = devptr.attribute(:CONTEXT)
+            assert_kind_of(CUContext, context)
+
+            mem_type = devptr.attribute(:MEMORY_TYPE)
+            assert_equal(:DEVICE, memtype)
+
+            dptr = devptr.attribute(:DEVICE_POINTER)
+            assert_kind_of(CUDevicePtr, dptr)
+
+            assert_raise(CUInvalidValueError) do
+                devptr.attribute(:HOST_POINTER)
+            end
+
+            devptr.free
+
+            CUPointerAttribute.symbols.each do |k|
+                assert_raise(CUInvalidValueError) do
+                    devptr.attribute(k)
+                end
+            end
+        end
+    end
+
 end
