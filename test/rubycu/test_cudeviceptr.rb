@@ -48,7 +48,7 @@ class TestCUDevicePtr < Test::Unit::TestCase
             context = devptr.attribute(:CONTEXT)
             assert_kind_of(CUContext, context)
 
-            mem_type = devptr.attribute(:MEMORY_TYPE)
+            memtype = devptr.attribute(:MEMORY_TYPE)
             assert_equal(:DEVICE, memtype)
 
             dptr = devptr.attribute(:DEVICE_POINTER)
