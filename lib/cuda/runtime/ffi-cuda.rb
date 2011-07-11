@@ -266,7 +266,7 @@ module API
         alias :set :[]=
         private :init, :get, :set
 
-        def initialize(x, y, z)
+        def initialize(x, y = 1, z = 1)
             init
             @array = get(:array)
             @array[0], @array[1], @array[2] = x, y, z
