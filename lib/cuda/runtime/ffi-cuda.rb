@@ -316,6 +316,7 @@ module API
             :ecc_enabled, :int,
             :pci_bus_id, :int,
             :pci_device_id, :int,
+            :pci_domain_id, :int,
             :tcc_driver, :int,
             :async_engine_count, :int,
             :unified_addressing, :int,
