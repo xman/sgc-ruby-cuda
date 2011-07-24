@@ -33,4 +33,6 @@ module FFI
         end
     end
 
+    add_typedef :long, :uintptr_t
+
 end # module
