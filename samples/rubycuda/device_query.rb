@@ -38,6 +38,7 @@ puts
     puts "Total shared memory per block       : #{prop.shared_mem_per_block} bytes"
     puts "Total registers available per block : #{prop.regs_per_block}"
     puts "Warp size                           : #{prop.warp_size}"
+    puts "Max number of threads per block     : #{prop.max_threads_per_block}"
     puts "Max dimension sizes of a block      : #{prop.max_threads_dim[0]} x #{prop.max_threads_dim[1]} x #{prop.max_threads_dim[2]}"
     puts "Max dimension sizes of a grid       : #{prop.max_grid_size[0]} x #{prop.max_grid_size[1]} x #{prop.max_grid_size[2]}"
     puts "Number of concurrent copy engines   : #{prop.async_engine_count}"
