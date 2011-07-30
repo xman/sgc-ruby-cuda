@@ -1,2 +1,2 @@
---files doc/**/*.rdoc
+--files doc/**/*.rdoc,lib/**/*.rb
 --no-private
