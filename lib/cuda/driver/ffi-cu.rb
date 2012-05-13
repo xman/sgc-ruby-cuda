@@ -68,7 +68,7 @@ module API
         :ERROR_INVALID_DEVICE, 101,
         :ERROR_INVALID_IMAGE, 200,
         :ERROR_INVALID_CONTEXT, 201,
-        :ERROR_CONTEXT_ALREADY_CURRENT, 202, # Deprecated.
+        :ERROR_CONTEXT_ALREADY_CURRENT, 202, # Deprecated as of CUDA 3.2.
         :ERROR_MAP_FAILED, 205,
         :ERROR_UNMAP_FAILED, 206,
         :ERROR_ARRAY_IS_MAPPED, 207,
@@ -163,7 +163,7 @@ module API
         :SCHED_SPIN, 0x01,
         :SCHED_YIELD, 0x02,
         :SCHED_BLOCKING_SYNC, 0x04,
-        :BLOCKING_SYNC, 0x04, # Deprecated. Use :SCHED_BLOCKING_SYNC.
+        :BLOCKING_SYNC, 0x04, # Deprecated as of CUDA 4.0. Use :SCHED_BLOCKING_SYNC.
         :MAP_HOST, 0x08,
         :LMEM_RESIZE_TO_MAX, 0x10,
     )
