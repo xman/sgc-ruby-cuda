@@ -60,7 +60,7 @@ module API
         :ERROR_MEMORY_ALLOCATION, 2,
         :ERROR_INITIALIZATION_ERROR, 3,
         :ERROR_LAUNCH_FAILURE, 4,
-        :ERROR_PRIOR_LAUNCH_FAILURE, 5, # Deprecated.
+        :ERROR_PRIOR_LAUNCH_FAILURE, 5, # Deprecated as of CUDA 3.1.
         :ERROR_LAUNCH_TIMEOUT, 6,
         :ERROR_LAUNCH_OUT_OF_RESOURCES, 7,
         :ERROR_INVALID_DEVICE_FUNCTION, 8,
@@ -77,17 +77,17 @@ module API
         :ERROR_INVALID_TEXTURE_BINDING, 19,
         :ERROR_INVALID_CHANNEL_DESCRIPTOR, 20,
         :ERROR_INVALID_MEMCPY_DIRECTION, 21,
-        :ERROR_ADDRESS_OF_CONSTANT, 22, # Deprecated.
-        :ERROR_TEXTURE_FETCH_FAILED, 23, # Deprecated.
-        :ERROR_TEXTURE_NOT_BOUND, 24, # Deprecated.
-        :ERROR_SYNCHRONIZATION_ERROR, 25, # Deprecated.
+        :ERROR_ADDRESS_OF_CONSTANT, 22, # Deprecated as of CUDA 3.1.
+        :ERROR_TEXTURE_FETCH_FAILED, 23, # Deprecated as of CUDA 3.1.
+        :ERROR_TEXTURE_NOT_BOUND, 24, # Deprecated as of CUDA 3.1.
+        :ERROR_SYNCHRONIZATION_ERROR, 25, # Deprecated as of CUDA 3.1.
         :ERROR_INVALID_FILTER_SETTING, 26,
         :ERROR_INVALID_NORM_SETTING, 27,
-        :ERROR_MIXED_DEVICE_EXECUTION, 28, # Deprecated.
-        :ERROR_CUDART_UNLOADING, 29, # Deprecated.
+        :ERROR_MIXED_DEVICE_EXECUTION, 28, # Deprecated as of CUDA 3.1.
+        :ERROR_CUDART_UNLOADING, 29,
         :ERROR_UNKNOWN, 30,
-        :ERROR_NOT_YET_IMPLEMENTED, 31,
-        :ERROR_MEMORY_VALUE_TOO_LARGE, 32, # Deprecated.
+        :ERROR_NOT_YET_IMPLEMENTED, 31, # Deprecated as of CUDA 4.1
+        :ERROR_MEMORY_VALUE_TOO_LARGE, 32, # Deprecated as of CUDA 3.1.
         :ERROR_INVALID_RESOURCE_HANDLE, 33,
         :ERROR_NOT_READY, 34,
         :ERROR_INSUFFICIENT_DRIVER, 35,
@@ -113,7 +113,7 @@ module API
         :ERROR_PROFILER_ALREADY_STARTED, 57,
         :ERROR_PROFILER_ALREADY_STOPPED, 58,
         :ERROR_STARTUP_FAILURE, 0x7F,
-        :ERROR_API_FAILURE_BASE, 10000,
+        :ERROR_API_FAILURE_BASE, 10000, # Deprecated as of CUDA 4.1
     )
 
     CudaDeviceFlags = enum(
@@ -121,7 +121,7 @@ module API
         :SCHEDULE_SPIN, 1,
         :SCHEDULE_YIELD, 2,
         :SCHEDULE_BLOCKING_SYNC, 4,
-        :BLOCKING_SYNC, 4, # Deprecated. Use :SCHEDULE_BLOCKING_SYNC.
+        :BLOCKING_SYNC, 4, # Deprecated as of CUDA 4.0. Use :SCHEDULE_BLOCKING_SYNC.
         :MAP_HOST, 8,
         :LMEM_RESIZE_TO_MAX, 16,
     )
@@ -591,11 +591,13 @@ module API
     attach_function :cudaCreateChannelDesc, [:int, :int, :int, :int, CudaChannelFormatKind], CudaChannelFormatDesc.by_value
     attach_function :cudaGetChannelDesc, [:pointer, :pointer], :enum
     attach_function :cudaGetTextureAlignmentOffset, [:pointer, :pointer], :enum
-    attach_function :cudaGetTextureReference, [:pointer, :string], :enum
     attach_function :cudaUnbindTexture, [:pointer], :enum
+    # Deprecated as of CUDA 4.1.
+    attach_function :cudaGetTextureReference, [:pointer, :string], :enum
 
     # CUDA Surface Reference Management.
     attach_function :cudaBindSurfaceToArray, [:pointer, :pointer, :pointer], :enum
+    # Deprecated as of CUDA 4.1.
     attach_function :cudaGetSurfaceReference, [:pointer, :string], :enum
 
 end # module
