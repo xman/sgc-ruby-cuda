@@ -334,7 +334,7 @@ module API
             :async_engine_count, :int,
             :unified_addressing, :int,
             :memory_clock_rate, :int,
-            :global_memory_bus_width, :int,
+            :memory_bus_width, :int,
             :l2_cache_size, :int,
             :max_threads_per_multi_processor, :int,
         )
