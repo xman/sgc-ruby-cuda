@@ -32,7 +32,7 @@ puts
     puts "CUDA cores                          : #{mpc = prop.multi_processor_count} x #{nps = ncores_per_sm(prop.major, prop.minor)} => #{mpc*nps.to_i}"
     puts "GPU clock rate                      : #{prop.clock_rate/1000} MHz"
     puts "Memory clock rate                   : #{prop.memory_clock_rate/1000} MHz"
-    puts "Memory bus width                    : #{prop.global_memory_bus_width}-bit"
+    puts "Memory bus width                    : #{prop.memory_bus_width}-bit"
     puts "L2 cache size                       : #{prop.l2_cache_size} bytes"
     puts "Total constant memory               : #{prop.total_const_mem} bytes"
     puts "Total shared memory per block       : #{prop.shared_mem_per_block} bytes"
