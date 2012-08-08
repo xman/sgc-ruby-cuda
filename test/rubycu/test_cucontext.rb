@@ -148,10 +148,12 @@ class TestCUContext < Test::Unit::TestCase
 
     def test_context_enable_disable_peer_access
         current_dev = CUContext.device
+        current_ctx = CUContext.current
         count = CUDevice.count
         (0...count).each do |devid|
             dev = CUDevice.get(devid)
-            ctx = CUContext.create(dev)
+            ctx = CUContext.create(dev) # Note: This will update the actual current context.
+            CUContext.current = current_ctx
             if CUDevice.can_access_peer?(current_dev, dev)
                 assert_nothing_raised do
                     CUContext.enable_peer_access(ctx)
