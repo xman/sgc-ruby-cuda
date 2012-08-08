@@ -10,6 +10,7 @@ def ncores_per_sm(major, minor)
         0x13 => 8,
         0x20 => 32,
         0x21 => 48,
+        0x30 => 192,
     }
     n = table[(major << 4) + minor]
     n or "?"
